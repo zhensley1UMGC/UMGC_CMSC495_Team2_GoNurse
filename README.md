@@ -21,6 +21,10 @@ approved profile and opportunity data to the Recommendation Engine, which
 filters and ranks matches. Career Navigator uses existing services rather than
 independently ranking opportunities.
 
+![GoNurse architecture showing the React client, FastAPI services, and PostgreSQL](docs/unit3/architecture.svg)
+
+[Editable architecture diagram](docs/unit3/architecture.drawio)
+
 The design identifies auditing and logging as cross-cutting concerns. An
 external database integration boundary and a 10,000-concurrent-user planning
 target are part of the design, not verified capabilities of the prototype.
@@ -50,11 +54,12 @@ tests, matching rules, and known differences from the design.
 ## Repository layout
 
 ```text
+docs/unit3/   Architecture diagram and editable source
 Prototype/
   backend/    FastAPI application, database models, and tests
   frontend/   React interface
   README.md   Local setup and prototype details
 ```
 
-The completed Unit 3 system design specification and architecture diagram are
-intended to be added separately as project documentation.
+The completed Unit 3 system design specification is intended to be added
+separately as project documentation.
