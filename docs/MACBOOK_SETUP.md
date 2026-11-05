@@ -37,14 +37,14 @@ These are tested versions, not necessarily the project's minimum requirements. O
 
 3. Download the GoNurse Repository
 
-1. Open the team's GoNurse GitHub repository.
-2. Click the green **Code** button.
-3. Select **Download ZIP**.
-4. Open Finder on your MacBook.
-5. Navigate to the **Downloads** folder.
-6. Double-click the downloaded ZIP file to extract it.
-7. Open the extracted GoNurse project folder.
-8. Locate the `Prototype` folder.
+a. Open the team's GoNurse GitHub repository.
+b. Click the green **Code** button.
+c. Select **Download ZIP**.
+d. Open Finder on your MacBook.
+e. Navigate to the **Downloads** folder.
+f. Double-click the downloaded ZIP file to extract it.
+g. Open the extracted GoNurse project folder.
+h. Locate the `Prototype` folder.
 
 The project contains the following main directories:
 
@@ -142,6 +142,11 @@ Port: 5432
 ```
 
 Port `5432` is the standard PostgreSQL port used in this guide.
+### PostgreSQL Setup Screenshot
+
+The screenshot below shows PostgreSQL 18 running on a MacBook with the GoNurse database configured.
+
+![PostgreSQL 18 running in Postgres.app](images/postgres-running.png)
 
 ## 7. Create the GoNurse Database
 
@@ -214,17 +219,17 @@ The backend contains the Python FastAPI application.
 
 ### Step 8.1: Locate the Backend
 
-1. Open Finder.
-2. Navigate to the extracted GoNurse project.
-3. Open the `Prototype` folder.
-4. Locate the `backend` folder.
+a. Open Finder.
+b. Navigate to the extracted GoNurse project.
+c. Open the `Prototype` folder.
+d. Locate the `backend` folder.
 
  Step 8.2: Navigate Using Terminal
 
-1. Open Terminal.
-2. Type `cd` followed by one space.
-3. Drag the `backend` folder from Finder into the Terminal window.
-4. Press Return.
+a. Open Terminal.
+b. Type `cd` followed by one space.
+c Drag the `backend` folder from Finder into the Terminal window.
+d. Press Return.
 
 This method automatically inserts the correct folder path and avoids manually typing a long directory name.
 
@@ -329,16 +334,23 @@ This does not necessarily indicate that the backend failed.
 
 Keep the backend Terminal window open while using GoNurse.
 
+### FastAPI Backend Screenshot
+
+The screenshot below shows the GoNurse backend running
+successfully and displaying its API documentation.
+
+![GoNurse FastAPI backend](images/backend-running.png)
+
  13. Open a Second Terminal for the Frontend
 
 The React frontend runs separately from the Python backend.
 
-1. Open a second Terminal window.
-2. Open Finder.
-3. Locate the `Prototype/frontend` folder.
-4. Type `cd` followed by one space in the second Terminal.
-5. Drag the `frontend` folder from Finder into Terminal.
-6. Press Return.
+a. Open a second Terminal window.
+b. Open Finder.
+c. Locate the `Prototype/frontend` folder.e
+d. Type `cd` followed by one space in the second Terminal.
+e. Drag the `frontend` folder from Finder into Terminal.
+f. Press Return.
 
 The second Terminal should now be inside:
 
@@ -392,15 +404,21 @@ GoNurse requires the following local services:
 
 Keep PostgreSQL running and both Terminal windows open while testing the application.
 
+### GoNurse Frontend Screenshot
+
+The screenshot below shows the GoNurse application
+running successfully on a MacBook.
+
+![GoNurse React frontend running locally](images/frontend-running.png)
+
  16. How to Stop GoNurse
 
 When you finish working:
-
-1. Go to the frontend Terminal window.
-2. Press **Control + C** to stop the frontend development server.
-3. Go to the backend Terminal window.
-4. Press **Control + C** to stop FastAPI.
-5. Stop PostgreSQL in Postgres.app if no other local application needs it.
+a. Go to the frontend Terminal window.
+b. Press **Control + C** to stop the frontend development server.
+c. Go to the backend Terminal window.
+d. Press **Control + C** to stop FastAPI.
+e. Stop PostgreSQL in Postgres.app if no other local application needs it.
 
 Stopping these services does not delete the GoNurse database or project files.
 
