@@ -5,7 +5,7 @@
 **Purpose:** Local development and testing  
 **Status:** Successfully tested on a MacBook
 
-## 1. Introduction
+1. Introduction
 
 This guide explains how to download, install, configure, and run the GoNurse prototype on a MacBook.
 
@@ -19,7 +19,7 @@ GoNurse consists of three main technologies:
 
 **Important:** GoNurse is a local demonstration prototype, not a production application. Use synthetic demonstration data only. Do not enter real patient or employee information.
 
-## 2. Software Used During Testing
+2. Software Used During Testing
 
 The following versions were used during the successful MacBook setup:
 
@@ -35,7 +35,7 @@ The following versions were used during the successful MacBook setup:
 
 These are tested versions, not necessarily the project's minimum requirements. Other compatible versions may work.
 
-## 3. Download the GoNurse Repository
+3. Download the GoNurse Repository
 
 1. Open the team's GoNurse GitHub repository.
 2. Click the green **Code** button.
@@ -61,7 +61,7 @@ The `backend` and `frontend` folders will be used during installation.
 
 **Note:** Downloading a ZIP file is sufficient to run the prototype locally. However, a ZIP download does not contain Git history. To contribute code through Git commands, clone the repository instead.
 
-## 4. Verify Python Installation
+4. Verify Python Installation
 
 Python is required to run the FastAPI backend.
 
@@ -91,7 +91,7 @@ https://www.python.org/downloads/
 
 After installation, reopen Terminal and verify the version.
 
-## 5. Verify Node.js and npm
+5. Verify Node.js and npm
 
 Node.js and npm are required to run the React frontend.
 
@@ -119,7 +119,7 @@ Install a compatible version and verify both commands again.
 
 PostgreSQL is required for the GoNurse backend database.
 
-### Step 6.1: Download Postgres.app
+Step 6.1: Download Postgres.app
 
 1. Open https://postgresapp.com/.
 2. Download the appropriate Postgres.app version for your Mac.
@@ -187,7 +187,7 @@ Expected result:
 gonurse_prototype
 ```
 
-### Step 7.4: Verify in Postgres.app
+ Step 7.4: Verify in Postgres.app
 
 During the successful MacBook setup, Postgres.app displayed these databases:
 
@@ -219,7 +219,7 @@ The backend contains the Python FastAPI application.
 3. Open the `Prototype` folder.
 4. Locate the `backend` folder.
 
-### Step 8.2: Navigate Using Terminal
+ Step 8.2: Navigate Using Terminal
 
 1. Open Terminal.
 2. Type `cd` followed by one space.
@@ -234,7 +234,7 @@ Your Terminal should now be inside:
 Prototype/backend
 ```
 
-## 9. Create a Python Virtual Environment
+ 9. Create a Python Virtual Environment
 
 A virtual environment keeps GoNurse's Python dependencies separate from other Python projects.
 
@@ -270,7 +270,7 @@ Wait until installation completes successfully before continuing.
 
 If an installation error occurs, read the error message before retrying. Do not delete unrelated Python installations or system files.
 
-## 11. Configure the PostgreSQL Database Connection
+11. Configure the PostgreSQL Database Connection
 
 The backend needs a database connection string to communicate with PostgreSQL.
 
@@ -297,7 +297,7 @@ The connection string specifies:
 
 The `export` command sets the environment variable for the current Terminal session. You will normally need to run it again when opening a new backend Terminal session.
 
-## 12. Start the FastAPI Backend
+12. Start the FastAPI Backend
 
 Make sure:
 
@@ -329,7 +329,7 @@ This does not necessarily indicate that the backend failed.
 
 Keep the backend Terminal window open while using GoNurse.
 
-## 13. Open a Second Terminal for the Frontend
+ 13. Open a Second Terminal for the Frontend
 
 The React frontend runs separately from the Python backend.
 
@@ -348,7 +348,7 @@ Prototype/frontend
 
 Do not close the backend Terminal window.
 
-## 14. Install Frontend Dependencies
+ 14. Install Frontend Dependencies
 
 In the frontend Terminal window, run:
 
@@ -362,7 +362,7 @@ During testing, installation completed successfully.
 
 npm may display informational notices or warnings. Review them rather than assuming that every warning means installation failed.
 
-## 15. Start the React Frontend
+ 15. Start the React Frontend
 
 In the frontend Terminal, run:
 
@@ -392,7 +392,7 @@ GoNurse requires the following local services:
 
 Keep PostgreSQL running and both Terminal windows open while testing the application.
 
-## 16. How to Stop GoNurse
+ 16. How to Stop GoNurse
 
 When you finish working:
 
@@ -404,15 +404,15 @@ When you finish working:
 
 Stopping these services does not delete the GoNurse database or project files.
 
-## 17. How to Restart GoNurse Later
+17. How to Restart GoNurse Later
 
 You do not need to repeat the complete installation every time you want to use GoNurse.
 
-### Step 17.1: Start PostgreSQL
+Step 17.1: Start PostgreSQL
 
 Open Postgres.app and confirm that PostgreSQL is running.
 
-### Step 17.2: Restart the Backend
+Step 17.2: Restart the Backend
 
 Open Terminal in the existing `Prototype/backend` folder.
 
@@ -434,7 +434,7 @@ Start FastAPI:
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-### Step 17.3: Restart the Frontend
+Step 17.3: Restart the Frontend
 
 Open a second Terminal in `Prototype/frontend`.
 
@@ -454,9 +454,9 @@ The application should be available again.
 
 You normally do not need to recreate the database, reinstall dependencies, or recreate `.venv` unless something has changed.
 
-## 18. Troubleshooting
+18. Troubleshooting
 
-### Problem: PostgreSQL Is Not Running
+Problem: PostgreSQL Is Not Running
 
 **Possible cause:** The database server is stopped.
 
@@ -467,7 +467,7 @@ You normally do not need to recreate the database, reinstall dependencies, or re
 3. Click **Start** if necessary.
 4. Confirm that the status shows **Running**.
 
-### Problem: Backend Cannot Connect to PostgreSQL
+Problem: Backend Cannot Connect to PostgreSQL
 
 **Possible causes:**
 
@@ -476,9 +476,9 @@ You normally do not need to recreate the database, reinstall dependencies, or re
 - The PostgreSQL username is incorrect.
 - The local database requires authentication.
 
-**Solution:** Confirm the database exists, PostgreSQL is running, and `DATABASE_URL` matches your local configuration.
+Solution:** Confirm the database exists, PostgreSQL is running, and `DATABASE_URL` matches your local configuration.
 
-### Problem: Python Module Not Found
+ roblem: Python Module Not Found
 
 **Possible cause:** The Python virtual environment is not active or dependencies were not installed.
 
@@ -491,7 +491,7 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-### Problem: Backend Shows 404
+Problem: Backend Shows 404
 
 **Possible cause:** You opened the root backend URL instead of an API endpoint.
 
@@ -499,7 +499,7 @@ python -m pip install -r requirements.txt
 
 http://127.0.0.1:8000/docs
 
-### Problem: Frontend Does Not Start
+Problem: Frontend Does Not Start
 
 **Possible causes:**
 
@@ -516,15 +516,15 @@ npm install
 npm run dev
 ```
 
-### Problem: Port Is Already in Use
+Problem: Port Is Already in Use
 
-**Possible cause:** Another development server is already running.
+Possible cause:** Another development server is already running.
 
-**Solution:** Check whether a previous backend or frontend Terminal session is still active. Stop the old development server if appropriate before restarting.
+Solution:** Check whether a previous backend or frontend Terminal session is still active. Stop the old development server if appropriate before restarting.
 
 Do not terminate unrelated processes without identifying them first.
 
-## 19. Security and Development Limitations
+19. Security and Development Limitations
 
 GoNurse is currently a local prototype.
 
@@ -540,7 +540,7 @@ For safe development:
 
 Successful local startup does not mean the application has passed production security, performance, or functional testing.
 
-## 20. Local Setup Verification
+20. Local Setup Verification
 
 The following setup tasks were completed successfully during MacBook testing:
 
@@ -560,7 +560,7 @@ The following setup tasks were completed successfully during MacBook testing:
 
 **Testing scope:** These results confirm that the local development environment was successfully configured and that the prototype started. Automated test suites, CI/CD checks, and full functional verification are separate activities.
 
-## 21. Future Improvements
+21. Future Improvements
 
 Possible future improvements include:
 
@@ -570,7 +570,7 @@ Possible future improvements include:
 - Adding automated backend and frontend checks through GitHub Actions.
 - Verifying the setup instructions on additional MacBook configurations.
 
-## Conclusion
+Conclusion
 
 The GoNurse prototype was successfully configured and launched on a MacBook using PostgreSQL, Python FastAPI, and React.
 
