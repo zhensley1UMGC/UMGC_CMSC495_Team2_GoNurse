@@ -37,6 +37,8 @@ The [local prototype](Prototype/README.md) demonstrates profiles, opportunity
 discovery, recommendation feedback, Career Navigator, and support requests
 using synthetic data. It includes a React interface, FastAPI endpoints, and
 PostgreSQL storage.
+An alternative [tabbed prototype](Prototype/README.md) presents the same
+sections individually while leaving the original grid view available.
 
 **Important limitations:**
 

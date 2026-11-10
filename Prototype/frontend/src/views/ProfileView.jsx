@@ -1,0 +1,18 @@
+import React from 'react';
+import { split } from '../formUtils';
+
+export default function ProfileView({ panelProps, profile, setProfile, api, run }) {
+  return <section {...panelProps}>
+    <h2>My profile</h2>
+    <p>Separate items with commas. Example availability: weekday_morning.</p>
+    <form onSubmit={event => { event.preventDefault(); run(async () => {
+      await api('/profile', 'PUT', { skills: split(profile.skills), interests: split(profile.interests), availability: split(profile.availability), recommendations_opt_in: profile.recommendations_opt_in });
+    }, 'Profile saved.'); }}>
+      {['skills', 'interests', 'availability'].map(field => <label key={field}>{field}
+        <input value={profile[field]} onChange={event => setProfile({ ...profile, [field]: event.target.value })} />
+      </label>)}
+      <label className="check"><input type="checkbox" checked={profile.recommendations_opt_in} onChange={event => setProfile({ ...profile, recommendations_opt_in: event.target.checked })} /> Enable recommendations</label>
+      <button>Save profile</button>
+    </form>
+  </section>;
+}
