@@ -157,3 +157,7 @@ creates and removes its own uniquely named schema. From `Prototype\frontend`,
 run `npm test` for the frontend unit tests or `npm run test:watch` while
 developing. These tests do not require the API or PostgreSQL. The browser build
 can be checked with `npm run build`.
+
+GitHub Actions runs the frontend tests and build alongside the backend syntax
+check and tests on pushes and pull requests. The PostgreSQL integration test is
+skipped in CI unless a test database is configured.
