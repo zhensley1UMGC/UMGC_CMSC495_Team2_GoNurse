@@ -405,28 +405,3 @@ requirement, since server-side opt-out cannot retract data already delivered.
 - PostgreSQL runtime behavior and a real-model AI integration were not verified
   in this review. [The PostgreSQL test](../Prototype/backend/tests/test_postgres.py)
   requires a dedicated test database and must be run separately for release.
-
-### Required team decisions before the Week 5 release
-
-- [ ] **Functional AI:** implement and verify an actual model-backed capability
-  as required by the Unit 5 assignment. Prefer retaining the public
-  recommendation shape; confirm any changed fields and failure codes with the
-  frontend owner. Document model/configuration and reliable synthetic examples.
-  Do not describe the current deterministic result as AI.
-- [ ] **Feedback gap:** reconcile the approved acceptance/correction workflow
-  with the implemented `helpful`/`not_helpful`/`declined` ratings. A helpful rating
-  is not an implemented acceptance action. A comment can record a suggested
-  correction but does not update the profile or recommendation. Add agreed
-  behavior and tests or obtain an approved scope clarification before release.
-- [ ] **Opt-out display:** clear already displayed recommendations/explanations
-  after opt-out; the inspected client currently retains them. Confirm whether
-  submitting feedback after opt-out should remain allowed, and test the agreed
-  policy. Preserve the existing server-side generation/explanation checks.
-- [ ] **Contract regression:** extend coverage for all documented response
-  shapes, pagination/limits, replacement semantics, hidden resources, and valid
-  and invalid support transitions. Validate real model success/failure once
-  integrated, then run required CI on the actual Alpha commit.
-- [ ] **Release agreement:** confirm final paths, schemas, enum values, status
-  codes, dependencies, and setup in the shared repository; update this document
-  and the affected design/API examples together. The implementation and approved
-  requirements must agree before the Alpha is described as complete.
