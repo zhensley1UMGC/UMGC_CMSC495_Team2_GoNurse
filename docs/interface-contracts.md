@@ -1,18 +1,20 @@
+# GoNurse Interface Contracts
+
 **Status:** Implemented local prototype baseline; team Alpha approval pending  
 **Reviewed:** November 15, 2026  
 **Purpose:** Define the JSON interface used by the React client and FastAPI backend.
 
 This revision replaces the earlier proposed routes and payloads with the
-implementation inspected in [backend endpoints and schemas](./Prototype/backend/app/main.py),
-[persistence models](./Prototype/backend/app/database.py), and
-[React client](./Prototype/frontend/src/main.jsx). The backend entry points in
-[the team copy](./GoNurse-Team/Prototype/backend/app/main.py) and the local
-prototype were identical at review time. This does not verify the latest remote
-repository. Compare against the actual Alpha commit before submission.
+implementation inspected in [backend endpoints and schemas](../Prototype/backend/app/main.py),
+[persistence models](../Prototype/backend/app/database.py), and
+[React client](../Prototype/frontend/src/main.jsx). The November 15 review
+describes the inspected prototype baseline. Recheck the implementation against
+the actual Alpha commit before submission.
 
-The [Week 3 design contract](./WK3_GoNurse_InterfaceContracts.md) remains design
-context. Planned Alpha changes are identified at the end of this document;
-they are not implemented capabilities. Use synthetic data only.
+For project design context, see the
+[Unit 3 system design specification](./Unit%203%20Assignment%20-%20System%20Design%20Specification.docx).
+Planned Alpha changes are identified at the end of this document; they are not
+implemented capabilities. Use synthetic data only.
 
 ## 1. Transport, identity, and common rules
 
@@ -396,18 +398,18 @@ requirement, since server-side opt-out cannot retract data already delivered.
 
 - Inspected endpoint decorators, Pydantic inputs, returned fields, permission
   checks, database models, and React requests against the examples above.
-- Ran [the existing API tests](./Prototype/backend/tests/test_api.py): **5 passed**
+- Ran [the existing API tests](../Prototype/backend/tests/test_api.py): **5 passed**
   using isolated SQLite. These cover profile/opt-in, eligibility, feedback
   ownership, support transitions, validation, and no implicit support creation.
   This is focused evidence, not exhaustive verification of every example.
 - PostgreSQL runtime behavior and a real-model AI integration were not verified
-  in this review. [The PostgreSQL test](./Prototype/backend/tests/test_postgres.py)
+  in this review. [The PostgreSQL test](../Prototype/backend/tests/test_postgres.py)
   requires a dedicated test database and must be run separately for release.
 
 ### Required team decisions before the Week 5 release
 
 - [ ] **Functional AI:** implement and verify an actual model-backed capability
-  as required by [the Week 5 plan](./WK5_Planning.md). Prefer retaining the public
+  as required by the Unit 5 assignment. Prefer retaining the public
   recommendation shape; confirm any changed fields and failure codes with the
   frontend owner. Document model/configuration and reliable synthetic examples.
   Do not describe the current deterministic result as AI.
