@@ -1,5 +1,7 @@
 """Exercise API behavior in isolation using a fresh in-memory database per test."""
 
+from uuid import UUID, uuid4
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, select
@@ -62,6 +64,59 @@ def test_schedule_empty_requirements_and_open_status(client):
     assert client.post("/api/v1/opportunities", json=payload, headers=headers()).status_code == 403
     assert client.post("/api/v1/opportunities", json=payload, headers=headers("admin")).status_code == 201
     assert all(item["title"] != "Closed" for item in client.get("/api/v1/opportunities", headers=headers()).json()["items"])
+
+
+def test_single_opportunity_visibility(client):
+    """Hide closed listings from nurses while allowing administrators to view them."""
+    payload = {"title": "Closed", "description": "Hidden", "category": "project", "required_skills": [],
+               "interests": [], "availability": [], "status": "closed"}
+    created = client.post("/api/v1/opportunities", json=payload, headers=headers("admin"))
+    assert created.status_code == 201
+    closed_path = f"/api/v1/opportunities/{created.json()['id']}"
+    assert client.get(closed_path, headers=headers()).status_code == 404
+    assert client.get(closed_path, headers=headers("admin")).json()["status"] == "closed"
+
+    open_path = "/api/v1/opportunities/10000000-0000-4000-8000-000000000001"
+    assert client.get(open_path, headers=headers()).json()["status"] == "open"
+    missing_path = f"/api/v1/opportunities/{uuid4()}"
+    for user in ("nurse", "admin"):
+        assert client.get(missing_path, headers=headers(user)).status_code == 404
+
+
+def test_recommendations_order_and_limit(client, monkeypatch):
+    """Rank by score, then title and ID, before applying the requested limit."""
+    nurse_profile = {**profile(), "skills": ["MENTORING"], "interests": ["Education", "Leadership"]}
+    assert client.put("/api/v1/profile", json=nurse_profile, headers=headers()).status_code == 201
+
+    ids = iter(UUID(value) for value in (
+        "20000000-0000-4000-8000-000000000001",
+        "20000000-0000-4000-8000-000000000003",
+        "20000000-0000-4000-8000-000000000002",
+    ))
+    monkeypatch.setattr("app.routers.opportunities.uuid4", lambda: next(ids))
+    base = {"description": "Synthetic listing", "category": "project", "required_skills": ["mentoring"],
+            "interests": ["education"], "availability": [], "status": "open"}
+    created = []
+    for title, interests in (
+        ("Z high score", ["education", "leadership"]),
+        ("Alpha match", ["education"]),
+        ("Alpha match", ["education"]),
+    ):
+        response = client.post("/api/v1/opportunities", json={**base, "title": title, "interests": interests},
+                               headers=headers("admin"))
+        assert response.status_code == 201
+        created.append(response.json()["id"])
+
+    response = client.post("/api/v1/recommendations", json={"limit": 4}, headers=headers())
+    assert response.status_code == 200
+    items = response.json()["items"]
+    expected_ids = [created[0], *sorted(created[1:]), "10000000-0000-4000-8000-000000000001"]
+    assert [item["opportunity"]["id"] for item in items] == expected_ids
+    assert [item["rank"] for item in items] == [1, 2, 3, 4]
+
+    limited = client.post("/api/v1/recommendations", json={"limit": 2}, headers=headers())
+    assert limited.status_code == 200
+    assert [item["opportunity"]["id"] for item in limited.json()["items"]] == expected_ids[:2]
 
 
 def test_support_response_and_authorization(client):

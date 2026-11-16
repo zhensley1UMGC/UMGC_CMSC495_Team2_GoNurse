@@ -147,6 +147,14 @@ require an `X-Demo-User` header of `nurse`, `nurse2`, or `admin`.
 - These demo choices are not team-approved final requirements. PostgreSQL schema
   changes currently require manual migration; no deployment or CI is included.
 
+## Backend layout
+
+The FastAPI application is assembled in `backend/app/main.py`. Request models
+are in `backend/app/schemas.py`, endpoints are grouped under
+`backend/app/routers/`, and reusable matching and Navigator logic lives in
+`backend/app/services/`. The rule-based Navigator remains separate from the
+future context builder.
+
 ## Tests
 
 From `Prototype\backend`, run `python -m pytest -q`. API tests use an isolated,
