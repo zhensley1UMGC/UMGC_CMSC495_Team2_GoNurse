@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './style.css';
 
@@ -13,6 +14,7 @@ function App() {
   const [profile, setProfile] = useState(emptyProfile);
   const [opportunities, setOpportunities] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const recommendationRequestId = useRef(0);
   const [requests, setRequests] = useState([]);
   const [chat, setChat] = useState('');
   const [recommendationId, setRecommendationId] = useState('');
@@ -23,6 +25,15 @@ function App() {
   const [notice, setNotice] = useState('');
   const [failure, setFailure] = useState('');
   const [draft, setDraft] = useState({ title: '', description: '', category: 'project', required_skills: '', interests: '', availability: '' });
+
+  // Invalidate pending recommendations and remove results tied to an old profile.
+  function clearRecommendations() {
+    recommendationRequestId.current += 1;
+    setRecommendations([]);
+    setRecommendationId('');
+    setAnswer(null);
+    setNotice('');
+  }
 
   // All normal API calls share the selected demo identity and error handling.
   async function api(path, method = 'GET', body) {
@@ -60,8 +71,8 @@ function App() {
     // The active flag prevents a previous identity's request updating this view
     // after the selection has changed or the component has unmounted.
     let active = true;
+    clearRecommendations();
     setProfile(emptyProfile);
-    setRecommendations([]);
     setRequests([]);
     setAnswer(null);
     setRecommendationId('');
@@ -90,14 +101,14 @@ function App() {
       }
     }
     load();
-    return () => { active = false; };
+    return () => { active = false; recommendationRequestId.current += 1; };
   }, [user]);
 
   return <main>
     <header>
       <div><p className="eyebrow">LOCAL DEMONSTRATION</p><h1>GoNurse</h1><p>Discover internal professional development opportunities.</p></div>
       <label>Demo identity
-        <select value={user} onChange={event => setUser(event.target.value)}>
+        <select value={user} onChange={event => { clearRecommendations(); setUser(event.target.value); }}>
           <option value="nurse">Nurse 1</option><option value="nurse2">Nurse 2</option><option value="admin">Administrator</option>
         </select>
       </label>
@@ -112,11 +123,12 @@ function App() {
         <p>Separate items with commas. Example availability: weekday_morning.</p>
         <form onSubmit={event => { event.preventDefault(); run(async () => {
           await api('/profile', 'PUT', { skills: split(profile.skills), interests: split(profile.interests), availability: split(profile.availability), recommendations_opt_in: profile.recommendations_opt_in });
+          clearRecommendations();
         }, 'Profile saved.'); }}>
           {['skills', 'interests', 'availability'].map(field => <label key={field}>{field}
-            <input value={profile[field]} onChange={event => setProfile({ ...profile, [field]: event.target.value })} />
+            <input value={profile[field]} onChange={event => { clearRecommendations(); setProfile({ ...profile, [field]: event.target.value }); }} />
           </label>)}
-          <label className="check"><input type="checkbox" checked={profile.recommendations_opt_in} onChange={event => setProfile({ ...profile, recommendations_opt_in: event.target.checked })} /> Enable recommendations</label>
+          <label className="check"><input type="checkbox" checked={profile.recommendations_opt_in} onChange={event => { clearRecommendations(); setProfile({ ...profile, recommendations_opt_in: event.target.checked }); }} /> Enable recommendations</label>
           <button>Save profile</button>
         </form>
       </section>}
@@ -146,7 +158,25 @@ function App() {
         {/* Results are generated on demand; feedback is recorded separately. */}
         <section>
           <h2>Recommendations</h2>
-          <button onClick={() => run(async () => { const result = await api('/recommendations', 'POST', { limit: 5 }); setRecommendations(result.items); }, 'Recommendations updated.')}>Generate recommendations</button>
+          <button onClick={async () => {
+            const requestId = ++recommendationRequestId.current;
+            setRecommendations([]);
+            setRecommendationId('');
+            setAnswer(null);
+            setFailure('');
+            setNotice('');
+            try {
+              const result = await api('/recommendations', 'POST', { limit: 5 });
+              if (requestId === recommendationRequestId.current) {
+                setRecommendations(result.items);
+                setNotice('Recommendations generated.');
+              }
+            } catch (error) {
+              if (requestId === recommendationRequestId.current) {
+                setFailure(error.message);
+              }
+            }
+          }}>Generate recommendations</button>
           {recommendations.length === 0 && <p>No recommendations displayed yet.</p>}
           {recommendations.map(rec => <article key={rec.id}>
             <h3>{rec.rank}. {rec.opportunity.title}</h3><p>{rec.explanation}</p>
