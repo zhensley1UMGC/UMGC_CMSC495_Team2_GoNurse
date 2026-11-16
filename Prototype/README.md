@@ -162,6 +162,59 @@ are in `backend/app/schemas.py`, endpoints are grouped under
 `backend/app/services/`. The rule-based Navigator remains separate from the
 future context builder.
 
+## AI provider client
+
+The backend includes an OpenAI-compatible provider client for future Navigator
+integration. It is not connected to the Navigator endpoint, which remains
+rule-based. The client sends the supplied question and context to the configured
+provider; use **synthetic demonstration data only**. Before any real-data use,
+revisit provider data processing and retention, authentication, authorization,
+consent, privacy, security, and applicable requirements.
+
+Copy `backend/.env.example` to `backend/.env` and set your model and API key
+in the copy. The `.env` file is Git-ignored; keep it private and do not share or
+commit it. The provider reads this specific file regardless of the working
+directory, without changing the process environment. Existing environment
+variables take precedence, including variables set to an empty value. `.env`
+variable interpolation is not supported. Other application settings, such as
+`DATABASE_URL`, still need to be set in the process environment.
+
+The following settings are available in `backend/.env` or the backend process
+environment:
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `GONURSE_AI_BASE_URL` | Chat Completions API base URL, including `/v1` where required | `https://api.openai.com/v1` |
+| `GONURSE_AI_MODEL` | Compatible model identifier | Required |
+| `GONURSE_AI_API_KEY` | Bearer API key | Required for remote endpoints; optional for localhost |
+| `GONURSE_AI_TIMEOUT_SECONDS` | Positive HTTP timeout in seconds | `30` |
+| `GONURSE_AI_MAX_OUTPUT_TOKENS` | Positive maximum completion-token count | `1024` |
+
+Do not put credentials in source files or shell history. HTTPS is required except for `localhost` and
+literal loopback IP addresses. Redirects and environment-configured HTTP
+proxies are disabled. The timeout applies to each HTTP connect, read, write, and
+connection-pool operation; it is not a total request deadline.
+
+The server and model must support Chat Completions, JSON-object response mode,
+and `max_completion_tokens`. Other compatible servers are not guaranteed to
+support these parameters. The client accepts only the expected three-field JSON
+answer and limits the response to 256 KiB and answer text to 8,000 characters.
+It makes one attempt and raises distinct configuration, input, timeout,
+upstream, or response errors rather than returning a canned answer. It does not
+log prompts, responses, context, provider error bodies, or credentials.
+
+For an optional manual connectivity check, configure an OpenAI model and API key
+privately, then run the following from `Prototype/backend`. This sends synthetic
+data to OpenAI and may incur charges; it prints no response content:
+
+```shell
+python -c "from app.services.ai_provider import OpenAICompatibleProvider; OpenAICompatibleProvider().generate('Are there any opportunities?', {'current_opportunities': []}); print('Provider smoke test passed')"
+```
+
+The offline test suite uses a mock transport and does not require credentials or
+network access. A successful live OpenAI smoke test is separately required to
+complete issue #5.
+
 ## Tests
 
 From `Prototype\backend`, run `python -m pytest -q`. API tests use an isolated,
