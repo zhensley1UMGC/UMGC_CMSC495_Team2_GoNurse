@@ -279,7 +279,9 @@ export default function App({ tabbed = false }) {
 
       <div className="warning">
         Synthetic data only. Demo identities are not authentication.
-        Career Navigator and matching use deterministic rules, not AI.
+        Career Navigator uses a configured AI provider and is unavailable while
+        recommendations are turned off. Matching and ranking use deterministic
+        rules.
         Do not enter patient or sensitive information.
       </div>
 

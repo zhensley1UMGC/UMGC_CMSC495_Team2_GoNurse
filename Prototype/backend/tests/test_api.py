@@ -13,18 +13,52 @@ from sqlalchemy.orm import Session
 from app import database
 from app.identity import ACTORS
 from app.main import app
+from app.routers.navigator import get_navigator_provider
+from app.services.ai_provider import (
+    NavigatorResponse,
+    ProviderConfigurationError,
+    ProviderInputError,
+    ProviderResponseError,
+    ProviderTimeoutError,
+    ProviderUpstreamError,
+)
 from app.services.navigator import build_navigator_context
 
 
 @pytest.fixture
-def client(monkeypatch):
+def navigator_provider():
+    class RecordingProvider:
+        def __init__(self):
+            self.calls = []
+            self.response = NavigatorResponse(
+                answer="Navigator response.", referenced_opportunity_ids=[], escalation_suggested=False,
+            )
+            self.error = None
+
+        def generate(self, question, context):
+            self.calls.append((question, context))
+            if self.error is not None:
+                raise self.error
+            return self.response
+
+    return RecordingProvider()
+
+
+@pytest.fixture
+def client(monkeypatch, navigator_provider):
     """Run application startup against SQLite rather than a real PostgreSQL server."""
     # StaticPool shares the same in-memory database across request threads.
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     monkeypatch.setattr(database, "get_engine", lambda: engine)
-    with TestClient(app) as test_client:
-        yield test_client
-    engine.dispose()
+    previous_overrides = app.dependency_overrides.copy()
+    app.dependency_overrides[get_navigator_provider] = lambda: navigator_provider
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        app.dependency_overrides.clear()
+        app.dependency_overrides.update(previous_overrides)
+        engine.dispose()
 
 
 def headers(user="nurse"):
@@ -38,7 +72,7 @@ def profile(opt_in=True, skills=None, availability=None):
             "availability": availability or ["weekday_morning"], "recommendations_opt_in": opt_in}
 
 
-def test_profile_opt_in_eligibility_and_feedback_ownership(client):
+def test_profile_opt_in_eligibility_and_feedback_ownership(client, navigator_provider):
     """Require a profile and opt-in, then protect results and their feedback."""
     assert client.post("/api/v1/recommendations", json={}, headers=headers()).status_code == 404
     assert client.put("/api/v1/profile", json=profile(False), headers=headers()).status_code == 201
@@ -53,9 +87,13 @@ def test_profile_opt_in_eligibility_and_feedback_ownership(client):
     assert client.post(f"/api/v1/recommendations/{rec_id}/feedback", json={"rating": "declined"}, headers=headers()).status_code == 201
     assert client.post(f"/api/v1/recommendations/{rec_id}/feedback", json={"rating": "helpful"}, headers=headers("nurse2")).status_code == 404
     result = client.post("/api/v1/navigator/messages", json={"message": "Why?", "recommendation_id": rec_id}, headers=headers())
-    assert result.json()["answer"] == items[0]["explanation"]
+    assert result.json()["answer"] == "Navigator response."
+    assert navigator_provider.calls[-1][1]["recommendation"]["explanation"] == items[0]["explanation"]
     assert client.put("/api/v1/profile", json=profile(False), headers=headers()).status_code == 200
-    assert client.post("/api/v1/navigator/messages", json={"message": "Why?", "recommendation_id": rec_id}, headers=headers()).status_code == 403
+    call_count = len(navigator_provider.calls)
+    assert client.post("/api/v1/navigator/messages", json={"message": "Why?", "recommendation_id": rec_id},
+                       headers=headers()).status_code == 403
+    assert len(navigator_provider.calls) == call_count
 
 
 def test_schedule_empty_requirements_and_open_status(client):
@@ -138,16 +176,187 @@ def test_support_response_and_authorization(client):
     assert client.patch(path, json={"status": "closed", "response": "Again"}, headers=headers("admin")).status_code == 409
 
 
-def test_validation_identity_and_no_implicit_escalation(client):
+def test_validation_identity_and_no_implicit_escalation(client, navigator_provider):
     """Reject invalid requests and ensure chat does not silently request support."""
     assert client.get("/api/v1/opportunities").status_code == 401
     invalid = client.put("/api/v1/profile", json={**profile(), "unknown": 1}, headers=headers())
     assert invalid.status_code == 422
     assert invalid.json()["error"]["code"] == "VALIDATION_ERROR"
     assert client.post("/api/v1/support-requests", json={"subject": " ", "description": "Test"}, headers=headers()).status_code == 422
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
+    navigator_provider.response = NavigatorResponse(
+        answer="Please ask support for help.", referenced_opportunity_ids=[], escalation_suggested=True,
+    )
     answer = client.post("/api/v1/navigator/messages", json={"message": "Something complex"}, headers=headers()).json()
     assert answer["escalation_suggested"] is True
     assert client.get("/api/v1/support-requests", headers=headers()).json()["items"] == []
+    assert len(navigator_provider.calls) == 1
+
+
+def test_navigator_returns_provider_response_and_canonical_allowed_ids(client, navigator_provider):
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
+    navigator_provider.response = NavigatorResponse(
+        answer="This answer uses the selected listing.", referenced_opportunity_ids=[
+            "10000000-0000-4000-8000-000000000001".upper(),
+        ], escalation_suggested=False,
+    )
+
+    response = client.post("/api/v1/navigator/messages", json={"message": "Tell me about this listing."},
+                           headers=headers())
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "answer": "This answer uses the selected listing.",
+        "referenced_opportunity_ids": ["10000000-0000-4000-8000-000000000001"],
+        "escalation_suggested": False,
+    }
+    assert len(navigator_provider.calls) == 1
+    question, context = navigator_provider.calls[0]
+    assert question == "Tell me about this listing."
+    assert context["profile"]["recommendations_opt_in"] is True
+    assert context["recommendation"] is None
+
+
+@pytest.mark.parametrize(
+    ("failure", "status", "safe_message"),
+    [
+        (ProviderConfigurationError("secret configuration detail"), 503, "Navigator provider is not configured."),
+        (ProviderTimeoutError("secret timeout detail"), 504, "Navigator provider timed out."),
+        (ProviderUpstreamError("secret upstream detail"), 502, "Navigator provider is unavailable."),
+        (ProviderResponseError("secret response detail"), 502,
+         "Navigator provider returned an invalid response."),
+        (ProviderInputError("secret input detail"), 500, "Navigator request could not be prepared."),
+    ],
+)
+def test_navigator_maps_provider_failures_without_exposing_details(
+        client, navigator_provider, failure, status, safe_message, caplog):
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
+    navigator_provider.error = failure
+
+    response = client.post("/api/v1/navigator/messages", json={"message": "private question"},
+                           headers=headers())
+
+    assert response.status_code == status
+    assert response.json()["error"]["message"] == safe_message
+    assert all(marker not in response.text for marker in (
+        "private question", "secret", "Navigator response.",
+    ))
+    assert "secret" not in caplog.text
+    assert len(navigator_provider.calls) == 1
+
+
+def test_navigator_rejects_malformed_and_out_of_context_provider_results(client, navigator_provider):
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
+    navigator_provider.response = {
+        "answer": "Untrusted provider answer.",
+        "referenced_opportunity_ids": ["20000000-0000-4000-8000-000000000001"],
+        "escalation_suggested": False,
+    }
+
+    response = client.post("/api/v1/navigator/messages", json={"message": "Question"},
+                           headers=headers())
+
+    assert response.status_code == 502
+    assert response.json()["error"]["message"] == "Navigator provider returned an invalid response."
+    assert "Untrusted provider answer." not in response.text
+
+
+def test_navigator_revalidates_injected_provider_response(client, navigator_provider):
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
+    navigator_provider.response = {
+        "answer": " ",
+        "referenced_opportunity_ids": [],
+        "escalation_suggested": False,
+    }
+
+    response = client.post("/api/v1/navigator/messages", json={"message": "Question"},
+                           headers=headers())
+
+    assert response.status_code == 502
+    assert response.json()["error"]["message"] == "Navigator provider returned an invalid response."
+
+
+def test_navigator_preconditions_do_not_call_provider(client, navigator_provider):
+    assert client.post("/api/v1/navigator/messages", json={"message": "Question"}).status_code == 401
+    assert client.post("/api/v1/navigator/messages", json={"message": "Question"},
+                       headers=headers("admin")).status_code == 403
+    assert client.post("/api/v1/navigator/messages", json={"message": "Question"},
+                       headers=headers()).status_code == 404
+    assert client.post("/api/v1/navigator/messages", json={"message": " "},
+                       headers=headers()).status_code == 422
+    assert navigator_provider.calls == []
+
+
+def test_navigator_recommendation_access_is_checked_before_provider(client, navigator_provider):
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
+    assert client.put("/api/v1/profile", json=profile(), headers=headers("nurse2")).status_code == 201
+    recommendation = client.post("/api/v1/recommendations", json={}, headers=headers()).json()["items"][0]
+    request = {"message": "Explain it.", "recommendation_id": recommendation["id"]}
+
+    assert client.post("/api/v1/navigator/messages", json=request, headers=headers("nurse2")).status_code == 404
+    assert client.put("/api/v1/profile", json=profile(False), headers=headers()).status_code == 200
+    assert client.post("/api/v1/navigator/messages", json=request, headers=headers()).status_code == 403
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 200
+    listing = recommendation["opportunity"]
+    closed = {key: listing[key] for key in (
+        "title", "description", "category", "required_skills", "interests", "availability",
+    )}
+    closed["status"] = "closed"
+    assert client.put(f"/api/v1/opportunities/{listing['id']}", json=closed,
+                      headers=headers("admin")).status_code == 200
+    assert client.post("/api/v1/navigator/messages", json=request, headers=headers()).status_code == 404
+    assert navigator_provider.calls == []
+
+
+def test_opted_out_nurse_gets_static_response_without_calling_provider(client, navigator_provider):
+    assert client.put("/api/v1/profile", json=profile(False), headers=headers()).status_code == 201
+
+    response = client.post("/api/v1/navigator/messages", json={"message": "General career guidance"},
+                           headers=headers())
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "answer": (
+            "Career Navigator is unavailable while recommendations are turned off. "
+            "Update your recommendation preference to continue, or submit a human support request."
+        ),
+        "referenced_opportunity_ids": [],
+        "escalation_suggested": True,
+    }
+    assert navigator_provider.calls == []
+
+
+def test_profile_rejects_unbounded_label_values(client):
+    oversized = profile()
+    oversized["skills"] = ["x" * 201]
+
+    response = client.put("/api/v1/profile", json=oversized, headers=headers())
+
+    assert response.status_code == 422
+
+
+def test_navigator_rejects_citation_for_open_listing_outside_first_page(client, navigator_provider):
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
+    with Session(database.get_engine()) as session:
+        session.add_all([
+            database.Opportunity(
+                id=str(uuid4()), title=f"Earlier {i:02}", description="Open", category="project",
+                required_skills=[], interests=[], availability=[], status="open",
+            )
+            for i in range(20)
+        ])
+        session.commit()
+    navigator_provider.response = NavigatorResponse(
+        answer="This cites an open listing not supplied to the provider.",
+        referenced_opportunity_ids=["10000000-0000-4000-8000-000000000001"],
+        escalation_suggested=False,
+    )
+
+    response = client.post("/api/v1/navigator/messages", json={"message": "List this opportunity."},
+                           headers=headers())
+
+    assert response.status_code == 502
+    assert response.json()["error"]["message"] == "Navigator provider returned an invalid response."
 
 
 def test_audit_omits_profile_and_support_contents(client):
@@ -173,6 +382,7 @@ def test_navigator_context_selects_nurse_data_and_open_listings(client):
 
     assert context["profile"] == {
         "skills": ["mentoring"], "interests": ["education"], "availability": ["weekday_morning"],
+        "recommendations_opt_in": True,
     }
     assert len(context["current_opportunities"]) == 2
     assert all(set(item) == {"id", "title", "description", "category", "required_skills",
@@ -230,7 +440,8 @@ def test_navigator_context_recommendation_ownership_opt_in_and_visibility(client
         assert admin.value.status_code == 403
 
 
-def test_navigator_context_distinguishes_current_listing_from_recommendation_snapshot(client):
+def test_navigator_context_distinguishes_current_listing_from_recommendation_snapshot(
+        client, navigator_provider):
     client.put("/api/v1/profile", json=profile(), headers=headers())
     rec = client.post("/api/v1/recommendations", json={}, headers=headers()).json()["items"][0]
     original = rec["opportunity"]
@@ -249,11 +460,23 @@ def test_navigator_context_distinguishes_current_listing_from_recommendation_sna
     assert current["title"] == "Updated mentoring committee"
     assert snapshot["id"] == current["id"]
     assert snapshot["title"] == original["title"]
+    response = client.post("/api/v1/navigator/messages", json={
+        "message": "Explain my recommendation.", "recommendation_id": rec["id"],
+    }, headers=headers())
+    assert response.status_code == 200
+    sent_context = navigator_provider.calls[0][1]
+    assert next(item for item in sent_context["current_opportunities"]
+                if item["id"] == original["id"])["title"] == "Updated mentoring committee"
+    assert sent_context["recommendation"]["opportunity_at_generation"]["title"] == original["title"]
 
 
-def test_navigator_context_includes_referenced_listing_outside_first_page(client):
+def test_navigator_context_includes_referenced_listing_outside_first_page(client, navigator_provider):
     client.put("/api/v1/profile", json=profile(), headers=headers())
     rec = client.post("/api/v1/recommendations", json={}, headers=headers()).json()["items"][0]
+    navigator_provider.response = NavigatorResponse(
+        answer="The selected recommendation refers to this listing.",
+        referenced_opportunity_ids=[rec["opportunity"]["id"]], escalation_suggested=False,
+    )
     with Session(database.get_engine()) as session:
         session.add_all([
             database.Opportunity(
@@ -266,3 +489,9 @@ def test_navigator_context_includes_referenced_listing_outside_first_page(client
         context = build_navigator_context(session, ACTORS["nurse"], UUID(rec["id"]))
         assert len(context["current_opportunities"]) == 21
         assert rec["opportunity"]["id"] in {item["id"] for item in context["current_opportunities"]}
+
+    response = client.post("/api/v1/navigator/messages", json={
+        "message": "Explain my recommendation.", "recommendation_id": rec["id"],
+    }, headers=headers())
+    assert response.status_code == 200
+    assert response.json()["referenced_opportunity_ids"] == [rec["opportunity"]["id"]]

@@ -310,6 +310,12 @@ Make sure:
 - The backend virtual environment is active.
 - The `DATABASE_URL` environment variable is configured.
 
+Career Navigator questions also require AI provider configuration. This is
+optional for other prototype features; see the
+[Prototype README provider setup](../Prototype/README.md#ai-provider-client)
+for the supported settings. Without provider configuration, Navigator requests
+return an explicit error.
+
 Then run:
 
 ```bash

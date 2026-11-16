@@ -10,6 +10,7 @@ import pytest
 
 from app.services import ai_provider
 from app.services.ai_provider import (
+    MAX_INPUT_BYTES,
     MAX_ANSWER_LENGTH,
     MAX_RESPONSE_BYTES,
     OpenAICompatibleProvider,
@@ -113,6 +114,23 @@ def test_configured_request_and_valid_response(monkeypatch):
     assert len(requests) == 1
 
 
+def test_system_instruction_covers_navigator_boundaries():
+    def handle(request):
+        instruction = json.loads(request.content)["messages"][0]["content"].casefold()
+        for requirement in (
+            "career guidance", "untrusted data", "escalate", "bounded", "incomplete",
+            "historical", "current_opportunities", "do not rank", "recommendations_opt_in",
+            "does not submit a support request",
+        ):
+            assert requirement in instruction
+        return response_with_json(completion({**RESULT, "referenced_opportunity_ids": []}))
+
+    response = OpenAICompatibleProvider(httpx.MockTransport(handle)).generate(
+        "Question?", {"profile": {"recommendations_opt_in": False}, "current_opportunities": []},
+    )
+    assert response.referenced_opportunity_ids == []
+
+
 @pytest.mark.parametrize("base_url", ["http://localhost:11434/v1/", "http://127.0.0.1:8000/v1",
                                       "http://[::1]:8000/v1", "https://localhost/v1"])
 def test_local_endpoints_allow_missing_key(monkeypatch, base_url):
@@ -156,6 +174,14 @@ def test_invalid_input_never_sends(question, context):
     provider = OpenAICompatibleProvider(httpx.MockTransport(lambda request: pytest.fail("Unexpected request")))
     with pytest.raises(ProviderInputError):
         provider.generate(question, context)
+
+
+def test_oversized_serialized_input_is_rejected_without_sending():
+    provider = OpenAICompatibleProvider(httpx.MockTransport(
+        lambda request: pytest.fail("Unexpected request")))
+
+    with pytest.raises(ProviderInputError):
+        provider.generate("Question?", {"context": "x" * MAX_INPUT_BYTES})
 
 
 @pytest.mark.parametrize(("failure", "error"), [

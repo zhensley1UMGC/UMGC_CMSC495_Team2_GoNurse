@@ -11,15 +11,19 @@ real employee information, or exposed to a network.
   support requests, and minimal audit events.
 - Explicit recommendation opt-in; required-skills and schedule filtering before
   deterministic ranking; explanations and feedback.
-- A rule-based Career Navigator that lists opportunities, answers basic profile
-  questions, and displays an existing recommendation's explanation. It suggests
-  support when it cannot answer, without submitting a request automatically.
+- An AI-backed Career Navigator that uses a configured provider for career
+  guidance grounded in a nurse-scoped profile and bounded listing context.
+  Unsupported or insufficiently supported questions can be escalated; suggesting
+  support never submits a request automatically.
 - Nurse-created support requests and administrator responses visible to the
   requesting nurse.
 
-**AI limitation:** Career Navigator and matching are deterministic demonstrations,
-not AI models. Embeddings, semantic search, LangGraph, and an AI chatbot are not
-implemented. This does not satisfy Unit 5's functional AI requirement by itself.
+**AI limitation:** Career Navigator uses an OpenAI-compatible provider, but its
+grounding is not guaranteed. The backend checks that cited opportunity IDs occur
+in the supplied context; this does not verify that answer text is factually
+supported. While opted in, model instructions cannot guarantee the recommendation
+content policy. Matching and recommendation ranking remain deterministic and are
+not AI-based. Embeddings, semantic search, and LangGraph are not implemented.
 
 **Security limitation:** Demo identities are client-selected headers, not real
 authentication. The service uses local HTTP, not production HTTPS. Authorization
@@ -142,15 +146,25 @@ require an `X-Demo-User` header of `nurse`, `nurse2`, or `admin`.
 - Feedback adds a `declined` value. Decline records feedback but does not hide
   future recommendations. Support requests include an administrator response,
   and nurses may list their own requests. These extend the rough contracts.
-- A chatbot request may include a `recommendation_id` to identify the existing
-  recommendation. Opt-out blocks generating or explaining recommendations.
-- The backend includes a context builder for future AI-backed Navigator work.
-  It selects the nurse's matching fields and the first 20 open listings, adding
-  the referenced listing if needed. A recommendation is included only when
-  opted in, owned by that nurse, and linked to an open listing. Context labels
-  current listings as `current_opportunities` and the recommendation's saved
-  listing as `opportunity_at_generation`; these can differ after an edit.
-  The current rule-based Navigator does not yet use this builder.
+- Every Navigator question requires a saved nurse profile. A request may
+  include `recommendation_id` to identify an existing recommendation; selecting
+  one requires current opt-in, ownership, and an open listing. A missing profile
+  returns 404. When recommendations are turned off, the Navigator returns a
+  fixed response without calling the provider or sending profile/listing context.
+  Opted-out nurses must turn recommendations on to use AI career guidance.
+- The Navigator sends selected profile fields, including the opt-in preference,
+  and up to 20 currently open listings to the configured provider. A referenced
+  listing outside that first page is added when selected. The context labels
+  current listings as `current_opportunities` and the saved recommendation
+  listing as `opportunity_at_generation`; these can differ after an edit. The
+  listing context is bounded and may not be a complete catalog. Only citations
+  matching IDs in the current listing context are returned.
+- Profile and opportunity labels are limited to 200 characters, and serialized
+  provider input is capped at 128 KiB.
+- Navigator provider configuration, timeout, upstream, and invalid-response
+  failures are returned as explicit API errors rather than canned answers.
+  Provider calls use synthetic demo data only. Do not send real personal or
+  employee information.
 - These demo choices are not team-approved final requirements. PostgreSQL schema
   changes currently require manual migration; no deployment or CI is included.
 
@@ -159,17 +173,24 @@ require an `X-Demo-User` header of `nurse`, `nurse2`, or `admin`.
 The FastAPI application is assembled in `backend/app/main.py`. Request models
 are in `backend/app/schemas.py`, endpoints are grouped under
 `backend/app/routers/`, and reusable matching and Navigator logic lives in
-`backend/app/services/`. The rule-based Navigator remains separate from the
-future context builder.
+`backend/app/services/`.
 
 ## AI provider client
 
-The backend includes an OpenAI-compatible provider client for future Navigator
-integration. It is not connected to the Navigator endpoint, which remains
-rule-based. The client sends the supplied question and context to the configured
-provider; use **synthetic demonstration data only**. Before any real-data use,
+The Navigator endpoint uses an OpenAI-compatible provider. Configure it before
+sending Navigator questions; this configuration is not required for unrelated
+prototype features. For nurses who have recommendations turned on, the provider
+receives the question and selected nurse context. When recommendations are off,
+the server returns a fixed response without calling the provider or sending that
+context. Use **synthetic demonstration data only**. Before any real-data use,
 revisit provider data processing and retention, authentication, authorization,
 consent, privacy, security, and applicable requirements.
+
+Missing or invalid provider configuration returns HTTP 503; provider timeouts
+return 504; upstream failures and invalid or out-of-context citations return
+502. These errors contain safe messages, not provider details. A successful
+response preserves `answer`, `referenced_opportunity_ids`, and
+`escalation_suggested`.
 
 Copy `backend/.env.example` to `backend/.env` and set your model and API key
 in the copy. The `.env` file is Git-ignored; keep it private and do not share or
@@ -212,8 +233,7 @@ python -c "from app.services.ai_provider import OpenAICompatibleProvider; OpenAI
 ```
 
 The offline test suite uses a mock transport and does not require credentials or
-network access. A successful live OpenAI smoke test is separately required to
-complete issue #5.
+network access. No real provider response is required by the automated tests.
 
 ## Tests
 

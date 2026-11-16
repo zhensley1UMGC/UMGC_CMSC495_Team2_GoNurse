@@ -42,8 +42,9 @@ export default function NavigatorView({
       <h2>Career Navigator</h2>
 
       <p>
-        Rule-based demo: ask about listings or profiles, or select a
-        recommendation {tabbed ? 'in the Recommendations tab' : 'above'}.
+        AI-assisted career guidance uses your profile and current listings. Turn
+        on recommendations in My profile to use AI guidance, including
+        discussion of an existing recommendation.
       </p>
 
       <form onSubmit={handleSubmit}>

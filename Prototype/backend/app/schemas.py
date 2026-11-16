@@ -1,6 +1,6 @@
 """Request and response models shared by the API routers."""
 
-from typing import Literal
+from typing import Annotated, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -25,9 +25,9 @@ class Input(BaseModel):
 class ProfileInput(Input):
     """Editable matching fields and the explicit recommendation preference."""
 
-    skills: list[str] = Field(max_length=100)
-    interests: list[str] = Field(max_length=100)
-    availability: list[str] = Field(max_length=100)
+    skills: list[Annotated[str, Field(max_length=200)]] = Field(max_length=100)
+    interests: list[Annotated[str, Field(max_length=200)]] = Field(max_length=100)
+    availability: list[Annotated[str, Field(max_length=200)]] = Field(max_length=100)
     recommendations_opt_in: bool
 
 
@@ -37,9 +37,9 @@ class OpportunityInput(Input):
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(min_length=1, max_length=2000)
     category: Literal["project", "committee", "mentoring", "professional_development"]
-    required_skills: list[str] = Field(max_length=100)
-    interests: list[str] = Field(max_length=100)
-    availability: list[str] = Field(max_length=100)
+    required_skills: list[Annotated[str, Field(max_length=200)]] = Field(max_length=100)
+    interests: list[Annotated[str, Field(max_length=200)]] = Field(max_length=100)
+    availability: list[Annotated[str, Field(max_length=200)]] = Field(max_length=100)
     status: Literal["open", "closed"]
 
 
