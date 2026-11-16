@@ -1,13 +1,17 @@
 """Exercise API behavior in isolation using a fresh in-memory database per test."""
 
+import json
+from uuid import UUID, uuid4
+
 import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, select
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import Session
 
 from app import database
-from app.main import app
+from app.main import ACTORS, app, build_navigator_context
 
 
 @pytest.fixture
@@ -99,3 +103,111 @@ def test_audit_omits_profile_and_support_contents(client):
         events = session.scalars(select(database.AuditEvent)).all()
         assert {event.event for event in events} >= {"profile.updated", "support.created"}
         assert all("Do not log this text" not in repr(event.__dict__) for event in events)
+
+
+def test_navigator_context_selects_nurse_data_and_open_listings(client):
+    client.put("/api/v1/profile", json=profile(), headers=headers())
+    client.put("/api/v1/profile", json=profile(skills=["other nurse private skill"]), headers=headers("nurse2"))
+    with Session(database.get_engine()) as session:
+        session.add(database.Opportunity(
+            id=str(uuid4()), title="Hidden", description="Closed listing", category="project",
+            required_skills=[], interests=[], availability=[], status="closed",
+        ))
+        session.commit()
+        context = build_navigator_context(session, ACTORS["nurse"])
+
+    assert context["profile"] == {
+        "skills": ["mentoring"], "interests": ["education"], "availability": ["weekday_morning"],
+    }
+    assert len(context["current_opportunities"]) == 2
+    assert all(set(item) == {"id", "title", "description", "category", "required_skills",
+                             "interests", "availability"} for item in context["current_opportunities"])
+    assert context["recommendation"] is None
+    serialized = json.dumps(context)
+    assert "other nurse private skill" not in serialized
+    assert "Closed listing" not in serialized
+
+
+def test_navigator_context_recommendation_ownership_opt_in_and_visibility(client):
+    client.put("/api/v1/profile", json=profile(), headers=headers())
+    client.put("/api/v1/profile", json=profile(), headers=headers("nurse2"))
+    rec = client.post("/api/v1/recommendations", json={}, headers=headers()).json()["items"][0]
+    rec_id = UUID(rec["id"])
+    with Session(database.get_engine()) as session:
+        stored = session.get(database.Recommendation, str(rec_id))
+        stored.opportunity_snapshot = {**stored.opportunity_snapshot, "private_extra": "not for model"}
+        session.commit()
+        context = build_navigator_context(session, ACTORS["nurse"], rec_id)
+        assert context["recommendation"]["id"] == rec["id"]
+        assert context["recommendation"]["opportunity_at_generation"]["id"] == rec["opportunity"]["id"]
+        assert context["recommendation"]["explanation"] == rec["explanation"]
+        assert sum(item["id"] == rec["opportunity"]["id"] for item in context["current_opportunities"]) == 1
+        assert "not for model" not in json.dumps(context)
+        with pytest.raises(HTTPException) as foreign:
+            build_navigator_context(session, ACTORS["nurse2"], rec_id)
+        assert foreign.value.status_code == 404
+        with pytest.raises(HTTPException) as missing:
+            build_navigator_context(session, ACTORS["nurse"], uuid4())
+        assert missing.value.status_code == 404
+        item = session.get(database.Opportunity, rec["opportunity"]["id"])
+        item.status = "closed"
+        session.commit()
+        with pytest.raises(HTTPException) as closed:
+            build_navigator_context(session, ACTORS["nurse"], rec_id)
+        assert closed.value.status_code == 404
+        session.delete(item)
+        session.commit()
+        with pytest.raises(HTTPException) as deleted:
+            build_navigator_context(session, ACTORS["nurse"], rec_id)
+        assert deleted.value.status_code == 404
+
+    client.put("/api/v1/profile", json=profile(False), headers=headers())
+    with Session(database.get_engine()) as session:
+        assert build_navigator_context(session, ACTORS["nurse"])["recommendation"] is None
+        with pytest.raises(HTTPException) as opted_out:
+            build_navigator_context(session, ACTORS["nurse"], rec_id)
+        assert opted_out.value.status_code == 403
+        with pytest.raises(HTTPException) as missing_profile:
+            build_navigator_context(session, (str(uuid4()), "nurse"))
+        assert missing_profile.value.status_code == 404
+        with pytest.raises(HTTPException) as admin:
+            build_navigator_context(session, ACTORS["admin"])
+        assert admin.value.status_code == 403
+
+
+def test_navigator_context_distinguishes_current_listing_from_recommendation_snapshot(client):
+    client.put("/api/v1/profile", json=profile(), headers=headers())
+    rec = client.post("/api/v1/recommendations", json={}, headers=headers()).json()["items"][0]
+    original = rec["opportunity"]
+    updated = {key: original[key] for key in (
+        "title", "description", "category", "required_skills", "interests", "availability", "status",
+    )}
+    updated["title"] = "Updated mentoring committee"
+    response = client.put(f"/api/v1/opportunities/{original['id']}", json=updated, headers=headers("admin"))
+    assert response.status_code == 200
+
+    with Session(database.get_engine()) as session:
+        context = build_navigator_context(session, ACTORS["nurse"], UUID(rec["id"]))
+
+    current = next(item for item in context["current_opportunities"] if item["id"] == original["id"])
+    snapshot = context["recommendation"]["opportunity_at_generation"]
+    assert current["title"] == "Updated mentoring committee"
+    assert snapshot["id"] == current["id"]
+    assert snapshot["title"] == original["title"]
+
+
+def test_navigator_context_includes_referenced_listing_outside_first_page(client):
+    client.put("/api/v1/profile", json=profile(), headers=headers())
+    rec = client.post("/api/v1/recommendations", json={}, headers=headers()).json()["items"][0]
+    with Session(database.get_engine()) as session:
+        session.add_all([
+            database.Opportunity(
+                id=str(uuid4()), title=f"Earlier {i:02}", description="Open", category="project",
+                required_skills=[], interests=[], availability=[], status="open",
+            )
+            for i in range(20)
+        ])
+        session.commit()
+        context = build_navigator_context(session, ACTORS["nurse"], UUID(rec["id"]))
+        assert len(context["current_opportunities"]) == 21
+        assert rec["opportunity"]["id"] in {item["id"] for item in context["current_opportunities"]}

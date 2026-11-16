@@ -142,6 +142,13 @@ require an `X-Demo-User` header of `nurse`, `nurse2`, or `admin`.
   and nurses may list their own requests. These extend the rough contracts.
 - A chatbot request may include a `recommendation_id` to identify the existing
   recommendation. Opt-out blocks generating or explaining recommendations.
+- The backend includes a context builder for future AI-backed Navigator work.
+  It selects the nurse's matching fields and the first 20 open listings, adding
+  the referenced listing if needed. A recommendation is included only when
+  opted in, owned by that nurse, and linked to an open listing. Context labels
+  current listings as `current_opportunities` and the recommendation's saved
+  listing as `opportunity_at_generation`; these can differ after an edit.
+  The current rule-based Navigator does not yet use this builder.
 - These demo choices are not team-approved final requirements. PostgreSQL schema
   changes currently require manual migration; no deployment or CI is included.
 

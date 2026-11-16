@@ -174,6 +174,9 @@ def public(obj, fields):
 PROFILE_FIELDS = ("id", "skills", "interests", "availability", "recommendations_opt_in", "updated_at")
 OPPORTUNITY_FIELDS = ("id", "title", "description", "category", "required_skills", "interests", "availability", "status", "updated_at")
 SUPPORT_FIELDS = ("id", "subject", "description", "status", "response", "created_at", "updated_at")
+NAVIGATOR_OPPORTUNITY_FIELDS = (
+    "id", "title", "description", "category", "required_skills", "interests", "availability",
+)
 
 
 def own_profile(session, current):
@@ -230,25 +233,66 @@ class ProfileOutput(BaseModel):
     updated_at: object
 
 
+def visible_opportunities(session, current, limit, offset):
+    """Fetch a page of opportunities visible to the selected demo role."""
+    query = select(db.Opportunity).order_by(db.Opportunity.title, db.Opportunity.id)
+    if current[1] == "nurse":
+        query = query.where(db.Opportunity.status == "open")
+    return session.scalars(query.offset(offset).limit(limit)).all()
+
+
+def visible_opportunity(session, current, opportunity_id):
+    """Fetch one visible opportunity without revealing closed listings to nurses."""
+    item = session.get(db.Opportunity, str(opportunity_id))
+    if item is None or (current[1] == "nurse" and item.status != "open"):
+        raise HTTPException(404, "Opportunity not found.")
+    return item
+
+
 # Nurses browse open listings; administrators can manage all listing states.
 @app.get("/api/v1/opportunities")
 def list_opportunities(limit: int = Query(20, ge=1, le=100), offset: int = Query(0, ge=0),
                        current=Depends(actor), session: Session = Depends(db.get_db)):
     """Return a paginated, role-filtered list of opportunities."""
-    query = select(db.Opportunity).order_by(db.Opportunity.title, db.Opportunity.id)
-    if current[1] == "nurse":
-        query = query.where(db.Opportunity.status == "open")
-    items = session.scalars(query.offset(offset).limit(limit)).all()
+    items = visible_opportunities(session, current, limit, offset)
     return {"items": [public(item, OPPORTUNITY_FIELDS) for item in items], "limit": limit, "offset": offset}
 
 
 @app.get("/api/v1/opportunities/{opportunity_id}")
 def get_opportunity(opportunity_id: UUID, current=Depends(actor), session: Session = Depends(db.get_db)):
     """Return one visible opportunity, hiding closed listings from nurses."""
-    item = session.get(db.Opportunity, str(opportunity_id))
-    if item is None or (current[1] == "nurse" and item.status != "open"):
-        raise HTTPException(404, "Opportunity not found.")
+    item = visible_opportunity(session, current, opportunity_id)
     return public(item, OPPORTUNITY_FIELDS)
+
+
+def build_navigator_context(session: Session, current: tuple[str, str],
+                            recommendation_id: UUID | None = None) -> dict[str, object]:
+    """Build a minimal, nurse-scoped context for a future Navigator service."""
+    profile = own_profile(session, current)
+    recommendation = None
+    referenced_item = None
+    if recommendation_id is not None:
+        if not profile.recommendations_opt_in:
+            raise HTTPException(403, "Recommendations are turned off.")
+        rec = owned_recommendation(session, current, recommendation_id)
+        referenced_item = visible_opportunity(session, current, rec.opportunity_snapshot["id"])
+        recommendation = {
+            "id": rec.id,
+            "opportunity_at_generation": {
+                field: rec.opportunity_snapshot[field] for field in NAVIGATOR_OPPORTUNITY_FIELDS
+            },
+            "rank": rec.rank,
+            "explanation": rec.explanation,
+        }
+
+    items = list(visible_opportunities(session, current, 20, 0))
+    if referenced_item is not None and all(item.id != referenced_item.id for item in items):
+        items.append(referenced_item)
+    return {
+        "profile": public(profile, ("skills", "interests", "availability")),
+        "current_opportunities": [public(item, NAVIGATOR_OPPORTUNITY_FIELDS) for item in items],
+        "recommendation": recommendation,
+    }
 
 
 @app.post("/api/v1/opportunities", status_code=201)
