@@ -4,35 +4,16 @@ import React from 'react';
 export default function RecommendationsView({
   panelProps,
   recommendations,
-  setRecommendations,
   api,
   run,
   onAskAbout,
-  recommendationRequestId,
+  onGenerate,
 }) {
-  async function generateRecommendations() {
-    const requestId = ++recommendationRequestId.current;
-
-    // Remove previously displayed recommendations.
-    setRecommendations([]);
-
-    // Generate new recommendations and ignore outdated responses.
-    await run(async () => {
-      const result = await api('/recommendations', 'POST', {
-        limit: 5,
-      });
-
-      if (requestId === recommendationRequestId.current) {
-        setRecommendations(result.items);
-      }
-    });
-  }
-
   return (
     <section {...panelProps}>
       <h2>Recommendations</h2>
 
-      <button type="button" onClick={generateRecommendations}>
+      <button type="button" onClick={onGenerate}>
         Generate recommendations
       </button>
 
