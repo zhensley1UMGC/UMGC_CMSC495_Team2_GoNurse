@@ -201,6 +201,25 @@ are in `backend/app/schemas.py`, endpoints are grouped under
 `backend/app/routers/`, and reusable matching and Navigator logic lives in
 `backend/app/services/`.
 
+## Manual synthetic ranking benchmark
+
+The backend includes a manual, synthetic-data-only benchmark comparing the live
+deterministic ranker with embedding and fixed hybrid candidates. It does not
+change live ranking behavior and is not run by CI. See
+[the benchmark guide](backend/benchmarks/README.md) for the rubric, limitations,
+and setup. From `Prototype/backend`, install the optional lock alongside the
+normal backend requirements, then run `python -m benchmarks.run`.
+
+The benchmark sends only checked-in synthetic text to an explicitly configured
+OpenAI-compatible embeddings endpoint. Its separate settings are
+`GONURSE_EMBEDDING_BASE_URL`, `GONURSE_EMBEDDING_MODEL`,
+`GONURSE_EMBEDDING_API_KEY`, and `GONURSE_EMBEDDING_TIMEOUT_SECONDS`. A complete
+run also requires a dedicated local PostgreSQL database with pgvector already
+installed, `DATABASE_URL` pointing only to that database, and the explicit
+`GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE=YES` confirmation. Cached vectors and
+timestamped result files are written under ignored `.benchmark-cache/` and
+`.benchmark-results/` directories.
+
 ## AI provider client
 
 The Navigator endpoint uses an OpenAI-compatible provider. Configure it before

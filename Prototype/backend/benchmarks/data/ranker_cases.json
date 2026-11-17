@@ -1,0 +1,4793 @@
+{
+  "schema_version": 1,
+  "profiles": [
+    {
+      "id": "profile-01",
+      "skills": [
+        "critical care",
+        "patient education",
+        "triage"
+      ],
+      "interests": [
+        "critical care",
+        "mentoring"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "multiple_eligible_ordering",
+        "semantic_synonym_ineligible",
+        "missing_required_skill",
+        "nonmatching_availability"
+      ]
+    },
+    {
+      "id": "profile-02",
+      "skills": [
+        "pediatric nursing",
+        "patient education"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "open_and_closed",
+        "multiple_eligible_ordering"
+      ]
+    },
+    {
+      "id": "profile-03",
+      "skills": [
+        "community health",
+        "mentoring"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekday_morning",
+        "weekend_day"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "open_and_closed"
+      ]
+    },
+    {
+      "id": "profile-04",
+      "skills": [
+        "rare specialty"
+      ],
+      "interests": [
+        "rural telehealth"
+      ],
+      "availability": [
+        "night"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "eligible_no_match",
+        "missing_required_skill",
+        "nonmatching_availability"
+      ]
+    },
+    {
+      "id": "profile-05",
+      "skills": [
+        "rehabilitation",
+        "patient education"
+      ],
+      "interests": [
+        "mobility",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "recommendations_opt_in": false,
+      "scenario_tags": [
+        "opt_out",
+        "open_and_closed"
+      ]
+    },
+    {
+      "id": "profile-06",
+      "skills": [
+        "critical care",
+        "patient education",
+        "triage",
+        "mentoring"
+      ],
+      "interests": [
+        "critical care",
+        "mentoring"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "multiple_eligible_ordering",
+        "semantic_synonym_ineligible",
+        "missing_required_skill",
+        "nonmatching_availability"
+      ]
+    },
+    {
+      "id": "profile-07",
+      "skills": [
+        "pediatric nursing",
+        "patient education"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "open_and_closed",
+        "multiple_eligible_ordering"
+      ]
+    },
+    {
+      "id": "profile-08",
+      "skills": [
+        "community health",
+        "mentoring"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekday_morning",
+        "weekend_day"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "open_and_closed"
+      ]
+    },
+    {
+      "id": "profile-09",
+      "skills": [
+        "rare specialty"
+      ],
+      "interests": [
+        "rural telehealth"
+      ],
+      "availability": [
+        "night"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "eligible_no_match",
+        "missing_required_skill",
+        "nonmatching_availability"
+      ]
+    },
+    {
+      "id": "profile-10",
+      "skills": [
+        "rehabilitation",
+        "patient education"
+      ],
+      "interests": [
+        "mobility",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "recommendations_opt_in": false,
+      "scenario_tags": [
+        "opt_out",
+        "open_and_closed"
+      ]
+    },
+    {
+      "id": "profile-11",
+      "skills": [
+        "critical care",
+        "patient education",
+        "triage"
+      ],
+      "interests": [
+        "critical care",
+        "mentoring"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "multiple_eligible_ordering",
+        "semantic_synonym_ineligible",
+        "missing_required_skill",
+        "nonmatching_availability"
+      ]
+    },
+    {
+      "id": "profile-12",
+      "skills": [
+        "pediatric nursing",
+        "patient education"
+      ],
+      "interests": [
+        "education",
+        "family support",
+        "pediatrics"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "open_and_closed",
+        "multiple_eligible_ordering"
+      ]
+    },
+    {
+      "id": "profile-13",
+      "skills": [
+        "community health",
+        "mentoring"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekday_morning",
+        "weekend_day"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "open_and_closed"
+      ]
+    },
+    {
+      "id": "profile-14",
+      "skills": [
+        "rare specialty"
+      ],
+      "interests": [
+        "rural telehealth"
+      ],
+      "availability": [
+        "night"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "eligible_no_match",
+        "missing_required_skill",
+        "nonmatching_availability"
+      ]
+    },
+    {
+      "id": "profile-15",
+      "skills": [
+        "rehabilitation",
+        "patient education"
+      ],
+      "interests": [
+        "mobility",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "recommendations_opt_in": false,
+      "scenario_tags": [
+        "opt_out",
+        "open_and_closed"
+      ]
+    },
+    {
+      "id": "profile-16",
+      "skills": [
+        "critical care",
+        "patient education",
+        "triage"
+      ],
+      "interests": [
+        "critical care",
+        "mentoring"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "multiple_eligible_ordering",
+        "semantic_synonym_ineligible",
+        "missing_required_skill",
+        "nonmatching_availability"
+      ]
+    },
+    {
+      "id": "profile-17",
+      "skills": [
+        "pediatric nursing",
+        "patient education"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "open_and_closed",
+        "multiple_eligible_ordering"
+      ]
+    },
+    {
+      "id": "profile-18",
+      "skills": [
+        "community health",
+        "mentoring"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekday_morning",
+        "weekend_day",
+        "weekday_evening"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "open_and_closed"
+      ]
+    },
+    {
+      "id": "profile-19",
+      "skills": [
+        "rare specialty"
+      ],
+      "interests": [
+        "rural telehealth"
+      ],
+      "availability": [
+        "night"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "eligible_no_match",
+        "missing_required_skill",
+        "nonmatching_availability"
+      ]
+    },
+    {
+      "id": "profile-20",
+      "skills": [
+        "rehabilitation",
+        "patient education"
+      ],
+      "interests": [
+        "mobility",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "recommendations_opt_in": false,
+      "scenario_tags": [
+        "opt_out",
+        "open_and_closed"
+      ]
+    },
+    {
+      "id": "profile-21",
+      "skills": [
+        "critical care",
+        "patient education",
+        "triage"
+      ],
+      "interests": [
+        "critical care",
+        "mentoring"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "multiple_eligible_ordering",
+        "semantic_synonym_ineligible",
+        "missing_required_skill",
+        "nonmatching_availability"
+      ]
+    },
+    {
+      "id": "profile-22",
+      "skills": [
+        "pediatric nursing",
+        "patient education"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "open_and_closed",
+        "multiple_eligible_ordering"
+      ]
+    },
+    {
+      "id": "profile-23",
+      "skills": [
+        "community health",
+        "mentoring"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekday_morning",
+        "weekend_day"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "exact_skill_match",
+        "matching_availability",
+        "open_and_closed"
+      ]
+    },
+    {
+      "id": "profile-24",
+      "skills": [
+        "rare specialty"
+      ],
+      "interests": [
+        "rural telehealth",
+        "patient safety"
+      ],
+      "availability": [
+        "night"
+      ],
+      "recommendations_opt_in": true,
+      "scenario_tags": [
+        "eligible_no_match",
+        "missing_required_skill",
+        "nonmatching_availability"
+      ]
+    },
+    {
+      "id": "profile-25",
+      "skills": [
+        "rehabilitation",
+        "patient education"
+      ],
+      "interests": [
+        "mobility",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "recommendations_opt_in": false,
+      "scenario_tags": [
+        "opt_out",
+        "open_and_closed"
+      ]
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "opportunity-001",
+      "title": "Intensive Care Unit Practice Group",
+      "description": "A fabricated critical care peer learning placement.",
+      "category": "acute care",
+      "required_skills": [
+        "ICU"
+      ],
+      "interests": [
+        "critical care",
+        "mentoring"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-002",
+      "title": "Critical Care Education Rounds",
+      "description": "A simulated role teaching safe bedside practice.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "education"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-003",
+      "title": "Clinical Skills Mentoring Circle",
+      "description": "A fabricated group for mentoring and nurse education.",
+      "category": "education",
+      "required_skills": [
+        "mentoring"
+      ],
+      "interests": [
+        "education"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-004",
+      "title": "Closed Critical Care Planning Session",
+      "description": "A closed synthetic opportunity for ICU planning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "closed"
+    },
+    {
+      "id": "opportunity-005",
+      "title": "Night Critical Care Review",
+      "description": "A simulated overnight review of critical care workflows.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-006",
+      "title": "Pediatric Family Education Project",
+      "description": "A fabricated project supporting pediatric family learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-007",
+      "title": "Closed Pediatric Education Forum",
+      "description": "A closed synthetic pediatric education opportunity.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "closed"
+    },
+    {
+      "id": "opportunity-008",
+      "title": "Community Health Outreach Team",
+      "description": "A simulated community prevention and outreach placement.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-009",
+      "title": "Arts in Nursing Reflection Group",
+      "description": "A fabricated open group with an unrelated topic.",
+      "category": "wellbeing",
+      "required_skills": [],
+      "interests": [
+        "creative writing"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-010",
+      "title": "Transplant Coordination Workshop",
+      "description": "A synthetic workshop requiring a specialized coordination skill.",
+      "category": "specialty care",
+      "required_skills": [
+        "transplant coordination"
+      ],
+      "interests": [
+        "transplant care"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-011",
+      "title": "Emergency Triage Simulation",
+      "description": "A fabricated emergency response simulation for nurses.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing",
+        "triage"
+      ],
+      "interests": [
+        "emergency care"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-012",
+      "title": "Night Shift Peer Support",
+      "description": "A simulated peer group for nurses working overnight.",
+      "category": "wellbeing",
+      "required_skills": [],
+      "interests": [
+        "peer support"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-013",
+      "title": "Acute Care Synthetic Opportunity 013",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care",
+        "license renewal"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-014",
+      "title": "Pediatrics Synthetic Opportunity 014",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-015",
+      "title": "Community Health Synthetic Opportunity 015",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-016",
+      "title": "Emergency Care Synthetic Opportunity 016",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-017",
+      "title": "Rehabilitation Synthetic Opportunity 017",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-018",
+      "title": "Acute Care Synthetic Opportunity 018",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-019",
+      "title": "Pediatrics Synthetic Opportunity 019",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-020",
+      "title": "Community Health Synthetic Opportunity 020",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-021",
+      "title": "Emergency Care Synthetic Opportunity 021",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-022",
+      "title": "Rehabilitation Synthetic Opportunity 022",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "closed"
+    },
+    {
+      "id": "opportunity-023",
+      "title": "Acute Care Synthetic Opportunity 023",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-024",
+      "title": "Pediatrics Synthetic Opportunity 024",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-025",
+      "title": "Community Health Synthetic Opportunity 025",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-026",
+      "title": "Emergency Care Synthetic Opportunity 026",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing",
+        "license renewal"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-027",
+      "title": "Rehabilitation Synthetic Opportunity 027",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-028",
+      "title": "Acute Care Synthetic Opportunity 028",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-029",
+      "title": "Pediatrics Synthetic Opportunity 029",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-030",
+      "title": "Community Health Synthetic Opportunity 030",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-031",
+      "title": "Emergency Care Synthetic Opportunity 031",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-032",
+      "title": "Rehabilitation Synthetic Opportunity 032",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-033",
+      "title": "Acute Care Synthetic Opportunity 033",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "closed"
+    },
+    {
+      "id": "opportunity-034",
+      "title": "Pediatrics Synthetic Opportunity 034",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-035",
+      "title": "Community Health Synthetic Opportunity 035",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-036",
+      "title": "Emergency Care Synthetic Opportunity 036",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-037",
+      "title": "Rehabilitation Synthetic Opportunity 037",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-038",
+      "title": "Acute Care Synthetic Opportunity 038",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-039",
+      "title": "Pediatrics Synthetic Opportunity 039",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing",
+        "license renewal"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-040",
+      "title": "Community Health Synthetic Opportunity 040",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-041",
+      "title": "Emergency Care Synthetic Opportunity 041",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-042",
+      "title": "Rehabilitation Synthetic Opportunity 042",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-043",
+      "title": "Acute Care Synthetic Opportunity 043",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-044",
+      "title": "Pediatrics Synthetic Opportunity 044",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "closed"
+    },
+    {
+      "id": "opportunity-045",
+      "title": "Community Health Synthetic Opportunity 045",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-046",
+      "title": "Emergency Care Synthetic Opportunity 046",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-047",
+      "title": "Rehabilitation Synthetic Opportunity 047",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-048",
+      "title": "Acute Care Synthetic Opportunity 048",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-049",
+      "title": "Pediatrics Synthetic Opportunity 049",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-050",
+      "title": "Community Health Synthetic Opportunity 050",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-051",
+      "title": "Emergency Care Synthetic Opportunity 051",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-052",
+      "title": "Rehabilitation Synthetic Opportunity 052",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation",
+        "license renewal"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-053",
+      "title": "Acute Care Synthetic Opportunity 053",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-054",
+      "title": "Pediatrics Synthetic Opportunity 054",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-055",
+      "title": "Community Health Synthetic Opportunity 055",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "closed"
+    },
+    {
+      "id": "opportunity-056",
+      "title": "Emergency Care Synthetic Opportunity 056",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-057",
+      "title": "Rehabilitation Synthetic Opportunity 057",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-058",
+      "title": "Acute Care Synthetic Opportunity 058",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-059",
+      "title": "Pediatrics Synthetic Opportunity 059",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-060",
+      "title": "Community Health Synthetic Opportunity 060",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-061",
+      "title": "Emergency Care Synthetic Opportunity 061",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-062",
+      "title": "Rehabilitation Synthetic Opportunity 062",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-063",
+      "title": "Acute Care Synthetic Opportunity 063",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-064",
+      "title": "Pediatrics Synthetic Opportunity 064",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-065",
+      "title": "Community Health Synthetic Opportunity 065",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health",
+        "license renewal"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-066",
+      "title": "Emergency Care Synthetic Opportunity 066",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "closed"
+    },
+    {
+      "id": "opportunity-067",
+      "title": "Rehabilitation Synthetic Opportunity 067",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-068",
+      "title": "Acute Care Synthetic Opportunity 068",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-069",
+      "title": "Pediatrics Synthetic Opportunity 069",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-070",
+      "title": "Community Health Synthetic Opportunity 070",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-071",
+      "title": "Emergency Care Synthetic Opportunity 071",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-072",
+      "title": "Rehabilitation Synthetic Opportunity 072",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-073",
+      "title": "Acute Care Synthetic Opportunity 073",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-074",
+      "title": "Pediatrics Synthetic Opportunity 074",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-075",
+      "title": "Community Health Synthetic Opportunity 075",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-076",
+      "title": "Emergency Care Synthetic Opportunity 076",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-077",
+      "title": "Rehabilitation Synthetic Opportunity 077",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "closed"
+    },
+    {
+      "id": "opportunity-078",
+      "title": "Acute Care Synthetic Opportunity 078",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care",
+        "license renewal"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-079",
+      "title": "Pediatrics Synthetic Opportunity 079",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-080",
+      "title": "Community Health Synthetic Opportunity 080",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-081",
+      "title": "Emergency Care Synthetic Opportunity 081",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-082",
+      "title": "Rehabilitation Synthetic Opportunity 082",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-083",
+      "title": "Acute Care Synthetic Opportunity 083",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-084",
+      "title": "Pediatrics Synthetic Opportunity 084",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-085",
+      "title": "Community Health Synthetic Opportunity 085",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-086",
+      "title": "Emergency Care Synthetic Opportunity 086",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-087",
+      "title": "Rehabilitation Synthetic Opportunity 087",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-088",
+      "title": "Acute Care Synthetic Opportunity 088",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "closed"
+    },
+    {
+      "id": "opportunity-089",
+      "title": "Pediatrics Synthetic Opportunity 089",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-090",
+      "title": "Community Health Synthetic Opportunity 090",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-091",
+      "title": "Emergency Care Synthetic Opportunity 091",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing",
+        "license renewal"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-092",
+      "title": "Rehabilitation Synthetic Opportunity 092",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-093",
+      "title": "Acute Care Synthetic Opportunity 093",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-094",
+      "title": "Pediatrics Synthetic Opportunity 094",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [
+        "pediatric nursing"
+      ],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-095",
+      "title": "Community Health Synthetic Opportunity 095",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-096",
+      "title": "Emergency Care Synthetic Opportunity 096",
+      "description": "A fabricated emergency care opportunity for skills practice and professional learning.",
+      "category": "emergency care",
+      "required_skills": [
+        "emergency nursing"
+      ],
+      "interests": [
+        "emergency care",
+        "triage"
+      ],
+      "availability": [
+        "night"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-097",
+      "title": "Rehabilitation Synthetic Opportunity 097",
+      "description": "A fabricated rehabilitation opportunity for skills practice and professional learning.",
+      "category": "rehabilitation",
+      "required_skills": [
+        "rehabilitation"
+      ],
+      "interests": [
+        "mobility",
+        "patient education"
+      ],
+      "availability": [],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-098",
+      "title": "Acute Care Synthetic Opportunity 098",
+      "description": "A fabricated acute care opportunity for skills practice and professional learning.",
+      "category": "acute care",
+      "required_skills": [
+        "critical care"
+      ],
+      "interests": [
+        "critical care",
+        "patient safety"
+      ],
+      "availability": [
+        "weekday_morning"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "opportunity-099",
+      "title": "Pediatrics Synthetic Opportunity 099",
+      "description": "A fabricated pediatrics opportunity for skills practice and professional learning.",
+      "category": "pediatrics",
+      "required_skills": [],
+      "interests": [
+        "education",
+        "family support"
+      ],
+      "availability": [
+        "weekday_evening"
+      ],
+      "status": "closed"
+    },
+    {
+      "id": "opportunity-100",
+      "title": "Community Health Synthetic Opportunity 100",
+      "description": "A fabricated community health opportunity for skills practice and professional learning.",
+      "category": "community health",
+      "required_skills": [
+        "community health"
+      ],
+      "interests": [
+        "public health",
+        "education"
+      ],
+      "availability": [
+        "weekend_day"
+      ],
+      "status": "open"
+    }
+  ],
+  "judgments": [
+    {
+      "profile_id": "profile-01",
+      "grades": {
+        "opportunity-001": 3,
+        "opportunity-002": 3,
+        "opportunity-003": 0,
+        "opportunity-004": 3,
+        "opportunity-005": 3,
+        "opportunity-006": 0,
+        "opportunity-007": 0,
+        "opportunity-008": 0,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 2,
+        "opportunity-012": 0,
+        "opportunity-013": 3,
+        "opportunity-014": 0,
+        "opportunity-015": 0,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 1,
+        "opportunity-019": 0,
+        "opportunity-020": 0,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 3,
+        "opportunity-024": 0,
+        "opportunity-025": 0,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 3,
+        "opportunity-029": 0,
+        "opportunity-030": 0,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 3,
+        "opportunity-034": 0,
+        "opportunity-035": 0,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 3,
+        "opportunity-039": 0,
+        "opportunity-040": 0,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 3,
+        "opportunity-044": 0,
+        "opportunity-045": 0,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 3,
+        "opportunity-049": 0,
+        "opportunity-050": 0,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 3,
+        "opportunity-054": 0,
+        "opportunity-055": 0,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 3,
+        "opportunity-059": 0,
+        "opportunity-060": 0,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 1,
+        "opportunity-064": 0,
+        "opportunity-065": 0,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 3,
+        "opportunity-069": 0,
+        "opportunity-070": 0,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 3,
+        "opportunity-074": 0,
+        "opportunity-075": 0,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 3,
+        "opportunity-079": 0,
+        "opportunity-080": 0,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 3,
+        "opportunity-084": 0,
+        "opportunity-085": 0,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 3,
+        "opportunity-089": 0,
+        "opportunity-090": 0,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 3,
+        "opportunity-094": 0,
+        "opportunity-095": 0,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 3,
+        "opportunity-099": 0,
+        "opportunity-100": 0
+      }
+    },
+    {
+      "profile_id": "profile-02",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 1,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 3,
+        "opportunity-007": 3,
+        "opportunity-008": 1,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 3,
+        "opportunity-015": 1,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 3,
+        "opportunity-020": 1,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 3,
+        "opportunity-025": 1,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 3,
+        "opportunity-030": 1,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 3,
+        "opportunity-035": 1,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 3,
+        "opportunity-040": 1,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 3,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 3,
+        "opportunity-050": 1,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 1,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 3,
+        "opportunity-060": 1,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 3,
+        "opportunity-065": 1,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 3,
+        "opportunity-070": 1,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 3,
+        "opportunity-075": 1,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 3,
+        "opportunity-080": 1,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 3,
+        "opportunity-085": 1,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 3,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 3,
+        "opportunity-095": 1,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 1
+      }
+    },
+    {
+      "profile_id": "profile-03",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 3,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 1,
+        "opportunity-007": 1,
+        "opportunity-008": 3,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 1,
+        "opportunity-015": 3,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 1,
+        "opportunity-020": 3,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 1,
+        "opportunity-025": 3,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 1,
+        "opportunity-030": 3,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 1,
+        "opportunity-035": 3,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 1,
+        "opportunity-040": 3,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 1,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 1,
+        "opportunity-050": 3,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 3,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 1,
+        "opportunity-060": 3,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 1,
+        "opportunity-065": 3,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 1,
+        "opportunity-070": 3,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 1,
+        "opportunity-075": 3,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 1,
+        "opportunity-080": 3,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 1,
+        "opportunity-085": 3,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 1,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 1,
+        "opportunity-095": 3,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 3
+      }
+    },
+    {
+      "profile_id": "profile-04",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 0,
+        "opportunity-003": 0,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 0,
+        "opportunity-007": 0,
+        "opportunity-008": 0,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 0,
+        "opportunity-015": 0,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 0,
+        "opportunity-020": 0,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 0,
+        "opportunity-025": 0,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 0,
+        "opportunity-030": 0,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 0,
+        "opportunity-035": 0,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 0,
+        "opportunity-040": 0,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 0,
+        "opportunity-045": 0,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 0,
+        "opportunity-050": 0,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 0,
+        "opportunity-055": 0,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 0,
+        "opportunity-060": 0,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 0,
+        "opportunity-065": 0,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 0,
+        "opportunity-070": 0,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 0,
+        "opportunity-075": 0,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 0,
+        "opportunity-080": 0,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 0,
+        "opportunity-085": 0,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 0,
+        "opportunity-090": 0,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 0,
+        "opportunity-095": 0,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 0,
+        "opportunity-100": 0
+      }
+    },
+    {
+      "profile_id": "profile-05",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 1,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 1,
+        "opportunity-007": 1,
+        "opportunity-008": 1,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 1,
+        "opportunity-015": 1,
+        "opportunity-016": 0,
+        "opportunity-017": 3,
+        "opportunity-018": 0,
+        "opportunity-019": 1,
+        "opportunity-020": 1,
+        "opportunity-021": 0,
+        "opportunity-022": 3,
+        "opportunity-023": 0,
+        "opportunity-024": 1,
+        "opportunity-025": 1,
+        "opportunity-026": 0,
+        "opportunity-027": 1,
+        "opportunity-028": 0,
+        "opportunity-029": 1,
+        "opportunity-030": 1,
+        "opportunity-031": 0,
+        "opportunity-032": 3,
+        "opportunity-033": 0,
+        "opportunity-034": 1,
+        "opportunity-035": 1,
+        "opportunity-036": 0,
+        "opportunity-037": 3,
+        "opportunity-038": 0,
+        "opportunity-039": 1,
+        "opportunity-040": 1,
+        "opportunity-041": 0,
+        "opportunity-042": 3,
+        "opportunity-043": 0,
+        "opportunity-044": 1,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 3,
+        "opportunity-048": 0,
+        "opportunity-049": 1,
+        "opportunity-050": 1,
+        "opportunity-051": 0,
+        "opportunity-052": 3,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 1,
+        "opportunity-056": 0,
+        "opportunity-057": 3,
+        "opportunity-058": 0,
+        "opportunity-059": 1,
+        "opportunity-060": 1,
+        "opportunity-061": 0,
+        "opportunity-062": 3,
+        "opportunity-063": 0,
+        "opportunity-064": 1,
+        "opportunity-065": 1,
+        "opportunity-066": 0,
+        "opportunity-067": 3,
+        "opportunity-068": 0,
+        "opportunity-069": 1,
+        "opportunity-070": 1,
+        "opportunity-071": 0,
+        "opportunity-072": 1,
+        "opportunity-073": 0,
+        "opportunity-074": 1,
+        "opportunity-075": 1,
+        "opportunity-076": 0,
+        "opportunity-077": 3,
+        "opportunity-078": 0,
+        "opportunity-079": 1,
+        "opportunity-080": 1,
+        "opportunity-081": 0,
+        "opportunity-082": 3,
+        "opportunity-083": 0,
+        "opportunity-084": 1,
+        "opportunity-085": 1,
+        "opportunity-086": 0,
+        "opportunity-087": 3,
+        "opportunity-088": 0,
+        "opportunity-089": 1,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 3,
+        "opportunity-093": 0,
+        "opportunity-094": 1,
+        "opportunity-095": 1,
+        "opportunity-096": 0,
+        "opportunity-097": 3,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 1
+      }
+    },
+    {
+      "profile_id": "profile-06",
+      "grades": {
+        "opportunity-001": 3,
+        "opportunity-002": 3,
+        "opportunity-003": 2,
+        "opportunity-004": 3,
+        "opportunity-005": 3,
+        "opportunity-006": 0,
+        "opportunity-007": 0,
+        "opportunity-008": 0,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 2,
+        "opportunity-012": 0,
+        "opportunity-013": 3,
+        "opportunity-014": 0,
+        "opportunity-015": 0,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 1,
+        "opportunity-019": 0,
+        "opportunity-020": 0,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 3,
+        "opportunity-024": 0,
+        "opportunity-025": 0,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 3,
+        "opportunity-029": 0,
+        "opportunity-030": 0,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 3,
+        "opportunity-034": 0,
+        "opportunity-035": 0,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 3,
+        "opportunity-039": 0,
+        "opportunity-040": 0,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 3,
+        "opportunity-044": 0,
+        "opportunity-045": 0,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 3,
+        "opportunity-049": 0,
+        "opportunity-050": 0,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 3,
+        "opportunity-054": 0,
+        "opportunity-055": 0,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 3,
+        "opportunity-059": 0,
+        "opportunity-060": 0,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 1,
+        "opportunity-064": 0,
+        "opportunity-065": 0,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 3,
+        "opportunity-069": 0,
+        "opportunity-070": 0,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 3,
+        "opportunity-074": 0,
+        "opportunity-075": 0,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 3,
+        "opportunity-079": 0,
+        "opportunity-080": 0,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 3,
+        "opportunity-084": 0,
+        "opportunity-085": 0,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 3,
+        "opportunity-089": 0,
+        "opportunity-090": 0,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 3,
+        "opportunity-094": 0,
+        "opportunity-095": 0,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 3,
+        "opportunity-099": 0,
+        "opportunity-100": 0
+      }
+    },
+    {
+      "profile_id": "profile-07",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 1,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 3,
+        "opportunity-007": 3,
+        "opportunity-008": 1,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 3,
+        "opportunity-015": 1,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 3,
+        "opportunity-020": 1,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 3,
+        "opportunity-025": 1,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 3,
+        "opportunity-030": 1,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 3,
+        "opportunity-035": 1,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 3,
+        "opportunity-040": 1,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 3,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 3,
+        "opportunity-050": 1,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 1,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 3,
+        "opportunity-060": 1,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 3,
+        "opportunity-065": 1,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 3,
+        "opportunity-070": 1,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 3,
+        "opportunity-075": 1,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 3,
+        "opportunity-080": 1,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 3,
+        "opportunity-085": 1,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 3,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 3,
+        "opportunity-095": 1,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 1
+      }
+    },
+    {
+      "profile_id": "profile-08",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 3,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 1,
+        "opportunity-007": 1,
+        "opportunity-008": 3,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 1,
+        "opportunity-015": 3,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 1,
+        "opportunity-020": 3,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 1,
+        "opportunity-025": 3,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 1,
+        "opportunity-030": 3,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 1,
+        "opportunity-035": 3,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 1,
+        "opportunity-040": 3,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 1,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 1,
+        "opportunity-050": 3,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 3,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 1,
+        "opportunity-060": 3,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 1,
+        "opportunity-065": 3,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 1,
+        "opportunity-070": 3,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 1,
+        "opportunity-075": 3,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 1,
+        "opportunity-080": 3,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 1,
+        "opportunity-085": 3,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 1,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 1,
+        "opportunity-095": 3,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 3
+      }
+    },
+    {
+      "profile_id": "profile-09",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 0,
+        "opportunity-003": 0,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 0,
+        "opportunity-007": 0,
+        "opportunity-008": 0,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 0,
+        "opportunity-015": 0,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 0,
+        "opportunity-020": 0,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 0,
+        "opportunity-025": 0,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 0,
+        "opportunity-030": 0,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 0,
+        "opportunity-035": 0,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 0,
+        "opportunity-040": 0,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 0,
+        "opportunity-045": 0,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 0,
+        "opportunity-050": 0,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 0,
+        "opportunity-055": 0,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 0,
+        "opportunity-060": 0,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 0,
+        "opportunity-065": 0,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 0,
+        "opportunity-070": 0,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 0,
+        "opportunity-075": 0,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 0,
+        "opportunity-080": 0,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 0,
+        "opportunity-085": 0,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 0,
+        "opportunity-090": 0,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 0,
+        "opportunity-095": 0,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 0,
+        "opportunity-100": 0
+      }
+    },
+    {
+      "profile_id": "profile-10",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 1,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 1,
+        "opportunity-007": 1,
+        "opportunity-008": 1,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 1,
+        "opportunity-015": 1,
+        "opportunity-016": 0,
+        "opportunity-017": 3,
+        "opportunity-018": 0,
+        "opportunity-019": 1,
+        "opportunity-020": 1,
+        "opportunity-021": 0,
+        "opportunity-022": 3,
+        "opportunity-023": 0,
+        "opportunity-024": 1,
+        "opportunity-025": 1,
+        "opportunity-026": 0,
+        "opportunity-027": 1,
+        "opportunity-028": 0,
+        "opportunity-029": 1,
+        "opportunity-030": 1,
+        "opportunity-031": 0,
+        "opportunity-032": 3,
+        "opportunity-033": 0,
+        "opportunity-034": 1,
+        "opportunity-035": 1,
+        "opportunity-036": 0,
+        "opportunity-037": 3,
+        "opportunity-038": 0,
+        "opportunity-039": 1,
+        "opportunity-040": 1,
+        "opportunity-041": 0,
+        "opportunity-042": 3,
+        "opportunity-043": 0,
+        "opportunity-044": 1,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 3,
+        "opportunity-048": 0,
+        "opportunity-049": 1,
+        "opportunity-050": 1,
+        "opportunity-051": 0,
+        "opportunity-052": 3,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 1,
+        "opportunity-056": 0,
+        "opportunity-057": 3,
+        "opportunity-058": 0,
+        "opportunity-059": 1,
+        "opportunity-060": 1,
+        "opportunity-061": 0,
+        "opportunity-062": 3,
+        "opportunity-063": 0,
+        "opportunity-064": 1,
+        "opportunity-065": 1,
+        "opportunity-066": 0,
+        "opportunity-067": 3,
+        "opportunity-068": 0,
+        "opportunity-069": 1,
+        "opportunity-070": 1,
+        "opportunity-071": 0,
+        "opportunity-072": 1,
+        "opportunity-073": 0,
+        "opportunity-074": 1,
+        "opportunity-075": 1,
+        "opportunity-076": 0,
+        "opportunity-077": 3,
+        "opportunity-078": 0,
+        "opportunity-079": 1,
+        "opportunity-080": 1,
+        "opportunity-081": 0,
+        "opportunity-082": 3,
+        "opportunity-083": 0,
+        "opportunity-084": 1,
+        "opportunity-085": 1,
+        "opportunity-086": 0,
+        "opportunity-087": 3,
+        "opportunity-088": 0,
+        "opportunity-089": 1,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 3,
+        "opportunity-093": 0,
+        "opportunity-094": 1,
+        "opportunity-095": 1,
+        "opportunity-096": 0,
+        "opportunity-097": 3,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 1
+      }
+    },
+    {
+      "profile_id": "profile-11",
+      "grades": {
+        "opportunity-001": 3,
+        "opportunity-002": 3,
+        "opportunity-003": 0,
+        "opportunity-004": 3,
+        "opportunity-005": 3,
+        "opportunity-006": 0,
+        "opportunity-007": 0,
+        "opportunity-008": 0,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 2,
+        "opportunity-012": 0,
+        "opportunity-013": 3,
+        "opportunity-014": 0,
+        "opportunity-015": 0,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 1,
+        "opportunity-019": 0,
+        "opportunity-020": 0,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 3,
+        "opportunity-024": 0,
+        "opportunity-025": 0,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 3,
+        "opportunity-029": 0,
+        "opportunity-030": 0,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 3,
+        "opportunity-034": 0,
+        "opportunity-035": 0,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 3,
+        "opportunity-039": 0,
+        "opportunity-040": 0,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 3,
+        "opportunity-044": 0,
+        "opportunity-045": 0,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 3,
+        "opportunity-049": 0,
+        "opportunity-050": 0,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 3,
+        "opportunity-054": 0,
+        "opportunity-055": 0,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 3,
+        "opportunity-059": 0,
+        "opportunity-060": 0,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 1,
+        "opportunity-064": 0,
+        "opportunity-065": 0,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 3,
+        "opportunity-069": 0,
+        "opportunity-070": 0,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 3,
+        "opportunity-074": 0,
+        "opportunity-075": 0,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 3,
+        "opportunity-079": 0,
+        "opportunity-080": 0,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 3,
+        "opportunity-084": 0,
+        "opportunity-085": 0,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 3,
+        "opportunity-089": 0,
+        "opportunity-090": 0,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 3,
+        "opportunity-094": 0,
+        "opportunity-095": 0,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 3,
+        "opportunity-099": 0,
+        "opportunity-100": 0
+      }
+    },
+    {
+      "profile_id": "profile-12",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 1,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 3,
+        "opportunity-007": 3,
+        "opportunity-008": 1,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 3,
+        "opportunity-015": 1,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 3,
+        "opportunity-020": 1,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 3,
+        "opportunity-025": 1,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 3,
+        "opportunity-030": 1,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 3,
+        "opportunity-035": 1,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 3,
+        "opportunity-040": 1,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 3,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 3,
+        "opportunity-050": 1,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 1,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 3,
+        "opportunity-060": 1,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 3,
+        "opportunity-065": 1,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 3,
+        "opportunity-070": 1,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 3,
+        "opportunity-075": 1,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 3,
+        "opportunity-080": 1,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 3,
+        "opportunity-085": 1,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 3,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 3,
+        "opportunity-095": 1,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 1
+      }
+    },
+    {
+      "profile_id": "profile-13",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 3,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 1,
+        "opportunity-007": 1,
+        "opportunity-008": 3,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 1,
+        "opportunity-015": 3,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 1,
+        "opportunity-020": 3,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 1,
+        "opportunity-025": 3,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 1,
+        "opportunity-030": 3,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 1,
+        "opportunity-035": 3,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 1,
+        "opportunity-040": 3,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 1,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 1,
+        "opportunity-050": 3,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 3,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 1,
+        "opportunity-060": 3,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 1,
+        "opportunity-065": 3,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 1,
+        "opportunity-070": 3,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 1,
+        "opportunity-075": 3,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 1,
+        "opportunity-080": 3,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 1,
+        "opportunity-085": 3,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 1,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 1,
+        "opportunity-095": 3,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 3
+      }
+    },
+    {
+      "profile_id": "profile-14",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 0,
+        "opportunity-003": 0,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 0,
+        "opportunity-007": 0,
+        "opportunity-008": 0,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 0,
+        "opportunity-015": 0,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 0,
+        "opportunity-020": 0,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 0,
+        "opportunity-025": 0,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 0,
+        "opportunity-030": 0,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 0,
+        "opportunity-035": 0,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 0,
+        "opportunity-040": 0,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 0,
+        "opportunity-045": 0,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 0,
+        "opportunity-050": 0,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 0,
+        "opportunity-055": 0,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 0,
+        "opportunity-060": 0,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 0,
+        "opportunity-065": 0,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 0,
+        "opportunity-070": 0,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 0,
+        "opportunity-075": 0,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 0,
+        "opportunity-080": 0,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 0,
+        "opportunity-085": 0,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 0,
+        "opportunity-090": 0,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 0,
+        "opportunity-095": 0,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 0,
+        "opportunity-100": 0
+      }
+    },
+    {
+      "profile_id": "profile-15",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 1,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 1,
+        "opportunity-007": 1,
+        "opportunity-008": 1,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 1,
+        "opportunity-015": 1,
+        "opportunity-016": 0,
+        "opportunity-017": 3,
+        "opportunity-018": 0,
+        "opportunity-019": 1,
+        "opportunity-020": 1,
+        "opportunity-021": 0,
+        "opportunity-022": 3,
+        "opportunity-023": 0,
+        "opportunity-024": 1,
+        "opportunity-025": 1,
+        "opportunity-026": 0,
+        "opportunity-027": 1,
+        "opportunity-028": 0,
+        "opportunity-029": 1,
+        "opportunity-030": 1,
+        "opportunity-031": 0,
+        "opportunity-032": 3,
+        "opportunity-033": 0,
+        "opportunity-034": 1,
+        "opportunity-035": 1,
+        "opportunity-036": 0,
+        "opportunity-037": 3,
+        "opportunity-038": 0,
+        "opportunity-039": 1,
+        "opportunity-040": 1,
+        "opportunity-041": 0,
+        "opportunity-042": 3,
+        "opportunity-043": 0,
+        "opportunity-044": 1,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 3,
+        "opportunity-048": 0,
+        "opportunity-049": 1,
+        "opportunity-050": 1,
+        "opportunity-051": 0,
+        "opportunity-052": 3,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 1,
+        "opportunity-056": 0,
+        "opportunity-057": 3,
+        "opportunity-058": 0,
+        "opportunity-059": 1,
+        "opportunity-060": 1,
+        "opportunity-061": 0,
+        "opportunity-062": 3,
+        "opportunity-063": 0,
+        "opportunity-064": 1,
+        "opportunity-065": 1,
+        "opportunity-066": 0,
+        "opportunity-067": 3,
+        "opportunity-068": 0,
+        "opportunity-069": 1,
+        "opportunity-070": 1,
+        "opportunity-071": 0,
+        "opportunity-072": 1,
+        "opportunity-073": 0,
+        "opportunity-074": 1,
+        "opportunity-075": 1,
+        "opportunity-076": 0,
+        "opportunity-077": 3,
+        "opportunity-078": 0,
+        "opportunity-079": 1,
+        "opportunity-080": 1,
+        "opportunity-081": 0,
+        "opportunity-082": 3,
+        "opportunity-083": 0,
+        "opportunity-084": 1,
+        "opportunity-085": 1,
+        "opportunity-086": 0,
+        "opportunity-087": 3,
+        "opportunity-088": 0,
+        "opportunity-089": 1,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 3,
+        "opportunity-093": 0,
+        "opportunity-094": 1,
+        "opportunity-095": 1,
+        "opportunity-096": 0,
+        "opportunity-097": 3,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 1
+      }
+    },
+    {
+      "profile_id": "profile-16",
+      "grades": {
+        "opportunity-001": 3,
+        "opportunity-002": 3,
+        "opportunity-003": 0,
+        "opportunity-004": 3,
+        "opportunity-005": 3,
+        "opportunity-006": 0,
+        "opportunity-007": 0,
+        "opportunity-008": 0,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 2,
+        "opportunity-012": 0,
+        "opportunity-013": 3,
+        "opportunity-014": 0,
+        "opportunity-015": 0,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 1,
+        "opportunity-019": 0,
+        "opportunity-020": 0,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 3,
+        "opportunity-024": 0,
+        "opportunity-025": 0,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 3,
+        "opportunity-029": 0,
+        "opportunity-030": 0,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 3,
+        "opportunity-034": 0,
+        "opportunity-035": 0,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 3,
+        "opportunity-039": 0,
+        "opportunity-040": 0,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 3,
+        "opportunity-044": 0,
+        "opportunity-045": 0,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 3,
+        "opportunity-049": 0,
+        "opportunity-050": 0,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 3,
+        "opportunity-054": 0,
+        "opportunity-055": 0,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 3,
+        "opportunity-059": 0,
+        "opportunity-060": 0,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 1,
+        "opportunity-064": 0,
+        "opportunity-065": 0,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 3,
+        "opportunity-069": 0,
+        "opportunity-070": 0,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 3,
+        "opportunity-074": 0,
+        "opportunity-075": 0,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 3,
+        "opportunity-079": 0,
+        "opportunity-080": 0,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 3,
+        "opportunity-084": 0,
+        "opportunity-085": 0,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 3,
+        "opportunity-089": 0,
+        "opportunity-090": 0,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 3,
+        "opportunity-094": 0,
+        "opportunity-095": 0,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 3,
+        "opportunity-099": 0,
+        "opportunity-100": 0
+      }
+    },
+    {
+      "profile_id": "profile-17",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 1,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 3,
+        "opportunity-007": 3,
+        "opportunity-008": 1,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 3,
+        "opportunity-015": 1,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 3,
+        "opportunity-020": 1,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 3,
+        "opportunity-025": 1,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 3,
+        "opportunity-030": 1,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 3,
+        "opportunity-035": 1,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 3,
+        "opportunity-040": 1,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 3,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 3,
+        "opportunity-050": 1,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 1,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 3,
+        "opportunity-060": 1,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 3,
+        "opportunity-065": 1,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 3,
+        "opportunity-070": 1,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 3,
+        "opportunity-075": 1,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 3,
+        "opportunity-080": 1,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 3,
+        "opportunity-085": 1,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 3,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 3,
+        "opportunity-095": 1,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 1
+      }
+    },
+    {
+      "profile_id": "profile-18",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 3,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 1,
+        "opportunity-007": 1,
+        "opportunity-008": 3,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 1,
+        "opportunity-015": 3,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 1,
+        "opportunity-020": 3,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 1,
+        "opportunity-025": 3,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 1,
+        "opportunity-030": 3,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 1,
+        "opportunity-035": 3,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 1,
+        "opportunity-040": 3,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 1,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 1,
+        "opportunity-050": 3,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 3,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 1,
+        "opportunity-060": 3,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 1,
+        "opportunity-065": 3,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 1,
+        "opportunity-070": 3,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 1,
+        "opportunity-075": 3,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 1,
+        "opportunity-080": 3,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 1,
+        "opportunity-085": 3,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 1,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 1,
+        "opportunity-095": 3,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 3
+      }
+    },
+    {
+      "profile_id": "profile-19",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 0,
+        "opportunity-003": 0,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 0,
+        "opportunity-007": 0,
+        "opportunity-008": 0,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 0,
+        "opportunity-015": 0,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 0,
+        "opportunity-020": 0,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 0,
+        "opportunity-025": 0,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 0,
+        "opportunity-030": 0,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 0,
+        "opportunity-035": 0,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 0,
+        "opportunity-040": 0,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 0,
+        "opportunity-045": 0,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 0,
+        "opportunity-050": 0,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 0,
+        "opportunity-055": 0,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 0,
+        "opportunity-060": 0,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 0,
+        "opportunity-065": 0,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 0,
+        "opportunity-070": 0,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 0,
+        "opportunity-075": 0,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 0,
+        "opportunity-080": 0,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 0,
+        "opportunity-085": 0,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 0,
+        "opportunity-090": 0,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 0,
+        "opportunity-095": 0,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 0,
+        "opportunity-100": 0
+      }
+    },
+    {
+      "profile_id": "profile-20",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 1,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 1,
+        "opportunity-007": 1,
+        "opportunity-008": 1,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 1,
+        "opportunity-015": 1,
+        "opportunity-016": 0,
+        "opportunity-017": 3,
+        "opportunity-018": 0,
+        "opportunity-019": 1,
+        "opportunity-020": 1,
+        "opportunity-021": 0,
+        "opportunity-022": 3,
+        "opportunity-023": 0,
+        "opportunity-024": 1,
+        "opportunity-025": 1,
+        "opportunity-026": 0,
+        "opportunity-027": 1,
+        "opportunity-028": 0,
+        "opportunity-029": 1,
+        "opportunity-030": 1,
+        "opportunity-031": 0,
+        "opportunity-032": 3,
+        "opportunity-033": 0,
+        "opportunity-034": 1,
+        "opportunity-035": 1,
+        "opportunity-036": 0,
+        "opportunity-037": 3,
+        "opportunity-038": 0,
+        "opportunity-039": 1,
+        "opportunity-040": 1,
+        "opportunity-041": 0,
+        "opportunity-042": 3,
+        "opportunity-043": 0,
+        "opportunity-044": 1,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 3,
+        "opportunity-048": 0,
+        "opportunity-049": 1,
+        "opportunity-050": 1,
+        "opportunity-051": 0,
+        "opportunity-052": 3,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 1,
+        "opportunity-056": 0,
+        "opportunity-057": 3,
+        "opportunity-058": 0,
+        "opportunity-059": 1,
+        "opportunity-060": 1,
+        "opportunity-061": 0,
+        "opportunity-062": 3,
+        "opportunity-063": 0,
+        "opportunity-064": 1,
+        "opportunity-065": 1,
+        "opportunity-066": 0,
+        "opportunity-067": 3,
+        "opportunity-068": 0,
+        "opportunity-069": 1,
+        "opportunity-070": 1,
+        "opportunity-071": 0,
+        "opportunity-072": 1,
+        "opportunity-073": 0,
+        "opportunity-074": 1,
+        "opportunity-075": 1,
+        "opportunity-076": 0,
+        "opportunity-077": 3,
+        "opportunity-078": 0,
+        "opportunity-079": 1,
+        "opportunity-080": 1,
+        "opportunity-081": 0,
+        "opportunity-082": 3,
+        "opportunity-083": 0,
+        "opportunity-084": 1,
+        "opportunity-085": 1,
+        "opportunity-086": 0,
+        "opportunity-087": 3,
+        "opportunity-088": 0,
+        "opportunity-089": 1,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 3,
+        "opportunity-093": 0,
+        "opportunity-094": 1,
+        "opportunity-095": 1,
+        "opportunity-096": 0,
+        "opportunity-097": 3,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 1
+      }
+    },
+    {
+      "profile_id": "profile-21",
+      "grades": {
+        "opportunity-001": 3,
+        "opportunity-002": 3,
+        "opportunity-003": 0,
+        "opportunity-004": 3,
+        "opportunity-005": 3,
+        "opportunity-006": 0,
+        "opportunity-007": 0,
+        "opportunity-008": 0,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 2,
+        "opportunity-012": 0,
+        "opportunity-013": 3,
+        "opportunity-014": 0,
+        "opportunity-015": 0,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 1,
+        "opportunity-019": 0,
+        "opportunity-020": 0,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 3,
+        "opportunity-024": 0,
+        "opportunity-025": 0,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 3,
+        "opportunity-029": 0,
+        "opportunity-030": 0,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 3,
+        "opportunity-034": 0,
+        "opportunity-035": 0,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 3,
+        "opportunity-039": 0,
+        "opportunity-040": 0,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 3,
+        "opportunity-044": 0,
+        "opportunity-045": 0,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 3,
+        "opportunity-049": 0,
+        "opportunity-050": 0,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 3,
+        "opportunity-054": 0,
+        "opportunity-055": 0,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 3,
+        "opportunity-059": 0,
+        "opportunity-060": 0,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 1,
+        "opportunity-064": 0,
+        "opportunity-065": 0,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 3,
+        "opportunity-069": 0,
+        "opportunity-070": 0,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 3,
+        "opportunity-074": 0,
+        "opportunity-075": 0,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 3,
+        "opportunity-079": 0,
+        "opportunity-080": 0,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 3,
+        "opportunity-084": 0,
+        "opportunity-085": 0,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 3,
+        "opportunity-089": 0,
+        "opportunity-090": 0,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 3,
+        "opportunity-094": 0,
+        "opportunity-095": 0,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 3,
+        "opportunity-099": 0,
+        "opportunity-100": 0
+      }
+    },
+    {
+      "profile_id": "profile-22",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 1,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 3,
+        "opportunity-007": 3,
+        "opportunity-008": 1,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 3,
+        "opportunity-015": 1,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 3,
+        "opportunity-020": 1,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 3,
+        "opportunity-025": 1,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 3,
+        "opportunity-030": 1,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 3,
+        "opportunity-035": 1,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 3,
+        "opportunity-040": 1,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 3,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 3,
+        "opportunity-050": 1,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 1,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 3,
+        "opportunity-060": 1,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 3,
+        "opportunity-065": 1,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 3,
+        "opportunity-070": 1,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 3,
+        "opportunity-075": 1,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 3,
+        "opportunity-080": 1,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 3,
+        "opportunity-085": 1,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 3,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 3,
+        "opportunity-095": 1,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 1
+      }
+    },
+    {
+      "profile_id": "profile-23",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 3,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 1,
+        "opportunity-007": 1,
+        "opportunity-008": 3,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 1,
+        "opportunity-015": 3,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 0,
+        "opportunity-019": 1,
+        "opportunity-020": 3,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 0,
+        "opportunity-024": 1,
+        "opportunity-025": 3,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 0,
+        "opportunity-029": 1,
+        "opportunity-030": 3,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 0,
+        "opportunity-034": 1,
+        "opportunity-035": 3,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 0,
+        "opportunity-039": 1,
+        "opportunity-040": 3,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 0,
+        "opportunity-044": 1,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 0,
+        "opportunity-049": 1,
+        "opportunity-050": 3,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 3,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 0,
+        "opportunity-059": 1,
+        "opportunity-060": 3,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 0,
+        "opportunity-064": 1,
+        "opportunity-065": 3,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 0,
+        "opportunity-069": 1,
+        "opportunity-070": 3,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 0,
+        "opportunity-074": 1,
+        "opportunity-075": 3,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 0,
+        "opportunity-079": 1,
+        "opportunity-080": 3,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 0,
+        "opportunity-084": 1,
+        "opportunity-085": 3,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 0,
+        "opportunity-089": 1,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 0,
+        "opportunity-094": 1,
+        "opportunity-095": 3,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 3
+      }
+    },
+    {
+      "profile_id": "profile-24",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 0,
+        "opportunity-003": 0,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 0,
+        "opportunity-007": 0,
+        "opportunity-008": 0,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 1,
+        "opportunity-014": 0,
+        "opportunity-015": 0,
+        "opportunity-016": 0,
+        "opportunity-017": 0,
+        "opportunity-018": 1,
+        "opportunity-019": 0,
+        "opportunity-020": 0,
+        "opportunity-021": 0,
+        "opportunity-022": 0,
+        "opportunity-023": 1,
+        "opportunity-024": 0,
+        "opportunity-025": 0,
+        "opportunity-026": 0,
+        "opportunity-027": 0,
+        "opportunity-028": 1,
+        "opportunity-029": 0,
+        "opportunity-030": 0,
+        "opportunity-031": 0,
+        "opportunity-032": 0,
+        "opportunity-033": 1,
+        "opportunity-034": 0,
+        "opportunity-035": 0,
+        "opportunity-036": 0,
+        "opportunity-037": 0,
+        "opportunity-038": 1,
+        "opportunity-039": 0,
+        "opportunity-040": 0,
+        "opportunity-041": 0,
+        "opportunity-042": 0,
+        "opportunity-043": 1,
+        "opportunity-044": 0,
+        "opportunity-045": 0,
+        "opportunity-046": 0,
+        "opportunity-047": 0,
+        "opportunity-048": 1,
+        "opportunity-049": 0,
+        "opportunity-050": 0,
+        "opportunity-051": 0,
+        "opportunity-052": 0,
+        "opportunity-053": 1,
+        "opportunity-054": 0,
+        "opportunity-055": 0,
+        "opportunity-056": 0,
+        "opportunity-057": 0,
+        "opportunity-058": 1,
+        "opportunity-059": 0,
+        "opportunity-060": 0,
+        "opportunity-061": 0,
+        "opportunity-062": 0,
+        "opportunity-063": 1,
+        "opportunity-064": 0,
+        "opportunity-065": 0,
+        "opportunity-066": 0,
+        "opportunity-067": 0,
+        "opportunity-068": 1,
+        "opportunity-069": 0,
+        "opportunity-070": 0,
+        "opportunity-071": 0,
+        "opportunity-072": 0,
+        "opportunity-073": 1,
+        "opportunity-074": 0,
+        "opportunity-075": 0,
+        "opportunity-076": 0,
+        "opportunity-077": 0,
+        "opportunity-078": 1,
+        "opportunity-079": 0,
+        "opportunity-080": 0,
+        "opportunity-081": 0,
+        "opportunity-082": 0,
+        "opportunity-083": 1,
+        "opportunity-084": 0,
+        "opportunity-085": 0,
+        "opportunity-086": 0,
+        "opportunity-087": 0,
+        "opportunity-088": 1,
+        "opportunity-089": 0,
+        "opportunity-090": 0,
+        "opportunity-091": 0,
+        "opportunity-092": 0,
+        "opportunity-093": 1,
+        "opportunity-094": 0,
+        "opportunity-095": 0,
+        "opportunity-096": 0,
+        "opportunity-097": 0,
+        "opportunity-098": 1,
+        "opportunity-099": 0,
+        "opportunity-100": 0
+      }
+    },
+    {
+      "profile_id": "profile-25",
+      "grades": {
+        "opportunity-001": 0,
+        "opportunity-002": 1,
+        "opportunity-003": 1,
+        "opportunity-004": 0,
+        "opportunity-005": 0,
+        "opportunity-006": 1,
+        "opportunity-007": 1,
+        "opportunity-008": 1,
+        "opportunity-009": 0,
+        "opportunity-010": 0,
+        "opportunity-011": 0,
+        "opportunity-012": 0,
+        "opportunity-013": 0,
+        "opportunity-014": 1,
+        "opportunity-015": 1,
+        "opportunity-016": 0,
+        "opportunity-017": 3,
+        "opportunity-018": 0,
+        "opportunity-019": 1,
+        "opportunity-020": 1,
+        "opportunity-021": 0,
+        "opportunity-022": 3,
+        "opportunity-023": 0,
+        "opportunity-024": 1,
+        "opportunity-025": 1,
+        "opportunity-026": 0,
+        "opportunity-027": 1,
+        "opportunity-028": 0,
+        "opportunity-029": 1,
+        "opportunity-030": 1,
+        "opportunity-031": 0,
+        "opportunity-032": 3,
+        "opportunity-033": 0,
+        "opportunity-034": 1,
+        "opportunity-035": 1,
+        "opportunity-036": 0,
+        "opportunity-037": 3,
+        "opportunity-038": 0,
+        "opportunity-039": 1,
+        "opportunity-040": 1,
+        "opportunity-041": 0,
+        "opportunity-042": 3,
+        "opportunity-043": 0,
+        "opportunity-044": 1,
+        "opportunity-045": 1,
+        "opportunity-046": 0,
+        "opportunity-047": 3,
+        "opportunity-048": 0,
+        "opportunity-049": 1,
+        "opportunity-050": 1,
+        "opportunity-051": 0,
+        "opportunity-052": 3,
+        "opportunity-053": 0,
+        "opportunity-054": 1,
+        "opportunity-055": 1,
+        "opportunity-056": 0,
+        "opportunity-057": 3,
+        "opportunity-058": 0,
+        "opportunity-059": 1,
+        "opportunity-060": 1,
+        "opportunity-061": 0,
+        "opportunity-062": 3,
+        "opportunity-063": 0,
+        "opportunity-064": 1,
+        "opportunity-065": 1,
+        "opportunity-066": 0,
+        "opportunity-067": 3,
+        "opportunity-068": 0,
+        "opportunity-069": 1,
+        "opportunity-070": 1,
+        "opportunity-071": 0,
+        "opportunity-072": 1,
+        "opportunity-073": 0,
+        "opportunity-074": 1,
+        "opportunity-075": 1,
+        "opportunity-076": 0,
+        "opportunity-077": 3,
+        "opportunity-078": 0,
+        "opportunity-079": 1,
+        "opportunity-080": 1,
+        "opportunity-081": 0,
+        "opportunity-082": 3,
+        "opportunity-083": 0,
+        "opportunity-084": 1,
+        "opportunity-085": 1,
+        "opportunity-086": 0,
+        "opportunity-087": 3,
+        "opportunity-088": 0,
+        "opportunity-089": 1,
+        "opportunity-090": 1,
+        "opportunity-091": 0,
+        "opportunity-092": 3,
+        "opportunity-093": 0,
+        "opportunity-094": 1,
+        "opportunity-095": 1,
+        "opportunity-096": 0,
+        "opportunity-097": 3,
+        "opportunity-098": 0,
+        "opportunity-099": 1,
+        "opportunity-100": 1
+      }
+    }
+  ]
+}
