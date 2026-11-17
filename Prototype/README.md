@@ -29,7 +29,9 @@ fabricated, and the system has not been validated for 10,000 users.
 
 ## Prerequisites
 
-- Python with pip, Node.js with npm, and a running PostgreSQL server.
+- Python with pip, Node.js with npm, and a running PostgreSQL server. The
+  frontend test runner requires Node.js 22.12 or later on the 22.x line,
+  Node.js 24.x, or Node.js 26 or later.
 - An empty, dedicated PostgreSQL database for this prototype. The application
   creates its tables and inserts two synthetic opportunities on startup; it does
   not use or migrate existing databases.
@@ -121,6 +123,11 @@ npm run dev
 Open the localhost URL printed by Vite. Choose Nurse 1, save an opted-in
 profile with `mentoring` and `weekday_morning`, then generate recommendations.
 Choose Administrator to create listings and respond to support requests.
+For an alternative interface showing the same sections one at a time, open
+`/tabbed.html` on that same localhost URL. The original grid interface remains
+available at `/`; both interfaces share the view components in `frontend/src/views`,
+the same local API, and demo data. Switching tabs keeps unfinished form drafts
+while the page remains open.
 The API documentation is available at `http://127.0.0.1:8000/docs`; API calls
 require an `X-Demo-User` header of `nurse`, `nurse2`, or `admin`.
 
@@ -146,5 +153,11 @@ From `Prototype\backend`, run `python -m pytest -q`. API tests use an isolated,
 in-memory SQLite database so they do not touch the user's PostgreSQL database.
 To include the PostgreSQL integration test, set `GONURSE_TEST_POSTGRES_URL` to
 the connection URL of a dedicated test database before running pytest. The test
-creates and removes its own uniquely named schema. The browser build can be
-checked from `Prototype\frontend` with `npm run build`.
+creates and removes its own uniquely named schema. From `Prototype\frontend`,
+run `npm test` for the frontend unit tests or `npm run test:watch` while
+developing. These tests do not require the API or PostgreSQL. The browser build
+can be checked with `npm run build`.
+
+GitHub Actions runs the frontend tests and build alongside the backend syntax
+check and tests on pushes and pull requests. The PostgreSQL integration test is
+skipped in CI unless a test database is configured.
