@@ -20,6 +20,7 @@ export default function App({ tabbed = false }) {
   const [user, setUser] = useState('nurse');
   const [activeTab, setActiveTab] = useState('profile');
   const tabRefs = useRef({});
+  const navigatorRequestId = useRef(0);
 
   const [profile, setProfile] = useState(emptyProfile);
   const [opportunities, setOpportunities] = useState([]);
@@ -86,6 +87,7 @@ export default function App({ tabbed = false }) {
   // Invalidate pending requests and clear outdated recommendation information.
   function clearRecommendations() {
     recommendationRequestId.current += 1;
+    navigatorRequestId.current += 1;
     setRecommendations([]);
     setRecommendationId('');
     setAnswer(null);
@@ -182,6 +184,7 @@ export default function App({ tabbed = false }) {
     let active = true;
 
     recommendationRequestId.current += 1;
+    navigatorRequestId.current += 1;
     setProfile(emptyProfile);
     setRecommendations([]);
     setRequests([]);
@@ -240,6 +243,7 @@ export default function App({ tabbed = false }) {
     return () => {
       active = false;
       recommendationRequestId.current += 1;
+      navigatorRequestId.current += 1;
     };
   }, [user]);
 
@@ -275,6 +279,7 @@ export default function App({ tabbed = false }) {
 
       <div className="warning">
         Synthetic data only. Demo identities are not authentication.
+        Career Navigator and matching use deterministic rules, not AI.
         Do not enter patient or sensitive information.
       </div>
 
@@ -346,8 +351,10 @@ export default function App({ tabbed = false }) {
               setRecommendations={setRecommendations}
               api={api}
               run={run}
-              onGenerate={generateRecommendations}
+              recommendationRequestId={recommendationRequestId}
               onAskAbout={id => {
+                navigatorRequestId.current += 1;
+                setAnswer(null);
                 setRecommendationId(id);
                 setChat('Why was this recommended?');
 
@@ -367,6 +374,7 @@ export default function App({ tabbed = false }) {
               setRecommendationId={setRecommendationId}
               answer={answer}
               setAnswer={setAnswer}
+              navigatorRequestId={navigatorRequestId}
               api={api}
               run={run}
             />
