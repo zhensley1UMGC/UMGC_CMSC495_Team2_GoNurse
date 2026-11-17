@@ -4,6 +4,7 @@ import React from 'react';
 export default function RecommendationsView({
   panelProps,
   recommendations,
+  recommendationsGenerated = false,
   api,
   run,
   onAskAbout,
@@ -17,9 +18,16 @@ export default function RecommendationsView({
         Generate recommendations
       </button>
 
-      {recommendations.length === 0 && (
-        <p>No recommendations displayed yet.</p>
-      )}
+      {recommendations.length === 0 && (recommendationsGenerated
+        ? (
+          <p role="status">
+            No open opportunities match your saved profile. All required skills
+            must match, and any listed availability must match at least one of
+            your saved times. Interests help rank eligible matches. Update and
+            save your profile, then generate again.
+          </p>
+        )
+        : <p>No recommendations displayed yet.</p>)}
 
       {recommendations.map(rec => (
         <article key={rec.id}>

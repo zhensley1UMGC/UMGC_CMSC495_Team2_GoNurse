@@ -1,14 +1,12 @@
 
 import React from 'react';
-import { split } from '../formUtils';
 
 export default function ProfileView({
   panelProps,
   profile,
   setProfile,
-  api,
-  run,
-  onProfileSaved,
+  onSaveProfile,
+  onRecommendationsOptOut,
 }) {
   return (
     <section {...panelProps}>
@@ -18,22 +16,10 @@ export default function ProfileView({
         Separate items with commas. Example availability: weekday_morning.
       </p>
 
-      <form
-        onSubmit={event => {
-          event.preventDefault();
-
-          run(async () => {
-            await api('/profile', 'PUT', {
-              skills: split(profile.skills),
-              interests: split(profile.interests),
-              availability: split(profile.availability),
-              recommendations_opt_in: profile.recommendations_opt_in,
-            });
-
-            onProfileSaved?.();
-          }, 'Profile saved.');
-        }}
-      >
+      <form onSubmit={event => {
+        event.preventDefault();
+        onSaveProfile(profile);
+      }}>
         {['skills', 'interests', 'availability'].map(field => (
           <label key={field}>
             {field}
@@ -51,14 +37,16 @@ export default function ProfileView({
 
         <label className="check">
           <input
+            id="recommendations-opt-in"
             type="checkbox"
             checked={profile.recommendations_opt_in}
-            onChange={event =>
+            onChange={event => {
               setProfile({
                 ...profile,
                 recommendations_opt_in: event.target.checked,
-              })
-            }
+              });
+              if (!event.target.checked) onRecommendationsOptOut();
+            }}
           />
           Enable recommendations
         </label>

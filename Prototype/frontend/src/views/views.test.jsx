@@ -2,9 +2,8 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-
 import NavigatorView from './NavigatorView';
 import OpportunitiesView from './OpportunitiesView';
 import ProfileView from './ProfileView';
@@ -13,11 +12,8 @@ import RecommendationsView from './RecommendationsView';
 afterEach(cleanup);
 
 describe('ProfileView', () => {
-  it('submits trimmed profile fields and the opt-in choice', async () => {
-    const api = vi.fn().mockResolvedValue({});
-    const run = vi.fn(action => action());
-    const onProfileSaved = vi.fn();
-
+  it('passes the profile draft to the parent save handler', async () => {
+    const onSaveProfile = vi.fn();
     const profile = {
       skills: ' CPR, , mentoring ',
       interests: ' leadership ',
@@ -25,34 +21,34 @@ describe('ProfileView', () => {
       recommendations_opt_in: true,
     };
 
-    render(
-      <ProfileView
-        panelProps={{}}
-        profile={profile}
-        setProfile={vi.fn()}
-        api={api}
-        run={run}
-        onProfileSaved={onProfileSaved}
-      />
-    );
-
+    render(<ProfileView
+      panelProps={{}}
+      profile={profile}
+      setProfile={vi.fn()}
+      onSaveProfile={onSaveProfile}
+      onRecommendationsOptOut={vi.fn()}
+    />);
     fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
 
-    await waitFor(() =>
-      expect(api).toHaveBeenCalledWith('/profile', 'PUT', {
-        skills: ['CPR', 'mentoring'],
-        interests: ['leadership'],
-        availability: ['weekday_morning'],
-        recommendations_opt_in: true,
-      })
-    );
+    await waitFor(() => expect(onSaveProfile).toHaveBeenCalledWith(profile));
+  });
 
-    await waitFor(() => expect(onProfileSaved).toHaveBeenCalledOnce());
+  it('immediately clears Navigator state when recommendations are unchecked', () => {
+    const profile = { skills: '', interests: '', availability: '', recommendations_opt_in: true };
+    const setProfile = vi.fn();
+    const onRecommendationsOptOut = vi.fn();
+    render(<ProfileView
+      panelProps={{}}
+      profile={profile}
+      setProfile={setProfile}
+      onSaveProfile={vi.fn()}
+      onRecommendationsOptOut={onRecommendationsOptOut}
+    />);
 
-    expect(run).toHaveBeenCalledWith(
-      expect.any(Function),
-      'Profile saved.'
-    );
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Enable recommendations' }));
+
+    expect(setProfile).toHaveBeenCalledWith({ ...profile, recommendations_opt_in: false });
+    expect(onRecommendationsOptOut).toHaveBeenCalledOnce();
   });
 });
 
@@ -132,6 +128,75 @@ describe('OpportunitiesView', () => {
   });
 });
 
+describe('NavigatorView', () => {
+  it('offers support for every escalated exchange and not for other answers', () => {
+    const onRequestSupport = vi.fn();
+    const conversation = [true, false, true].map((escalation, index) => ({
+      question: `Question ${index + 1}`,
+      response: { answer: `Answer ${index + 1}`, referenced_opportunity_ids: [], escalation_suggested: escalation },
+    }));
+    render(<NavigatorView panelProps={{}} chat="" setChat={vi.fn()} recommendationId=""
+      conversation={conversation} recommendationsEnabled canSubmit={false}
+      onRequestSupport={onRequestSupport} />);
+
+    const exchanges = screen.getAllByRole('article');
+    expect(within(exchanges[0]).getByRole('button', { name: 'Request human support' })).toBeTruthy();
+    expect(within(exchanges[0]).getByText(/opens a support request form/i)).toBeTruthy();
+    expect(within(exchanges[0]).getByText(/nothing is sent until you submit/i)).toBeTruthy();
+    expect(within(exchanges[1]).queryByRole('button', { name: 'Request human support' })).toBeNull();
+    expect(within(exchanges[1]).queryByText(/opens a support request form/i)).toBeNull();
+    const action = within(exchanges[2]).getByRole('button', { name: 'Request human support' });
+    expect(action.type).toBe('button');
+    fireEvent.click(action);
+    expect(onRequestSupport).toHaveBeenCalledOnce();
+  });
+
+  it('renders Markdown and cited opportunities as linked summary cards', () => {
+    const opportunityId = '10000000-0000-4000-8000-000000000001';
+    const opportunity = {
+      id: opportunityId,
+      title: 'Nurse mentoring committee',
+      description: 'Help nurses mentor new colleagues.',
+    };
+    const onViewOpportunity = vi.fn();
+    const { container } = render(<NavigatorView
+      panelProps={{}}
+      tabbed={false}
+      chat=""
+      setChat={vi.fn()}
+      recommendationId=""
+      conversation={[{
+        question: 'What is available?',
+        omittedExchanges: 0,
+        response: {
+          answer: `Current options: - **Nurse mentoring committee** — Help nurses mentor new colleagues. (ID: ${opportunityId}) - **Pediatric education project** — Create learning resources.`,
+          referenced_opportunity_ids: [opportunityId],
+          escalation_suggested: false,
+        },
+      }]}
+      pending={null}
+      error=""
+      preferenceChanged={false}
+      recommendationsEnabled
+      canSubmit={false}
+      onSubmit={vi.fn()}
+      onNewConversation={vi.fn()}
+      opportunities={[opportunity]}
+      onViewOpportunity={onViewOpportunity}
+    />);
+
+    expect(container.querySelector('.navigator-answer ul')).toBeTruthy();
+    expect(container.textContent).not.toContain(opportunityId);
+    expect(screen.getByRole('heading', { name: opportunity.title })).toBeTruthy();
+    expect(screen.getByText(opportunity.description)).toBeTruthy();
+
+    const link = screen.getByRole('link', { name: 'View opportunity' });
+    expect(link.getAttribute('href')).toBe(`#opportunity-${opportunityId}`);
+    fireEvent.click(link);
+    expect(onViewOpportunity).toHaveBeenCalledWith(opportunityId);
+  });
+});
+
 describe('RecommendationsView', () => {
   it('calls the parent handler to generate recommendations', () => {
     const onGenerate = vi.fn();
@@ -140,6 +205,8 @@ describe('RecommendationsView', () => {
       <RecommendationsView
         panelProps={{}}
         recommendations={[]}
+        api={vi.fn()}
+        run={vi.fn()}
         onGenerate={onGenerate}
         onAskAbout={vi.fn()}
       />
@@ -156,6 +223,23 @@ describe('RecommendationsView', () => {
     );
 
     expect(onGenerate).toHaveBeenCalledOnce();
+  });
+
+  it('explains why an empty result set has no recommendations', () => {
+    render(
+      <RecommendationsView
+        panelProps={{}}
+        recommendations={[]}
+        recommendationsGenerated
+        api={vi.fn()}
+        run={vi.fn()}
+        onGenerate={vi.fn()}
+        onAskAbout={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('status').textContent).toContain('All required skills must match');
+    expect(screen.getByRole('status').textContent).toContain('any listed availability must match');
   });
 
   it('displays recommendations and allows asking about them', () => {
@@ -176,6 +260,8 @@ describe('RecommendationsView', () => {
       <RecommendationsView
         panelProps={{}}
         recommendations={recommendations}
+        api={vi.fn()}
+        run={vi.fn()}
         onGenerate={vi.fn()}
         onAskAbout={onAskAbout}
       />
@@ -194,77 +280,36 @@ describe('RecommendationsView', () => {
 });
 
 describe('NavigatorView', () => {
-  it('ignores an outdated response after the request is invalidated', async () => {
-    let resolveRequest;
-
-    const pendingRequest = new Promise(resolve => {
-      resolveRequest = resolve;
-    });
-
-    const api = vi.fn().mockReturnValue(pendingRequest);
-    const run = vi.fn(action => action());
-
-    const setAnswer = vi.fn();
-    const setChat = vi.fn();
-    const setRecommendationId = vi.fn();
-
-    const navigatorRequestId = {
-      current: 0,
-    };
-
+  it('renders conversation history, omitted exchanges, and a pending question', () => {
     render(
       <NavigatorView
         panelProps={{}}
         tabbed={false}
-        chat="Why was this recommended?"
-        setChat={setChat}
-        recommendationId={1}
-        setRecommendationId={setRecommendationId}
-        answer={null}
-        setAnswer={setAnswer}
-        api={api}
-        run={run}
-        navigatorRequestId={navigatorRequestId}
+        chat="Follow-up?"
+        setChat={vi.fn()}
+        recommendationId=""
+        conversation={[{
+          question: 'Earlier question?',
+          response: {
+            answer: 'Earlier answer.',
+            escalation_suggested: true,
+          },
+          omittedExchanges: 2,
+        }]}
+        pending={{ question: 'Follow-up?', omittedExchanges: 2 }}
+        error=""
+        preferenceChanged={false}
+        recommendationsEnabled
+        canSubmit
+        onSubmit={vi.fn()}
+        onNewConversation={vi.fn()}
       />
     );
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Ask' })
-    );
-
-    await waitFor(() =>
-      expect(api).toHaveBeenCalledWith(
-        '/navigator/messages',
-        'POST',
-        {
-          message: 'Why was this recommended?',
-          recommendation_id: 1,
-        }
-      )
-    );
-
-    // Simulate the parent invalidating pending requests
-    // after a profile change or demo-user switch.
-    navigatorRequestId.current += 1;
-
-    // The old request finishes after invalidation.
-    resolveRequest({
-      answer: 'Outdated recommendation explanation.',
-      escalation_suggested: false,
-    });
-
-    // Wait for the request handler to finish.
-    await waitFor(() => {
-      expect(run).toHaveBeenCalledOnce();
-    });
-
-    // Allow the pending Promise continuation to execute.
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    // The outdated response must not replace the cleared answer.
-    expect(setAnswer).not.toHaveBeenCalledWith({
-      answer: 'Outdated recommendation explanation.',
-      escalation_suggested: false,
-    });
+    expect(screen.getByText('Earlier question?')).toBeTruthy();
+    expect(screen.getByText('Earlier answer.')).toBeTruthy();
+    expect(screen.getByText('Waiting for Career Navigator…')).toBeTruthy();
+    expect(screen.getAllByText(/Earlier exchanges omitted from this request/)).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'Request human support' })).toBeTruthy();
   });
 });

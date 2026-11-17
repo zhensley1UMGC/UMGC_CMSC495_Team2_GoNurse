@@ -9,7 +9,7 @@ export default function OpportunitiesView({ panelProps, user, opportunities, api
   return <section {...panelProps}>
     <h2>Opportunities</h2>
     {opportunities.length === 0 && <p>No opportunities to show.</p>}
-    {opportunities.map(item => <article key={item.id}><h3>{item.title}</h3><p>{item.description}</p><small>{item.category} · {item.status} · Required skills: {item.required_skills.join(', ') || 'None'}</small>
+    {opportunities.map(item => <article id={`opportunity-${item.id}`} tabIndex={-1} key={item.id}><h3>{item.title}</h3><p>{item.description}</p><small>{item.category} · {item.status} · Required skills: {item.required_skills.join(', ') || 'None'}</small>
       {user === 'admin' && <div><button className="secondary" onClick={() => run(async () => {
         const { id, updated_at, ...fields } = item;
         await api(`/opportunities/${id}`, 'PUT', { ...fields, status: item.status === 'open' ? 'closed' : 'open' });
