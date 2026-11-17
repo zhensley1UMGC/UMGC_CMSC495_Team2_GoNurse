@@ -3,7 +3,7 @@
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator, model_validator
 
 
 class Input(BaseModel):
@@ -17,7 +17,8 @@ class Input(BaseModel):
         """Disallow whitespace-only text and blank entries in string arrays."""
         if isinstance(value, str) and not value.strip():
             raise ValueError("Text must not be blank.")
-        if isinstance(value, list) and any(not item.strip() for item in value):
+        if isinstance(value, list) and any(
+                isinstance(item, str) and not item.strip() for item in value):
             raise ValueError("Array entries must not be blank.")
         return value
 
@@ -56,11 +57,48 @@ class FeedbackInput(Input):
     comment: str | None = Field(default=None, max_length=2000)
 
 
+class ConversationTurn(BaseModel):
+    """One untrusted user or assistant turn supplied for the current request."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    role: Literal["user", "assistant"]
+    content: StrictStr
+
+    @field_validator("content")
+    @classmethod
+    def content_is_valid(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Conversation content must not be blank.")
+        return value
+
+    @model_validator(mode="after")
+    def content_is_bounded_by_role(self):
+        limit = 2000 if self.role == "user" else 8000
+        if len(self.content) > limit:
+            raise ValueError("Conversation turn exceeds its size limit.")
+        return self
+
+
 class ChatInput(Input):
     """Identify a question and, optionally, the result it refers to."""
 
     message: str = Field(min_length=1, max_length=2000)
     recommendation_id: UUID | None = None
+    history: list[ConversationTurn] = Field(default_factory=list, max_length=10)
+
+    @field_validator("history")
+    @classmethod
+    def history_is_bounded_and_complete(cls, value: list[ConversationTurn]) -> list[ConversationTurn]:
+        if len(value) % 2:
+            raise ValueError("Conversation history must contain complete exchanges.")
+        for index, turn in enumerate(value):
+            expected_role = "user" if index % 2 == 0 else "assistant"
+            if turn.role != expected_role:
+                raise ValueError("Conversation history must contain complete exchanges.")
+        if sum(len(turn.content) for turn in value) > 25000:
+            raise ValueError("Conversation history exceeds its size limit.")
+        return value
 
 
 class SupportInput(Input):

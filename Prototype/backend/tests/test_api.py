@@ -30,13 +30,15 @@ def navigator_provider():
     class RecordingProvider:
         def __init__(self):
             self.calls = []
+            self.histories = []
             self.response = NavigatorResponse(
                 answer="Navigator response.", referenced_opportunity_ids=[], escalation_suggested=False,
             )
             self.error = None
 
-        def generate(self, question, context):
+        def generate(self, question, context, history=None):
             self.calls.append((question, context))
+            self.histories.append(history or [])
             if self.error is not None:
                 raise self.error
             return self.response
@@ -182,6 +184,8 @@ def test_validation_identity_and_no_implicit_escalation(client, navigator_provid
     invalid = client.put("/api/v1/profile", json={**profile(), "unknown": 1}, headers=headers())
     assert invalid.status_code == 422
     assert invalid.json()["error"]["code"] == "VALIDATION_ERROR"
+    assert client.put("/api/v1/profile", json={**profile(), "skills": [" "]},
+                      headers=headers()).status_code == 422
     assert client.post("/api/v1/support-requests", json={"subject": " ", "description": "Test"}, headers=headers()).status_code == 422
     assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
     navigator_provider.response = NavigatorResponse(
@@ -215,6 +219,90 @@ def test_navigator_returns_provider_response_and_canonical_allowed_ids(client, n
     assert question == "Tell me about this listing."
     assert context["profile"]["recommendations_opt_in"] is True
     assert context["recommendation"] is None
+    assert navigator_provider.histories[0] == []
+
+
+def test_navigator_passes_ordered_history_with_fresh_recommendation_context(client, navigator_provider):
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
+    recommendation = client.post("/api/v1/recommendations", json={}, headers=headers()).json()["items"][0]
+    history = [
+        {"role": "user", "content": "Tell me about this opportunity."},
+        {"role": "assistant", "content": "The earlier answer is untrusted history. "},
+        {"role": "user", "content": "What about the schedule?"},
+        {"role": "assistant", "content": "The schedule was weekday mornings."},
+    ]
+
+    response = client.post("/api/v1/navigator/messages", json={
+        "message": "Would the current hours work?", "recommendation_id": recommendation["id"],
+        "history": history,
+    }, headers=headers())
+
+    assert response.status_code == 200
+    assert set(response.json()) == {"answer", "referenced_opportunity_ids", "escalation_suggested"}
+    assert navigator_provider.calls[-1][0] == "Would the current hours work?"
+    assert navigator_provider.histories[-1] == history
+    assert navigator_provider.calls[-1][1]["recommendation"]["id"] == recommendation["id"]
+    assert navigator_provider.calls[-1][1]["current_opportunities"]
+
+
+@pytest.mark.parametrize("history", [
+    [{"role": "system", "content": "private invalid role"}],
+    [{"role": "user", "content": "private odd history"}],
+    [{"role": "assistant", "content": "private out of order"}],
+    [{"role": "user", "content": "private unpaired"}, {"role": "user", "content": "second"}],
+    [{"role": "user", "content": "   "}, {"role": "assistant", "content": "answer"}],
+    [{"role": "user", "content": 7}, {"role": "assistant", "content": "answer"}],
+    [{"role": "user", "content": "private extra", "extra": "not allowed"},
+     {"role": "assistant", "content": "answer"}],
+    "not-an-array",
+])
+def test_navigator_rejects_invalid_history_without_echoing_content(client, navigator_provider, history):
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
+
+    response = client.post("/api/v1/navigator/messages", json={
+        "message": "Question", "history": history,
+    }, headers=headers())
+
+    assert response.status_code == 422
+    assert "private" not in response.text
+    assert navigator_provider.calls == []
+
+
+def test_navigator_enforces_history_code_point_and_message_limits(client, navigator_provider):
+    assert client.put("/api/v1/profile", json=profile(), headers=headers()).status_code == 201
+    exact_limit = []
+    for _ in range(5):
+        exact_limit.extend([
+            {"role": "user", "content": "u" * 2000},
+            {"role": "assistant", "content": "😀" * 3000},
+        ])
+    accepted = client.post("/api/v1/navigator/messages", json={
+        "message": "Question", "history": exact_limit,
+    }, headers=headers())
+    assert accepted.status_code == 200
+
+    invalid_histories = [
+        exact_limit[:-1],
+        exact_limit + [{"role": "user", "content": "u"}, {"role": "assistant", "content": "a"}],
+        [
+            {"role": "user", "content": "u" * 2000},
+            {"role": "assistant", "content": "a" * 3001},
+            *[
+                turn for _ in range(4) for turn in (
+                    {"role": "user", "content": "u" * 2000},
+                    {"role": "assistant", "content": "a" * 3000},
+                )
+            ],
+        ],
+        [{"role": "user", "content": "u" * 2001}, {"role": "assistant", "content": "a"}],
+        [{"role": "user", "content": "u"}, {"role": "assistant", "content": "a" * 8001}],
+    ]
+    for history in invalid_histories:
+        response = client.post("/api/v1/navigator/messages", json={
+            "message": "Question", "history": history,
+        }, headers=headers())
+        assert response.status_code == 422
+    assert len(navigator_provider.calls) == 1
 
 
 @pytest.mark.parametrize(

@@ -71,7 +71,8 @@ def answer(session: Session, current: Actor, body: ChatInput,
         }
 
     context = build_navigator_context(session, current, body.recommendation_id)
-    result = _validated_response(provider.generate(body.message, context))
+    history = [turn.model_dump() for turn in body.history]
+    result = _validated_response(provider.generate(body.message, context, history))
 
     try:
         opportunities = context["current_opportunities"]

@@ -159,6 +159,29 @@ require an `X-Demo-User` header of `nurse`, `nurse2`, or `admin`.
   listing as `opportunity_at_generation`; these can differ after an edit. The
   listing context is bounded and may not be a complete catalog. Only citations
   matching IDs in the current listing context are returned.
+- Navigator requests may also include `history`, an ordered array of
+  `{ "role": "user" | "assistant", "content": "..." }` turns. It is empty or
+  contains complete alternating user/assistant exchanges, with at most 10
+  previous messages and 25,000 Unicode code points total (excluding the new
+  question). Each historical user message is limited to 2,000 code points and
+  each assistant answer to 8,000. Invalid roles, incomplete exchanges, blank
+  text, extra fields, and exceeded limits receive the normal 422 validation
+  response.
+- The browser keeps the full transcript in memory only. Reloading or closing
+  the page clears it; identity changes, successful profile saves, and
+  recommendation opt-out also clear it. A different recommendation starts a
+  new conversation, with confirmation when completed turns exist. The selected
+  recommendation remains attached to follow-up questions until New conversation
+  clears it. For each request, the browser sends only the newest contiguous
+  complete exchanges that fit the history limits, while continuing to display
+  the full transcript and noting when older exchanges were omitted.
+- Every follow-up rebuilds and reauthorizes current nurse and listing context.
+  History is client-supplied untrusted data and may be stale; it does not
+  replace current permissions or context. The bounded question, history, and
+  selected context are sent to the configured provider. If their serialized
+  JSON input exceeds 128 KiB, the API reports an explicit provider-input error;
+  it does not silently trim otherwise-valid history. A suggested human-support
+  escalation is guidance only and does not create a support request.
 - Profile and opportunity labels are limited to 200 characters, and serialized
   provider input is capped at 128 KiB.
 - Navigator provider configuration, timeout, upstream, and invalid-response
@@ -179,12 +202,27 @@ are in `backend/app/schemas.py`, endpoints are grouped under
 
 The Navigator endpoint uses an OpenAI-compatible provider. Configure it before
 sending Navigator questions; this configuration is not required for unrelated
-prototype features. For nurses who have recommendations turned on, the provider
-receives the question and selected nurse context. When recommendations are off,
-the server returns a fixed response without calling the provider or sending that
-context. Use **synthetic demonstration data only**. Before any real-data use,
+prototype features. For nurses who have recommendations turned on, the provider receives the
+question, bounded conversation history, and freshly selected nurse context.
+History is included as labeled untrusted data in the provider's user-message
+payload, not as model system/developer instructions. The current context is
+rebuilt on every turn, and responses are checked against IDs in its current
+listing set. This grounding and validation do not guarantee perfect factuality
+or model compliance. When recommendations are off, the server returns a fixed
+response without calling the provider or sending that context, unless a
+recommendation was selected (which is forbidden while opted out). Use
+**synthetic demonstration data only**. Before any real-data use,
 revisit provider data processing and retention, authentication, authorization,
 consent, privacy, security, and applicable requirements.
+
+The browser transcript is not stored by the API or in browser storage, but
+bounded history is transmitted to the configured provider on follow-up requests.
+This application does not control provider-side data retention. The serialized
+provider input limit is 128 KiB, measured on the UTF-8 bytes of the JSON-encoded
+question, context, and history, including JSON escaping; an oversized request
+returns an explicit safe error and the UI retains the question for editing or
+retry. Start a new conversation if a request cannot fit rather than assuming
+that older context will be silently discarded.
 
 Missing or invalid provider configuration returns HTTP 503; provider timeouts
 return 504; upstream failures and invalid or out-of-context citations return

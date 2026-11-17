@@ -13,11 +13,8 @@ import RecommendationsView from './RecommendationsView';
 afterEach(cleanup);
 
 describe('ProfileView', () => {
-  it('submits trimmed profile fields and the opt-in choice', async () => {
-    const api = vi.fn().mockResolvedValue({});
-    const run = vi.fn(action => action());
-    const onProfileSaved = vi.fn();
-
+  it('passes the profile draft to the parent save handler', async () => {
+    const onSaveProfile = vi.fn();
     const profile = {
       skills: ' CPR, , mentoring ',
       interests: ' leadership ',
@@ -25,34 +22,34 @@ describe('ProfileView', () => {
       recommendations_opt_in: true,
     };
 
-    render(
-      <ProfileView
-        panelProps={{}}
-        profile={profile}
-        setProfile={vi.fn()}
-        api={api}
-        run={run}
-        onProfileSaved={onProfileSaved}
-      />
-    );
-
+    render(<ProfileView
+      panelProps={{}}
+      profile={profile}
+      setProfile={vi.fn()}
+      onSaveProfile={onSaveProfile}
+      onRecommendationsOptOut={vi.fn()}
+    />);
     fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
 
-    await waitFor(() =>
-      expect(api).toHaveBeenCalledWith('/profile', 'PUT', {
-        skills: ['CPR', 'mentoring'],
-        interests: ['leadership'],
-        availability: ['weekday_morning'],
-        recommendations_opt_in: true,
-      })
-    );
+    await waitFor(() => expect(onSaveProfile).toHaveBeenCalledWith(profile));
+  });
 
-    await waitFor(() => expect(onProfileSaved).toHaveBeenCalledOnce());
+  it('immediately clears Navigator state when recommendations are unchecked', () => {
+    const profile = { skills: '', interests: '', availability: '', recommendations_opt_in: true };
+    const setProfile = vi.fn();
+    const onRecommendationsOptOut = vi.fn();
+    render(<ProfileView
+      panelProps={{}}
+      profile={profile}
+      setProfile={setProfile}
+      onSaveProfile={vi.fn()}
+      onRecommendationsOptOut={onRecommendationsOptOut}
+    />);
 
-    expect(run).toHaveBeenCalledWith(
-      expect.any(Function),
-      'Profile saved.'
-    );
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Enable recommendations' }));
+
+    expect(setProfile).toHaveBeenCalledWith({ ...profile, recommendations_opt_in: false });
+    expect(onRecommendationsOptOut).toHaveBeenCalledOnce();
   });
 });
 
@@ -194,77 +191,35 @@ describe('RecommendationsView', () => {
 });
 
 describe('NavigatorView', () => {
-  it('ignores an outdated response after the request is invalidated', async () => {
-    let resolveRequest;
-
-    const pendingRequest = new Promise(resolve => {
-      resolveRequest = resolve;
-    });
-
-    const api = vi.fn().mockReturnValue(pendingRequest);
-    const run = vi.fn(action => action());
-
-    const setAnswer = vi.fn();
-    const setChat = vi.fn();
-    const setRecommendationId = vi.fn();
-
-    const navigatorRequestId = {
-      current: 0,
-    };
-
+  it('renders conversation history, omitted exchanges, and a pending question', () => {
     render(
       <NavigatorView
         panelProps={{}}
         tabbed={false}
-        chat="Why was this recommended?"
-        setChat={setChat}
-        recommendationId={1}
-        setRecommendationId={setRecommendationId}
-        answer={null}
-        setAnswer={setAnswer}
-        api={api}
-        run={run}
-        navigatorRequestId={navigatorRequestId}
+        chat="Follow-up?"
+        setChat={vi.fn()}
+        recommendationId=""
+        conversation={[{
+          question: 'Earlier question?',
+          response: {
+            answer: 'Earlier answer.',
+            escalation_suggested: true,
+          },
+          omittedExchanges: 2,
+        }]}
+        pending={{ question: 'Follow-up?', omittedExchanges: 2 }}
+        error=""
+        blocked={false}
+        canSubmit
+        onSubmit={vi.fn()}
+        onNewConversation={vi.fn()}
       />
     );
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Ask' })
-    );
-
-    await waitFor(() =>
-      expect(api).toHaveBeenCalledWith(
-        '/navigator/messages',
-        'POST',
-        {
-          message: 'Why was this recommended?',
-          recommendation_id: 1,
-        }
-      )
-    );
-
-    // Simulate the parent invalidating pending requests
-    // after a profile change or demo-user switch.
-    navigatorRequestId.current += 1;
-
-    // The old request finishes after invalidation.
-    resolveRequest({
-      answer: 'Outdated recommendation explanation.',
-      escalation_suggested: false,
-    });
-
-    // Wait for the request handler to finish.
-    await waitFor(() => {
-      expect(run).toHaveBeenCalledOnce();
-    });
-
-    // Allow the pending Promise continuation to execute.
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    // The outdated response must not replace the cleared answer.
-    expect(setAnswer).not.toHaveBeenCalledWith({
-      answer: 'Outdated recommendation explanation.',
-      escalation_suggested: false,
-    });
+    expect(screen.getByText('Earlier question?')).toBeTruthy();
+    expect(screen.getByText('Earlier answer.')).toBeTruthy();
+    expect(screen.getByText('Waiting for Career Navigator…')).toBeTruthy();
+    expect(screen.getAllByRole('note')).toHaveLength(2);
+    expect(screen.getByText('Consider submitting a support request below.')).toBeTruthy();
   });
 });
