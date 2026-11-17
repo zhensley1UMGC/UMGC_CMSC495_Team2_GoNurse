@@ -13,8 +13,9 @@ real employee information, or exposed to a network.
   deterministic ranking; explanations and feedback.
 - An AI-backed Career Navigator that uses a configured provider for career
   guidance grounded in a nurse-scoped profile and bounded listing context.
-  Unsupported or insufficiently supported questions can be escalated; suggesting
-  support never submits a request automatically.
+  Unsupported or insufficiently supported questions can be escalated; a support
+  action opens the existing form without copying the conversation. The nurse
+  must explicitly complete and submit the request.
 - Nurse-created support requests and administrator responses visible to the
   requesting nurse.
 

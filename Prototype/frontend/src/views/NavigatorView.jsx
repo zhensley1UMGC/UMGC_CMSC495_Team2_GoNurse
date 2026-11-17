@@ -63,6 +63,7 @@ export default function NavigatorView({
   onRemoveRecommendationContext,
   opportunities = [],
   onViewOpportunity,
+  onRequestSupport,
 }) {
   const disabled = Boolean(pending) || preferenceChanged || !recommendationsEnabled;
   const selectedRecommendation = recommendations.find(item => String(item.id) === String(recommendationId));
@@ -154,10 +155,20 @@ export default function NavigatorView({
             onViewOpportunity={onViewOpportunity}
           />
           {exchange.response.escalation_suggested && (
-            <p>
-              Consider submitting a support request{' '}
-              {tabbed ? 'in the Request human support tab' : 'below'}.
-            </p>
+            <div>
+              <p>
+                The button below opens a support request form; it does not
+                connect you immediately. Nothing is sent until you submit the
+                form.
+              </p>
+              <button
+                type="button"
+                className="secondary"
+                onClick={onRequestSupport}
+              >
+                Request human support
+              </button>
+            </div>
           )}
         </article>
       ))}

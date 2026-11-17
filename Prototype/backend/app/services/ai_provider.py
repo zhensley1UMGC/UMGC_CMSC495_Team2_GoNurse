@@ -221,8 +221,11 @@ class OpenAICompatibleProvider:
                     "described in referenced_opportunity_ids. Do not rank, generate, or independently recommend "
                     "opportunities. You may explain the selected recommendation only when "
                     "recommendations_opt_in is true. When it is false, do not generate or explain "
-                    "recommendations. Do not claim to have taken actions. Suggesting human support "
-                    "does not submit a support request."
+                    "recommendations. Do not claim to have taken actions. When escalation_suggested "
+                    "is true, the application shows a Request human support button that opens a form; "
+                    "this is not an immediate connection. Explain this option when suggesting support. "
+                    "Suggesting human support does not submit a support request; no request is sent "
+                    "until the user explicitly submits the form."
                 )},
                 {"role": "user", "content": user_content},
             ],

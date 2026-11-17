@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import NavigatorView from './NavigatorView';
 import OpportunitiesView from './OpportunitiesView';
@@ -129,6 +129,28 @@ describe('OpportunitiesView', () => {
 });
 
 describe('NavigatorView', () => {
+  it('offers support for every escalated exchange and not for other answers', () => {
+    const onRequestSupport = vi.fn();
+    const conversation = [true, false, true].map((escalation, index) => ({
+      question: `Question ${index + 1}`,
+      response: { answer: `Answer ${index + 1}`, referenced_opportunity_ids: [], escalation_suggested: escalation },
+    }));
+    render(<NavigatorView panelProps={{}} chat="" setChat={vi.fn()} recommendationId=""
+      conversation={conversation} recommendationsEnabled canSubmit={false}
+      onRequestSupport={onRequestSupport} />);
+
+    const exchanges = screen.getAllByRole('article');
+    expect(within(exchanges[0]).getByRole('button', { name: 'Request human support' })).toBeTruthy();
+    expect(within(exchanges[0]).getByText(/opens a support request form/i)).toBeTruthy();
+    expect(within(exchanges[0]).getByText(/nothing is sent until you submit/i)).toBeTruthy();
+    expect(within(exchanges[1]).queryByRole('button', { name: 'Request human support' })).toBeNull();
+    expect(within(exchanges[1]).queryByText(/opens a support request form/i)).toBeNull();
+    const action = within(exchanges[2]).getByRole('button', { name: 'Request human support' });
+    expect(action.type).toBe('button');
+    fireEvent.click(action);
+    expect(onRequestSupport).toHaveBeenCalledOnce();
+  });
+
   it('renders Markdown and cited opportunities as linked summary cards', () => {
     const opportunityId = '10000000-0000-4000-8000-000000000001';
     const opportunity = {
@@ -288,6 +310,6 @@ describe('NavigatorView', () => {
     expect(screen.getByText('Earlier answer.')).toBeTruthy();
     expect(screen.getByText('Waiting for Career Navigator…')).toBeTruthy();
     expect(screen.getAllByText(/Earlier exchanges omitted from this request/)).toHaveLength(2);
-    expect(screen.getByText('Consider submitting a support request below.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Request human support' })).toBeTruthy();
   });
 });

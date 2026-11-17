@@ -75,6 +75,8 @@ export default function App({ tabbed = false }) {
   const [navigatorError, setNavigatorError] = useState('');
   const [navigatorTargetOpportunityId, setNavigatorTargetOpportunityId] = useState('');
   const [profileSettingFocusRequested, setProfileSettingFocusRequested] = useState(false);
+  const [supportFocusRequested, setSupportFocusRequested] = useState(false);
+  const supportSubjectRef = useRef(null);
   const profileRequestId = useRef(0);
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
@@ -150,6 +152,11 @@ export default function App({ tabbed = false }) {
   function changeRecommendationContext() {
     setActiveTab('recommendations');
     tabRefs.current.recommendations?.focus();
+  }
+
+  function requestSupport() {
+    setActiveTab('support');
+    setSupportFocusRequested(true);
   }
 
   async function submitNavigator(event) {
@@ -427,6 +434,13 @@ export default function App({ tabbed = false }) {
     setProfileSettingFocusRequested(false);
   }, [activeTab, profileSettingFocusRequested, tabbed]);
 
+  useEffect(() => {
+    if (!supportFocusRequested || user === 'admin' || (tabbed && activeTab !== 'support')) return;
+    supportSubjectRef.current?.focus({ preventScroll: true });
+    supportSubjectRef.current?.scrollIntoView?.({ block: 'center' });
+    setSupportFocusRequested(false);
+  }, [activeTab, supportFocusRequested, tabbed, user]);
+
   return (
     <main>
       <header>
@@ -445,6 +459,7 @@ export default function App({ tabbed = false }) {
               clearConversation();
               setNavigatorTargetOpportunityId('');
               setProfileSettingFocusRequested(false);
+              setSupportFocusRequested(false);
               setSavedOptIn(false);
               userRef.current = event.target.value;
               setUser(event.target.value);
@@ -558,12 +573,14 @@ export default function App({ tabbed = false }) {
               onRemoveRecommendationContext={removeRecommendationContext}
               opportunities={opportunities}
               onViewOpportunity={viewOpportunity}
+              onRequestSupport={requestSupport}
             />
 
             <SupportView
               panelProps={panelProps('support')}
               subject={subject}
               setSubject={setSubject}
+              subjectRef={supportSubjectRef}
               description={description}
               setDescription={setDescription}
               api={api}

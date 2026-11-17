@@ -122,6 +122,7 @@ def test_system_instruction_covers_navigator_boundaries():
             "historical", "current_opportunities", "do not rank", "recommendations_opt_in",
             "does not submit a support request", "concise markdown", "bullet lists",
             "never include uuids in the answer", "include each opportunity described",
+            "request human support", "form", "explicitly submits", "not an immediate connection",
         ):
             assert requirement in instruction
         return response_with_json(completion({**RESULT, "referenced_opportunity_ids": []}))
