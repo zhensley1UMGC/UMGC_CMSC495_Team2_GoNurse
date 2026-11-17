@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.1-pg16
+    ports:
+      - "127.0.0.1:${GONURSE_PG_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${GONURSE_POSTGRES_ADMIN_PASSWORD:?Set GONURSE_POSTGRES_ADMIN_PASSWORD in docker/postgres/.env}
+      POSTGRES_DB: postgres
+      GONURSE_APP_PASSWORD: ${GONURSE_APP_PASSWORD:?Set GONURSE_APP_PASSWORD in docker/postgres/.env}
+      GONURSE_APP_TEST_PASSWORD: ${GONURSE_APP_TEST_PASSWORD:?Set GONURSE_APP_TEST_PASSWORD in docker/postgres/.env}
+      GONURSE_BENCHMARK_PASSWORD: ${GONURSE_BENCHMARK_PASSWORD:?Set GONURSE_BENCHMARK_PASSWORD in docker/postgres/.env}
+      GONURSE_BENCHMARK_TEST_PASSWORD: ${GONURSE_BENCHMARK_TEST_PASSWORD:?Set GONURSE_BENCHMARK_TEST_PASSWORD in docker/postgres/.env}
+    volumes:
+      - gonurse-postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init-databases.sh:/docker-entrypoint-initdb.d/10-init-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  gonurse-postgres-data:
