@@ -1,13 +1,50 @@
 """Rule-based Navigator behavior for the local prototype."""
 
+from uuid import UUID
+
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .. import database as db
-from ..common import own_profile, owned_recommendation
+from ..common import own_profile, owned_recommendation, public
 from ..identity import Actor, require
 from ..schemas import ChatInput
+from .opportunities import visible_opportunities, visible_opportunity
+
+NAVIGATOR_OPPORTUNITY_FIELDS = (
+    "id", "title", "description", "category", "required_skills", "interests", "availability",
+)
+
+
+def build_navigator_context(session: Session, current: Actor,
+                            recommendation_id: UUID | None = None) -> dict[str, object]:
+    """Build minimal, nurse-scoped context for the Navigator provider."""
+    profile = own_profile(session, current)
+    recommendation = None
+    referenced_item = None
+    if recommendation_id is not None:
+        if not profile.recommendations_opt_in:
+            raise HTTPException(403, "Recommendations are turned off.")
+        rec = owned_recommendation(session, current, recommendation_id)
+        referenced_item = visible_opportunity(session, current, rec.opportunity_snapshot["id"])
+        recommendation = {
+            "id": rec.id,
+            "opportunity_at_generation": {
+                field: rec.opportunity_snapshot[field] for field in NAVIGATOR_OPPORTUNITY_FIELDS
+            },
+            "rank": rec.rank,
+            "explanation": rec.explanation,
+        }
+
+    items = list(visible_opportunities(session, current, 20, 0))
+    if referenced_item is not None and all(item.id != referenced_item.id for item in items):
+        items.append(referenced_item)
+    return {
+        "profile": public(profile, ("skills", "interests", "availability")),
+        "current_opportunities": [public(item, NAVIGATOR_OPPORTUNITY_FIELDS) for item in items],
+        "recommendation": recommendation,
+    }
 
 
 def answer(session: Session, current: Actor, body: ChatInput) -> dict[str, object]:
