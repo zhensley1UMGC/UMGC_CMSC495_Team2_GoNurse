@@ -4,7 +4,6 @@
 import React from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-
 import NavigatorView from './NavigatorView';
 import OpportunitiesView from './OpportunitiesView';
 import ProfileView from './ProfileView';
@@ -129,6 +128,53 @@ describe('OpportunitiesView', () => {
   });
 });
 
+describe('NavigatorView', () => {
+  it('renders Markdown and cited opportunities as linked summary cards', () => {
+    const opportunityId = '10000000-0000-4000-8000-000000000001';
+    const opportunity = {
+      id: opportunityId,
+      title: 'Nurse mentoring committee',
+      description: 'Help nurses mentor new colleagues.',
+    };
+    const onViewOpportunity = vi.fn();
+    const { container } = render(<NavigatorView
+      panelProps={{}}
+      tabbed={false}
+      chat=""
+      setChat={vi.fn()}
+      recommendationId=""
+      conversation={[{
+        question: 'What is available?',
+        omittedExchanges: 0,
+        response: {
+          answer: `Current options: - **Nurse mentoring committee** — Help nurses mentor new colleagues. (ID: ${opportunityId}) - **Pediatric education project** — Create learning resources.`,
+          referenced_opportunity_ids: [opportunityId],
+          escalation_suggested: false,
+        },
+      }]}
+      pending={null}
+      error=""
+      preferenceChanged={false}
+      recommendationsEnabled
+      canSubmit={false}
+      onSubmit={vi.fn()}
+      onNewConversation={vi.fn()}
+      opportunities={[opportunity]}
+      onViewOpportunity={onViewOpportunity}
+    />);
+
+    expect(container.querySelector('.navigator-answer ul')).toBeTruthy();
+    expect(container.textContent).not.toContain(opportunityId);
+    expect(screen.getByRole('heading', { name: opportunity.title })).toBeTruthy();
+    expect(screen.getByText(opportunity.description)).toBeTruthy();
+
+    const link = screen.getByRole('link', { name: 'View opportunity' });
+    expect(link.getAttribute('href')).toBe(`#opportunity-${opportunityId}`);
+    fireEvent.click(link);
+    expect(onViewOpportunity).toHaveBeenCalledWith(opportunityId);
+  });
+});
+
 describe('RecommendationsView', () => {
   it('calls the parent handler to generate recommendations', () => {
     const onGenerate = vi.fn();
@@ -137,6 +183,8 @@ describe('RecommendationsView', () => {
       <RecommendationsView
         panelProps={{}}
         recommendations={[]}
+        api={vi.fn()}
+        run={vi.fn()}
         onGenerate={onGenerate}
         onAskAbout={vi.fn()}
       />
@@ -153,6 +201,23 @@ describe('RecommendationsView', () => {
     );
 
     expect(onGenerate).toHaveBeenCalledOnce();
+  });
+
+  it('explains why an empty result set has no recommendations', () => {
+    render(
+      <RecommendationsView
+        panelProps={{}}
+        recommendations={[]}
+        recommendationsGenerated
+        api={vi.fn()}
+        run={vi.fn()}
+        onGenerate={vi.fn()}
+        onAskAbout={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('status').textContent).toContain('All required skills must match');
+    expect(screen.getByRole('status').textContent).toContain('any listed availability must match');
   });
 
   it('displays recommendations and allows asking about them', () => {
@@ -173,6 +238,8 @@ describe('RecommendationsView', () => {
       <RecommendationsView
         panelProps={{}}
         recommendations={recommendations}
+        api={vi.fn()}
+        run={vi.fn()}
         onGenerate={vi.fn()}
         onAskAbout={onAskAbout}
       />
@@ -209,7 +276,8 @@ describe('NavigatorView', () => {
         }]}
         pending={{ question: 'Follow-up?', omittedExchanges: 2 }}
         error=""
-        blocked={false}
+        preferenceChanged={false}
+        recommendationsEnabled
         canSubmit
         onSubmit={vi.fn()}
         onNewConversation={vi.fn()}
@@ -219,7 +287,7 @@ describe('NavigatorView', () => {
     expect(screen.getByText('Earlier question?')).toBeTruthy();
     expect(screen.getByText('Earlier answer.')).toBeTruthy();
     expect(screen.getByText('Waiting for Career Navigator…')).toBeTruthy();
-    expect(screen.getAllByRole('note')).toHaveLength(2);
+    expect(screen.getAllByText(/Earlier exchanges omitted from this request/)).toHaveLength(2);
     expect(screen.getByText('Consider submitting a support request below.')).toBeTruthy();
   });
 });

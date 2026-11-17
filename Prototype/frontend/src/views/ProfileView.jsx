@@ -37,6 +37,7 @@ export default function ProfileView({
 
         <label className="check">
           <input
+            id="recommendations-opt-in"
             type="checkbox"
             checked={profile.recommendations_opt_in}
             onChange={event => {

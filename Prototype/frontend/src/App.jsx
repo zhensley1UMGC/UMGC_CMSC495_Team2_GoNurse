@@ -66,19 +66,22 @@ export default function App({ tabbed = false }) {
 
   // Tracks the latest valid recommendation request.
   const recommendationRequestId = useRef(0);
-
+  const [recommendationsGenerated, setRecommendationsGenerated] = useState(false);
   const [requests, setRequests] = useState([]);
   const [chat, setChat] = useState('');
   const [recommendationId, setRecommendationId] = useState('');
   const [conversation, setConversation] = useState([]);
   const [navigatorPending, setNavigatorPending] = useState(null);
   const [navigatorError, setNavigatorError] = useState('');
+  const [navigatorTargetOpportunityId, setNavigatorTargetOpportunityId] = useState('');
+  const [profileSettingFocusRequested, setProfileSettingFocusRequested] = useState(false);
   const profileRequestId = useRef(0);
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [notice, setNotice] = useState('');
   const [failure, setFailure] = useState('');
-  const navigatorBlocked = savedOptIn && !profile.recommendations_opt_in;
+  const navigatorPreferenceChanged = savedOptIn !== profile.recommendations_opt_in;
+  const navigatorAvailable = savedOptIn && profile.recommendations_opt_in;
 
   function clearConversation() {
     navigatorRequestId.current += 1;
@@ -99,8 +102,8 @@ export default function App({ tabbed = false }) {
 
   function selectRecommendation(id) {
     if (id !== recommendationId) {
-      if (conversation.length
-          && !window.confirm('Start a new conversation about this recommendation?')) return;
+      if ((conversation.length || chat || recommendationId || navigatorPending)
+          && !window.confirm('Start a new conversation about this recommendation? This will clear the current conversation and draft.')) return;
       clearConversation();
       setRecommendationId(id);
       setChat('Why was this recommended?');
@@ -111,9 +114,33 @@ export default function App({ tabbed = false }) {
     tabRefs.current.navigator?.focus();
   }
 
+  function removeRecommendationContext() {
+    if (!recommendationId) return;
+    if ((conversation.length || chat || navigatorPending)
+        && !window.confirm('Remove this recommendation and start a new conversation? This will clear the current conversation and draft.')) {
+      return;
+    }
+    clearConversation();
+  }
+
+  function viewOpportunity(id) {
+    setNavigatorTargetOpportunityId(String(id));
+    setActiveTab('opportunities');
+  }
+
+  function goToProfileSettings() {
+    setProfileSettingFocusRequested(true);
+    setActiveTab('profile');
+  }
+
+  function changeRecommendationContext() {
+    setActiveTab('recommendations');
+    tabRefs.current.recommendations?.focus();
+  }
+
   async function submitNavigator(event) {
     event.preventDefault();
-    if (navigatorPending || navigatorBlocked) return;
+    if (navigatorPending || navigatorPreferenceChanged || !navigatorAvailable) return;
 
     const originalDraft = chat;
     const question = normalizeQuestion(chat);
@@ -211,6 +238,7 @@ export default function App({ tabbed = false }) {
   function clearRecommendations() {
     recommendationRequestId.current += 1;
     setRecommendations([]);
+    setRecommendationsGenerated(false);
     setRecommendationId('');
   }
 
@@ -273,6 +301,7 @@ export default function App({ tabbed = false }) {
     const requestId = ++recommendationRequestId.current;
 
     setRecommendations([]);
+    setRecommendationsGenerated(false);
     clearConversation();
     setFailure('');
     setNotice('');
@@ -284,10 +313,12 @@ export default function App({ tabbed = false }) {
 
       if (requestId === recommendationRequestId.current) {
         setRecommendations(result.items);
+        setRecommendationsGenerated(true);
         setNotice('Recommendations updated.');
       }
     } catch (error) {
       if (requestId === recommendationRequestId.current) {
+        setRecommendationsGenerated(false);
         setFailure(error.message);
       }
     }
@@ -302,8 +333,11 @@ export default function App({ tabbed = false }) {
     setProfile(emptyProfile);
     setSavedOptIn(false);
     setRecommendations([]);
+    setRecommendationsGenerated(false);
     setRequests([]);
     clearConversation();
+    setNavigatorTargetOpportunityId('');
+    setProfileSettingFocusRequested(false);
     profileRequestId.current += 1;
     setNotice('');
     setFailure('');
@@ -363,6 +397,22 @@ export default function App({ tabbed = false }) {
     };
   }, [user]);
 
+  useEffect(() => {
+    if (!navigatorTargetOpportunityId || (tabbed && activeTab !== 'opportunities')) return;
+    const target = document.getElementById(`opportunity-${navigatorTargetOpportunityId}`);
+    if (target) {
+      target.focus();
+      target.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    }
+    setNavigatorTargetOpportunityId('');
+  }, [activeTab, navigatorTargetOpportunityId, tabbed]);
+
+  useEffect(() => {
+    if (!profileSettingFocusRequested || (tabbed && activeTab !== 'profile')) return;
+    document.getElementById('recommendations-opt-in')?.focus();
+    setProfileSettingFocusRequested(false);
+  }, [activeTab, profileSettingFocusRequested, tabbed]);
+
   return (
     <main>
       <header>
@@ -379,6 +429,8 @@ export default function App({ tabbed = false }) {
             onChange={event => {
               profileRequestId.current += 1;
               clearConversation();
+              setNavigatorTargetOpportunityId('');
+              setProfileSettingFocusRequested(false);
               setSavedOptIn(false);
               userRef.current = event.target.value;
               setUser(event.target.value);
@@ -465,6 +517,7 @@ export default function App({ tabbed = false }) {
               panelProps={panelProps('recommendations')}
               recommendations={recommendations}
               setRecommendations={setRecommendations}
+              recommendationsGenerated={recommendationsGenerated}
               api={api}
               run={run}
               onGenerate={generateRecommendations}
@@ -480,10 +533,17 @@ export default function App({ tabbed = false }) {
               conversation={conversation}
               pending={navigatorPending}
               error={navigatorError}
-              blocked={navigatorBlocked}
+              preferenceChanged={navigatorPreferenceChanged}
+              recommendationsEnabled={navigatorAvailable}
               canSubmit={Boolean(normalizeQuestion(chat))}
               onSubmit={submitNavigator}
               onNewConversation={startNewConversation}
+              onGoToProfile={goToProfileSettings}
+              recommendations={recommendations}
+              onChangeRecommendationContext={changeRecommendationContext}
+              onRemoveRecommendationContext={removeRecommendationContext}
+              opportunities={opportunities}
+              onViewOpportunity={viewOpportunity}
             />
 
             <SupportView

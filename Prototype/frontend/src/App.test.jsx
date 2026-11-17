@@ -154,7 +154,7 @@ describe('Navigator conversations', () => {
         { role: 'assistant', content: '😀'.repeat(8000) },
       ],
     });
-    expect(screen.getByRole('note').textContent).toContain('Earlier exchanges omitted from this request: 1.');
+    expect(screen.getByText(/Earlier exchanges omitted from this request: 1\./)).toBeTruthy();
     expect(screen.getAllByRole('article', { name: /Conversation exchange/ })).toHaveLength(4);
   });
 
@@ -193,7 +193,7 @@ describe('Navigator conversations', () => {
     expect(body.history).toHaveLength(10);
     expect(body.history[0]).toEqual({ role: 'user', content: 'Question 2?' });
     expect(body.history[9]).toEqual({ role: 'assistant', content: 'Answer 6.' });
-    expect(screen.getByRole('note').textContent).toContain('Earlier exchanges omitted from this request: 1.');
+    expect(screen.getByText(/Earlier exchanges omitted from this request: 1\./)).toBeTruthy();
     expect(screen.getAllByRole('article', { name: /Conversation exchange/ })).toHaveLength(7);
   });
 
@@ -230,7 +230,7 @@ describe('Navigator conversations', () => {
     expect(screen.queryByText('Opt-out guidance.')).toBeNull();
     expect(question.value).toBe('');
     expect(question.disabled).toBe(true);
-    expect(screen.getByText('Save your changed recommendation preference before asking a new question.')).toBeTruthy();
+    expect(screen.getByText(/Save your changed recommendation preference before asking a new question/)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
     expect(await screen.findByText('Profile save failed.')).toBeTruthy();
@@ -246,11 +246,47 @@ describe('Navigator conversations', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'Enable recommendations' }));
     expect(question.disabled).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
-    await waitFor(() => expect(question.disabled).toBe(false));
-    fireEvent.change(question, { target: { value: 'After saved opt-out' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
-    expect(await screen.findByText('Opt-out guidance.')).toBeTruthy();
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Enable recommendations in My profile' })).toBeTruthy());
+    expect(question.disabled).toBe(true);
+    expect(screen.getByRole('button', { name: 'Ask' }).disabled).toBe(true);
+    expect(fetch.mock.calls.filter(([url]) => url.endsWith('/navigator/messages'))).toHaveLength(2);
     expect(profileSaves).toBe(3);
+  });
+
+  it('requires a saved opt-in and links directly to the profile setting', async () => {
+    const fetch = initialFetch();
+    fetch.mockImplementation((url, options = {}) => {
+      if (url.endsWith('/profile') && options.method === 'PUT') return Promise.resolve(profileResponse(true));
+      if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse(false));
+      if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetch);
+    render(<App tabbed />);
+
+    await waitFor(() => expect(screen.getByLabelText('skills').value).toBe('mentoring'));
+    fireEvent.click(screen.getByRole('tab', { name: 'Career Navigator' }));
+    const question = screen.getByLabelText('Question');
+    expect(question.disabled).toBe(true);
+    expect(screen.getByText(/Career Navigator is unavailable while recommendations are turned off/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Ask' }).disabled).toBe(true);
+
+    fireEvent.click(screen.getByRole('link', { name: 'Enable recommendations in My profile' }));
+    const profileTab = screen.getByRole('tab', { name: 'My profile' });
+    await waitFor(() => expect(profileTab.getAttribute('aria-selected')).toBe('true'));
+    const preference = screen.getByRole('checkbox', { name: 'Enable recommendations' });
+    expect(document.activeElement).toBe(preference);
+
+    fireEvent.click(preference);
+    expect(question.disabled).toBe(true);
+    expect(screen.getByText(/Save your changed recommendation preference/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
+    expect(await screen.findByText('Profile saved.')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Career Navigator' }));
+    await waitFor(() => expect(question.disabled).toBe(false));
+    expect(fetch.mock.calls.filter(([url]) => url.endsWith('/navigator/messages'))).toHaveLength(0);
   });
 
   it('keeps recommendation selection sticky and confirms replacing a conversation', async () => {
@@ -273,25 +309,76 @@ describe('Navigator conversations', () => {
     });
     vi.stubGlobal('fetch', fetch);
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    render(<App />);
+    render(<App tabbed />);
 
+    fireEvent.click(await screen.findByRole('tab', { name: 'Recommendations' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Generate recommendations' }));
     const askButtons = await screen.findAllByRole('button', { name: 'Ask about this' });
     fireEvent.click(askButtons[0]);
+    await waitFor(() => expect(screen.getByRole('tab', { name: 'Career Navigator' }).getAttribute('aria-selected')).toBe('true'));
     fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
     expect(await screen.findByText('Recommendation answer.')).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Question'), { target: { value: 'A follow-up' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Change recommendation' }));
+    await waitFor(() => expect(screen.getByRole('tab', { name: 'Recommendations' }).getAttribute('aria-selected')).toBe('true'));
     fireEvent.click(askButtons[1]);
     expect(confirm).toHaveBeenCalledOnce();
-    expect(screen.getByText('Selected recommendation: rec-1')).toBeTruthy();
+    fireEvent.click(screen.getByRole('tab', { name: 'Career Navigator' }));
+    const firstContext = screen.getByRole('group', { name: 'Recommendation context' });
+    expect(firstContext.textContent).toContain('First');
+    expect(firstContext.textContent).not.toContain('rec-1');
     expect(screen.getByText('Recommendation answer.')).toBeTruthy();
     expect(screen.getByLabelText('Question').value).toBe('A follow-up');
 
     confirm.mockReturnValue(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Change recommendation' }));
+    await waitFor(() => expect(screen.getByRole('tab', { name: 'Recommendations' }).getAttribute('aria-selected')).toBe('true'));
     fireEvent.click(askButtons[1]);
+    await waitFor(() => expect(screen.getByRole('tab', { name: 'Career Navigator' }).getAttribute('aria-selected')).toBe('true'));
     expect(screen.queryByText('Recommendation answer.')).toBeNull();
-    expect(screen.getByText('Selected recommendation: rec-2')).toBeTruthy();
+    const secondContext = screen.getByRole('group', { name: 'Recommendation context' });
+    expect(secondContext.textContent).toContain('Second');
+    expect(secondContext.textContent).not.toContain('rec-2');
+    expect(screen.getByText(/current open opportunities, and the selected recommendation/)).toBeTruthy();
     expect(screen.getByLabelText('Question').value).toBe('Why was this recommended?');
     expect(fetch.mock.calls.filter(([url]) => url.endsWith('/navigator/messages'))).toHaveLength(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove context' }));
+    expect(screen.queryByRole('group', { name: 'Recommendation context' })).toBeNull();
+    expect(screen.getByLabelText('Question').value).toBe('');
+  });
+
+  it('opens the cited opportunity when its Navigator card is followed', async () => {
+    const opportunityId = '10000000-0000-4000-8000-000000000001';
+    const opportunity = {
+      id: opportunityId,
+      title: 'Nurse mentoring committee',
+      description: 'Help nurses mentor new colleagues.',
+      category: 'committee',
+      status: 'open',
+      required_skills: [],
+    };
+    const fetch = initialFetch();
+    fetch.mockImplementation((url, options = {}) => {
+      if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [opportunity] }));
+      if (url.endsWith('/navigator/messages')) return Promise.resolve(jsonResponse({
+        answer: 'This listing may be a fit.',
+        referenced_opportunity_ids: [opportunityId],
+        escalation_suggested: false,
+      }));
+      if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetch);
+    render(<App tabbed />);
+
+    fireEvent.click(await screen.findByRole('tab', { name: 'Career Navigator' }));
+    fireEvent.change(screen.getByLabelText('Question'), { target: { value: 'What listings are available?' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
+    fireEvent.click(await screen.findByRole('link', { name: 'View opportunity' }));
+
+    await waitFor(() => expect(screen.getByRole('tab', { name: 'Opportunities' }).getAttribute('aria-selected')).toBe('true'));
+    await waitFor(() => expect(document.activeElement.id).toBe(`opportunity-${opportunityId}`));
   });
 });

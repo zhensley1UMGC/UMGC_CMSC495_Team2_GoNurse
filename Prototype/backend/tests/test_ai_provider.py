@@ -120,7 +120,8 @@ def test_system_instruction_covers_navigator_boundaries():
         for requirement in (
             "career guidance", "untrusted data", "escalate", "bounded", "incomplete",
             "historical", "current_opportunities", "do not rank", "recommendations_opt_in",
-            "does not submit a support request",
+            "does not submit a support request", "concise markdown", "bullet lists",
+            "never include uuids in the answer", "include each opportunity described",
         ):
             assert requirement in instruction
         return response_with_json(completion({**RESULT, "referenced_opportunity_ids": []}))
