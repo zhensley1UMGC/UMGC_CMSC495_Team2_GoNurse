@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 
-// Forward local /api calls to FastAPI during Vite development.
+const proxy = { '/api': 'http://127.0.0.1:8000' };
+
 export default defineConfig({
   resolve: { dedupe: ['react', 'react-dom'] },
-  server: { proxy: { '/api': 'http://127.0.0.1:8000' } },
+  server: { proxy },
+  preview: { proxy },
   build: {
     rollupOptions: {
       input: {

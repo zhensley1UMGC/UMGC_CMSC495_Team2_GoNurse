@@ -34,9 +34,11 @@ fabricated, and the system has not been validated for 10,000 users.
 
 ## Prerequisites
 
-- Python with pip, Node.js with npm, and a running PostgreSQL server. The
+- Python 3.12 with pip, Node.js with npm, and a running PostgreSQL server. CI
+  and the pinned backend dependencies use Python 3.12. The
   frontend test runner requires Node.js 22.12 or later on the 22.x line,
-  Node.js 24.x, or Node.js 26 or later.
+  Node.js 24.x, or Node.js 26 or later. Frontend lint requires Node.js 22.13 or
+  later on the 22.x line, Node.js 24.x, or Node.js 26 or later.
 - An empty, dedicated PostgreSQL database for this prototype. The application
   creates its tables and inserts two synthetic opportunities on startup; it does
   not use or migrate existing databases.
@@ -190,7 +192,7 @@ require an `X-Demo-User` header of `nurse`, `nurse2`, or `admin`.
   Provider calls use synthetic demo data only. Do not send real personal or
   employee information.
 - These demo choices are not team-approved final requirements. PostgreSQL schema
-  changes currently require manual migration; no deployment or CI is included.
+  changes currently require manual migration; no deployment is included.
 
 ## Backend layout
 
@@ -285,6 +287,48 @@ run `npm test` for the frontend unit tests or `npm run test:watch` while
 developing. These tests do not require the API or PostgreSQL. The browser build
 can be checked with `npm run build`.
 
-GitHub Actions runs the frontend tests and build alongside the backend syntax
-check and tests on pushes and pull requests. The PostgreSQL integration test is
-skipped in CI unless a test database is configured.
+## CI and release candidates
+
+GitHub Actions runs on pull requests and pushes to `main`. Feature-branch pushes
+do not independently trigger this workflow, so an open pull request does not
+cause duplicate push and pull-request runs. The `frontend` job installs from
+`package-lock.json`, lints, tests, and builds; the `backend` job installs from
+the pinned `requirements.txt`, lints, checks syntax, and tests. Both jobs have
+timeouts. The optional PostgreSQL integration test is skipped in CI; the other
+backend tests use SQLite.
+
+Run the same checks locally from `frontend` with `npm ci`, `npm run lint`,
+`npm test`, and `npm run build`; from `backend`, run
+`python -m pip install -r requirements.txt`,
+`python -m ruff check --select E9,F63,F7,F82 app tests`,
+`python -m compileall -q app`, and `python -m pytest -q`.
+
+The backend's direct dependency ranges are in `backend/requirements.in`;
+`backend/requirements.txt` pins transitive dependencies for CI and local use.
+To regenerate it using Python 3.12 and uv 0.9.26, install `uv==0.9.26` in a
+separate environment and run the following from `backend`:
+
+```shell
+uv pip compile --python 3.12 --python-version 3.12 --universal --no-header requirements.in -o requirements.txt
+```
+
+Use `--upgrade` deliberately when updating locked versions, and review and
+test the resulting lockfile on supported platforms.
+
+After both jobs succeed on a push to `main`, the delivery job rebuilds the
+frontend and uploads a versioned `gonurse-rc-<run-number>-<attempt>-<commit-sha>`
+artifact. Open the successful workflow run under the repository's **Actions**
+tab and download it from **Artifacts**. Access and retention depend on the
+repository's GitHub settings. Pull requests and failed checks do not publish
+release candidates. The artifact includes the full commit SHA, built frontend,
+backend source, pinned dependency information, and its own local setup guide
+([source](RELEASE_CANDIDATE.md)). It contains no environment files or
+credentials. This is a downloadable release candidate, **not a deployment**:
+it remains a local-only, synthetic-data-only prototype.
+
+To enforce the checks before merging, a repository administrator can create or
+edit a branch protection rule or ruleset for `main` and require both the
+`frontend` and `backend` checks shown in the pull request's checks list. The
+exact displayed check names should be selected from a completed run. Rules
+availability and editing depend on repository permissions and GitHub plan;
+documentation alone does not enforce them.

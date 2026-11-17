@@ -51,7 +51,9 @@ sections individually while leaving the original grid view available.
   data.
 
 See the [prototype README](Prototype/README.md) for Windows setup instructions,
-tests, matching rules, and known differences from the design.
+tests, CI and release-candidate downloads, matching rules, and known
+differences from the design. Release candidates are not deployments and remain
+for local, synthetic-data-only use.
 
 ## Repository layout
 
