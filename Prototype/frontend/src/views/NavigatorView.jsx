@@ -45,7 +45,6 @@ function OpportunityReferences({ ids, opportunities, onViewOpportunity }) {
 
 export default function NavigatorView({
   panelProps,
-  tabbed,
   chat,
   setChat,
   recommendationId,

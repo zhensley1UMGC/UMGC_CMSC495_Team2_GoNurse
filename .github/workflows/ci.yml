@@ -2,6 +2,7 @@ name: Build and test
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 permissions:
@@ -10,6 +11,7 @@ permissions:
 jobs:
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: Prototype/frontend
@@ -26,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint frontend
+        run: npm run lint
+
       - name: Run unit tests
         run: npm test
 
@@ -34,6 +39,7 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: Prototype/backend
@@ -50,8 +56,49 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
 
+      - name: Lint backend
+        run: python -m ruff check --select E9,F63,F7,F82 app tests
+
       - name: Check Python syntax
         run: python -m compileall -q app
 
       - name: Run tests
         run: python -m pytest -q
+
+  delivery:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: Prototype/frontend/package-lock.json
+
+      - name: Install frontend dependencies and build
+        working-directory: Prototype/frontend
+        run: |
+          if [ -n "$(find . -maxdepth 1 -name '.env*' -print -quit)" ]; then
+            echo "Frontend environment files must not be used in the RC build." >&2
+            exit 1
+          fi
+          npm ci
+          npm run build
+
+      - name: Assemble release candidate
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: bash .github/scripts/package-release-candidate.sh "$RUNNER_TEMP/gonurse-rc"
+
+      - name: Upload release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: gonurse-rc-${{ github.run_number }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: ${{ runner.temp }}/gonurse-rc/
+          if-no-files-found: error
