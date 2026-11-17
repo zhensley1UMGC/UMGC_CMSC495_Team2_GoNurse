@@ -1,5 +1,6 @@
 """Optional end-to-end persistence check against a dedicated PostgreSQL database."""
 
+import ipaddress
 import os
 from uuid import uuid4
 
@@ -12,6 +13,22 @@ from app import database
 from app.main import app
 
 
+def _database_target(url: str) -> tuple[str, int, str | None]:
+    target = make_url(url)
+    host = (target.host or "").lower().rstrip(".")
+    if host == "localhost":
+        host = "<loopback>"
+    else:
+        try:
+            address = ipaddress.ip_address(host)
+        except ValueError:
+            pass
+        else:
+            if address.is_loopback:
+                host = "<loopback>"
+    return host, target.port or 5432, target.database
+
+
 def _validate_test_database_url(url: str) -> None:
     if not url.startswith("postgresql+psycopg://"):
         pytest.fail("GONURSE_TEST_POSTGRES_URL must use postgresql+psycopg.")
@@ -22,27 +39,35 @@ def _validate_test_database_url(url: str) -> None:
         "gonurse_benchmark_test",
     }:
         pytest.fail("GONURSE_TEST_POSTGRES_URL must use a dedicated test database.")
-    test_address = (test_target.host, test_target.port or 5432, test_target.database)
+    test_address = _database_target(url)
     for setting in (
         "DATABASE_URL",
         "GONURSE_BENCHMARK_DATABASE_URL",
         "GONURSE_BENCHMARK_TEST_DATABASE_URL",
     ):
         other_url = os.environ.get(setting)
-        if other_url:
-            other_target = make_url(other_url)
-            if test_address == (
-                other_target.host, other_target.port or 5432, other_target.database
-            ):
-                pytest.fail(
-                    f"GONURSE_TEST_POSTGRES_URL must target a database separate from {setting}."
-                )
+        if other_url and test_address == _database_target(other_url):
+            pytest.fail(
+                f"GONURSE_TEST_POSTGRES_URL must target a database separate from {setting}."
+            )
 
 
 def test_postgresql_test_url_rejects_benchmark_test_database():
     url = "postgresql+psycopg://localhost/gonurse_benchmark_test"
     with pytest.raises(pytest.fail.Exception, match="dedicated test database"):
         _validate_test_database_url(url)
+
+
+def test_postgresql_test_url_rejects_loopback_host_alias(monkeypatch):
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+psycopg://gonurse_app:password@localhost:5432/custom_db",
+    )
+    test_url = (
+        "postgresql+psycopg://gonurse_test:password@127.0.0.1:5432/custom_db"
+    )
+    with pytest.raises(pytest.fail.Exception, match="separate from DATABASE_URL"):
+        _validate_test_database_url(test_url)
 
 
 def test_postgresql_round_trip(monkeypatch):

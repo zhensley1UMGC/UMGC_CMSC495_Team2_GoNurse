@@ -114,7 +114,10 @@ $env:DATABASE_URL = Read-Host 'Application database URL'
 ```
 
 ```shell
-read -s -p 'Application database URL: ' DATABASE_URL; export DATABASE_URL; echo
+printf 'Application database URL: '
+IFS= read -r -s DATABASE_URL
+export DATABASE_URL
+printf '\n'
 ```
 
 For the benchmark, set `GONURSE_BENCHMARK_DATABASE_URL` to the benchmark role

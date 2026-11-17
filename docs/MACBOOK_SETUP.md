@@ -253,7 +253,10 @@ In the backend Terminal, enter the complete local URL without saving it in
 shell history:
 
 ```bash
-read -s -p 'Application database URL: ' DATABASE_URL; export DATABASE_URL; echo
+printf 'Application database URL: '
+IFS= read -r -s DATABASE_URL
+export DATABASE_URL
+printf '\n'
 ```
 
 Use this format, replacing the password and port with your local values:
@@ -424,7 +427,10 @@ source .venv/bin/activate
 Configure the app database connection (enter the URL for `gonurse_app`):
 
 ```bash
-read -s -p 'Application database URL: ' DATABASE_URL; export DATABASE_URL; echo
+printf 'Application database URL: '
+IFS= read -r -s DATABASE_URL
+export DATABASE_URL
+printf '\n'
 ```
 
 Start FastAPI:
