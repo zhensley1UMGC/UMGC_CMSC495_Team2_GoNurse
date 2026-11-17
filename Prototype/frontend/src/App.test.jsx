@@ -381,4 +381,60 @@ describe('Navigator conversations', () => {
     await waitFor(() => expect(screen.getByRole('tab', { name: 'Opportunities' }).getAttribute('aria-selected')).toBe('true'));
     await waitFor(() => expect(document.activeElement.id).toBe(`opportunity-${opportunityId}`));
   });
+
+  it('loads a cited selected recommendation that is outside the first opportunities page', async () => {
+    const opportunityId = '10000000-0000-4000-8000-000000000099';
+    const opportunity = {
+      id: opportunityId,
+      title: 'Advanced mentoring project',
+      description: 'Mentor nurses across the organization.',
+      category: 'mentoring',
+      status: 'open',
+      required_skills: ['mentoring'],
+      interests: ['education'],
+      availability: ['weekday_morning'],
+    };
+    const firstPage = Array.from({ length: 20 }, (_, index) => ({
+      id: `listing-${index}`,
+      title: `Listing ${index}`,
+      description: 'Another listing.',
+      category: 'project',
+      status: 'open',
+      required_skills: [],
+    }));
+    const recommendationItems = [{
+      id: 'rec-1',
+      rank: 1,
+      explanation: 'A matching recommendation.',
+      opportunity,
+    }];
+    const fetch = initialFetch();
+    fetch.mockImplementation((url, options = {}) => {
+      if (url.endsWith(`/opportunities/${opportunityId}`)) return Promise.resolve(jsonResponse(opportunity));
+      if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: firstPage }));
+      if (url.endsWith('/navigator/messages')) return Promise.resolve(jsonResponse({
+        answer: 'This recommendation could be a fit.',
+        referenced_opportunity_ids: [opportunityId],
+        escalation_suggested: false,
+      }));
+      if (url.endsWith('/recommendations')) return Promise.resolve(jsonResponse({ items: recommendationItems }));
+      if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetch);
+    render(<App tabbed />);
+
+    fireEvent.click(await screen.findByRole('tab', { name: 'Recommendations' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Generate recommendations' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Ask about this' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Ask' }));
+
+    expect(await screen.findByRole('heading', { name: opportunity.title })).toBeTruthy();
+    fireEvent.click(screen.getByRole('link', { name: 'View opportunity' }));
+
+    await waitFor(() => expect(screen.getByRole('tab', { name: 'Opportunities' }).getAttribute('aria-selected')).toBe('true'));
+    await waitFor(() => expect(document.activeElement.id).toBe(`opportunity-${opportunityId}`));
+    expect(fetch).toHaveBeenCalledWith(`/api/v1/opportunities/${opportunityId}`, expect.any(Object));
+  });
 });

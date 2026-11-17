@@ -31,13 +31,11 @@ function OpportunityReferences({ ids, opportunities, onViewOpportunity }) {
       return <li className="navigator-opportunity" key={opportunity.id}>
         <h3>{opportunity.title}</h3>
         <p>{summary}</p>
-        <a
-          href={`#opportunity-${opportunity.id}`}
-          onClick={event => {
-            event.preventDefault();
-            onViewOpportunity?.(opportunity.id);
-          }}
-        >
+        <a href={`#opportunity-${opportunity.id}`} onClick={event => {
+          if (!onViewOpportunity) return;
+          event.preventDefault();
+          onViewOpportunity(opportunity.id);
+        }}>
           View opportunity
         </a>
       </li>;
@@ -69,6 +67,9 @@ export default function NavigatorView({
   const disabled = Boolean(pending) || preferenceChanged || !recommendationsEnabled;
   const selectedRecommendation = recommendations.find(item => String(item.id) === String(recommendationId));
   const recommendationTitle = selectedRecommendation?.opportunity?.title || 'Selected recommendation';
+  const referenceOpportunities = selectedRecommendation?.opportunity
+    ? [...opportunities, selectedRecommendation.opportunity]
+    : opportunities;
 
   return (
     <section {...panelProps}>
@@ -149,7 +150,7 @@ export default function NavigatorView({
           <NavigatorAnswer answer={exchange.response.answer} />
           <OpportunityReferences
             ids={exchange.response.referenced_opportunity_ids}
-            opportunities={opportunities}
+            opportunities={referenceOpportunities}
             onViewOpportunity={onViewOpportunity}
           />
           {exchange.response.escalation_suggested && (

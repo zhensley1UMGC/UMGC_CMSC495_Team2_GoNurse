@@ -123,8 +123,22 @@ export default function App({ tabbed = false }) {
     clearConversation();
   }
 
-  function viewOpportunity(id) {
-    setNavigatorTargetOpportunityId(String(id));
+  async function viewOpportunity(id) {
+    const opportunityId = String(id);
+    if (!opportunities.some(opportunity => String(opportunity.id) === opportunityId)) {
+      const identity = userRef.current;
+      try {
+        const opportunity = await api(`/opportunities/${opportunityId}`);
+        if (identity !== userRef.current) return;
+        setOpportunities(current => current.some(item => String(item.id) === opportunityId)
+          ? current
+          : [...current, opportunity]);
+      } catch (error) {
+        if (identity === userRef.current) setFailure(error.message);
+        return;
+      }
+    }
+    setNavigatorTargetOpportunityId(opportunityId);
     setActiveTab('opportunities');
   }
 
