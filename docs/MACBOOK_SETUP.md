@@ -3,7 +3,7 @@
 **Project:** UMGC CMSC 495 Team 2 — GoNurse  
 **Platform:** Apple MacBook (macOS)  
 **Purpose:** Local development and testing  
-**Status:** Successfully tested on a MacBook
+**Status:** Updated for Docker Compose; verify against your local Mac setup
 
 1. Introduction
 
@@ -15,7 +15,7 @@ GoNurse consists of three main technologies:
 
 - **React:** Provides the frontend user interface.
 - **Python FastAPI:** Runs the backend API.
-- **PostgreSQL:** Stores application data.
+- **Docker Compose:** Runs the local PostgreSQL/pgvector database service.
 
 **Important:** GoNurse is a local demonstration prototype, not a production application. Use synthetic demonstration data only. Do not enter real patient or employee information.
 
@@ -28,8 +28,8 @@ The following versions were used during the successful MacBook setup:
 | Python | 3.11.7 |
 | Node.js | 24.22 |
 | npm | 11.19.1 |
-| PostgreSQL | 18.6 |
-| Database management | Postgres.app |
+| Pinned PostgreSQL container | 16 (`pgvector/pgvector:0.8.1-pg16`) |
+| Container management | Docker Desktop and Docker Compose |
 | Backend | FastAPI with Uvicorn |
 | Frontend | React with Vite |
 
@@ -115,103 +115,74 @@ https://nodejs.org/
 
 Install a compatible version and verify both commands again.
 
-## 6. Install PostgreSQL Using Postgres.app
+## 6. Install and Start Docker Desktop
 
-PostgreSQL is required for the GoNurse backend database.
+Install Docker Desktop for Mac by following the instructions at
+https://www.docker.com/products/docker-desktop/, then open it and wait until
+the Docker Engine is running. Docker Compose starts the project's pinned
+PostgreSQL/pgvector container; Postgres.app and a separate host PostgreSQL
+installation are not required.
 
-Step 6.1: Download Postgres.app
-
-1. Open https://postgresapp.com/.
-2. Download the appropriate Postgres.app version for your Mac.
-3. Install the application following the official instructions.
-4. Open **Postgres.app**.
-
-### Step 6.2: Start PostgreSQL
-
-1. Select your PostgreSQL server in Postgres.app.
-2. Initialize a server if one has not already been configured.
-3. Click **Start** if the server is stopped.
-4. Confirm that the server displays **Running** with a green status indicator.
-
-During testing, the server displayed:
-
-```text
-PostgreSQL 18
-Status: Running
-Port: 5432
-```
-
-Port `5432` is the standard PostgreSQL port used in this guide.
-### PostgreSQL Setup Screenshot
-
-The screenshot below shows PostgreSQL 18 running on a MacBook with the GoNurse database configured.
-
-![PostgreSQL 18 running in Postgres.app](images/postgres-running.png)
-
-## 7. Create the GoNurse Database
-
-A dedicated database helps keep GoNurse development data separate from other PostgreSQL databases.
-
-### Step 7.1: Open a PostgreSQL Terminal
-
-Use Postgres.app's connection tools or a configured `psql` command to connect to an existing local PostgreSQL database.
-
-For example, if `psql` is available in Terminal and your local PostgreSQL role permits it:
+From the repository root, copy the credential template and edit the copy:
 
 ```bash
-psql -d postgres
+cp docker/postgres/.env.example docker/postgres/.env
 ```
 
-### Step 7.2: Create the Database
+If you already have `docker/postgres/.env` from an earlier setup, keep its
+existing passwords and add a distinct `GONURSE_APP_TEST_PASSWORD` value from
+the updated example file; do not overwrite your local credentials.
 
-Inside the PostgreSQL terminal, execute:
+Set distinct private local passwords in `docker/postgres/.env` for the
+PostgreSQL administrator, application, application-test, benchmark, and
+benchmark-test roles. Use URL-safe alphanumeric values.
+`docker/postgres/.env` is ignored by Git; never commit or share it. The example
+values are placeholders.
 
-```sql
-CREATE DATABASE gonurse_prototype;
+Start the service and wait until its health check succeeds:
+
+```bash
+docker compose --env-file docker/postgres/.env up -d --wait
+docker compose --env-file docker/postgres/.env ps
 ```
 
-If `gonurse_prototype` already exists, skip this command.
+The database is bound only to `127.0.0.1:5432`. To use another port, set
+`GONURSE_PG_PORT` in `docker/postgres/.env` and use that port in the connection URL.
 
-### Step 7.3: Connect to the Database
+Compose creates isolated application, application-test, benchmark, and
+benchmark-test databases, each with a separate login role. The `vector`
+extension is enabled only in the benchmark and benchmark-test databases. Each
+test role can connect only to its own database and create its own schema there.
 
-Run:
+The initializer runs automatically only on a fresh data volume. For an
+existing volume, add `GONURSE_APP_TEST_PASSWORD` to the local `.env`, start the
+service, then rerun the idempotent initializer to add the test databases:
 
-```text
-\c gonurse_prototype
+```bash
+docker compose --env-file docker/postgres/.env up -d --wait
+docker compose --env-file docker/postgres/.env exec --user postgres -T postgres bash /docker-entrypoint-initdb.d/10-init-databases.sh
 ```
 
-Then verify the active database:
+The script creates missing roles and databases and leaves existing role
+passwords unchanged. Editing the `.env` alone does not change existing
+passwords.
 
-```sql
-SELECT current_database();
-```
+## 7. Database Layout and Connection URLs
 
-Expected result:
+Use the password for the matching role from `docker/postgres/.env` and the
+configured Compose port (default `5432`) in each URL:
 
-```text
-gonurse_prototype
-```
+| Purpose | Database and role | Environment setting |
+|---|---|---|
+| Application | `gonurse_app` / `gonurse_app` | `DATABASE_URL=postgresql+psycopg://gonurse_app:YOUR_APP_PASSWORD@127.0.0.1:5432/gonurse_app` |
+| Application integration test | `gonurse_app_test` / `gonurse_app_test` | `GONURSE_TEST_POSTGRES_URL=postgresql+psycopg://gonurse_app_test:YOUR_APP_TEST_PASSWORD@127.0.0.1:5432/gonurse_app_test` |
+| Benchmark | `gonurse_benchmark` / `gonurse_benchmark` | `GONURSE_BENCHMARK_DATABASE_URL=postgresql+psycopg://gonurse_benchmark:YOUR_BENCHMARK_PASSWORD@127.0.0.1:5432/gonurse_benchmark` |
+| Benchmark integration test | `gonurse_benchmark_test` / `gonurse_benchmark_test` | `GONURSE_BENCHMARK_TEST_DATABASE_URL=postgresql+psycopg://gonurse_benchmark_test:YOUR_BENCHMARK_TEST_PASSWORD@127.0.0.1:5432/gonurse_benchmark_test` |
 
- Step 7.4: Verify in Postgres.app
-
-During the successful MacBook setup, Postgres.app displayed these databases:
-
-| Database | Purpose |
-|---|---|
-| `gonurse_prototype` | Dedicated GoNurse database |
-| `postgres` | Existing default PostgreSQL database |
-| `protech` | Existing local user database |
-| `template1` | PostgreSQL template database |
-
-The GoNurse database was created without deleting or modifying the existing databases.
-
-**Important:** Do not delete existing databases to install GoNurse.
-
-When finished with the PostgreSQL command-line session, enter:
-
-```text
-\q
-```
+Keep the benchmark and its test on their explicit settings, never
+`DATABASE_URL`. Benchmark schema creation must remain opt-in. Both integration
+tests use their own test database and role; the application test setting never
+falls back to `DATABASE_URL`.
 
 ## 8. Open the Backend Folder in Terminal
 
@@ -275,38 +246,36 @@ Wait until installation completes successfully before continuing.
 
 If an installation error occurs, read the error message before retrying. Do not delete unrelated Python installations or system files.
 
-11. Configure the PostgreSQL Database Connection
+11. Configure the Application Database Connection
 
-The backend needs a database connection string to communicate with PostgreSQL.
-
-In the same backend Terminal window, run:
+The backend uses the dedicated `gonurse_app` database and `gonurse_app` role.
+In the backend Terminal, enter the complete local URL without saving it in
+shell history:
 
 ```bash
-export DATABASE_URL='postgresql+psycopg://YOUR_DB_USER@localhost:5432/gonurse_prototype'
+printf 'Application database URL: '
+IFS= read -r -s DATABASE_URL
+export DATABASE_URL
+printf '\n'
 ```
 
-Replace `YOUR_DB_USER` with the PostgreSQL role configured on your MacBook.
+Use this format, replacing the password and port with your local values:
+`postgresql+psycopg://gonurse_app:YOUR_APP_PASSWORD@127.0.0.1:5432/gonurse_app`.
+The URL is active only in the current terminal session; repeat this step in a
+new backend terminal.
 
-For example, during the successful local test, the PostgreSQL role matched the macOS account username and the local connection did not require a password.
-
-Other computers may require different PostgreSQL authentication settings.
-
-The connection string specifies:
-
-- `postgresql+psycopg`: PostgreSQL connection using the psycopg driver.
-- `localhost`: The database is running on the same computer.
-- `5432`: The PostgreSQL port.
-- `gonurse_prototype`: The dedicated GoNurse database.
-
-**Security:** Never commit real passwords or other secrets to GitHub.
-
-The `export` command sets the environment variable for the current Terminal session. You will normally need to run it again when opening a new backend Terminal session.
+The benchmark must use `GONURSE_BENCHMARK_DATABASE_URL` with the
+`gonurse_benchmark` database and benchmark role. Its optional PostgreSQL test
+must use the separate `GONURSE_BENCHMARK_TEST_DATABASE_URL` setting, test
+database, and test role. Neither setting falls back to `DATABASE_URL` or points
+to another purpose's database. The app's optional persistence test uses
+`GONURSE_TEST_POSTGRES_URL` with the `gonurse_app_test` database and role.
 
 12. Start the FastAPI Backend
 
 Make sure:
 
-- PostgreSQL is running.
+- Docker Compose reports PostgreSQL as healthy.
 - The backend virtual environment is active.
 - The `DATABASE_URL` environment variable is configured.
 
@@ -404,7 +373,7 @@ GoNurse requires the following local services:
 
 | Component | Location |
 |---|---|
-| PostgreSQL | Postgres.app, port 5432 |
+| PostgreSQL | Docker Compose, loopback port 5432 by default |
 | FastAPI backend | `http://127.0.0.1:8000` |
 | React frontend | `http://127.0.0.1:5173` |
 
@@ -424,9 +393,14 @@ a. Go to the frontend Terminal window.
 b. Press **Control + C** to stop the frontend development server.
 c. Go to the backend Terminal window.
 d. Press **Control + C** to stop FastAPI.
-e. Stop PostgreSQL in Postgres.app if no other local application needs it.
+e. From the repository root, run
+   `docker compose --env-file docker/postgres/.env down` to stop PostgreSQL.
 
-Stopping these services does not delete the GoNurse database or project files.
+`docker compose --env-file docker/postgres/.env down` preserves the named data
+volume. Do not use `docker compose --env-file docker/postgres/.env down -v`
+unless you intend to permanently delete the local database data. Initialization
+runs automatically only on a fresh data volume; rerun the initializer as
+described in Section 6 to provision new databases on an existing volume.
 
 17. How to Restart GoNurse Later
 
@@ -434,7 +408,11 @@ You do not need to repeat the complete installation every time you want to use G
 
 Step 17.1: Start PostgreSQL
 
-Open Postgres.app and confirm that PostgreSQL is running.
+From the repository root, start the container and wait for health:
+
+```bash
+docker compose --env-file docker/postgres/.env up -d --wait
+```
 
 Step 17.2: Restart the Backend
 
@@ -446,10 +424,13 @@ Activate the virtual environment:
 source .venv/bin/activate
 ```
 
-Configure the database connection:
+Configure the app database connection (enter the URL for `gonurse_app`):
 
 ```bash
-export DATABASE_URL='postgresql+psycopg://YOUR_DB_USER@localhost:5432/gonurse_prototype'
+printf 'Application database URL: '
+IFS= read -r -s DATABASE_URL
+export DATABASE_URL
+printf '\n'
 ```
 
 Start FastAPI:
@@ -480,27 +461,32 @@ You normally do not need to recreate the database, reinstall dependencies, or re
 
 18. Troubleshooting
 
-Problem: PostgreSQL Is Not Running
+Problem: PostgreSQL Container Is Not Healthy
 
-**Possible cause:** The database server is stopped.
+**Possible causes:** Docker Desktop is stopped, the configured port is in use,
+or the container failed during first-time initialization.
 
 **Solution:**
 
-1. Open Postgres.app.
-2. Select the PostgreSQL server.
-3. Click **Start** if necessary.
-4. Confirm that the status shows **Running**.
+1. Open Docker Desktop and confirm that its engine is running.
+2. From the repository root, inspect
+   `docker compose --env-file docker/postgres/.env ps` and
+   `docker compose --env-file docker/postgres/.env logs postgres`.
+3. If port `5432` is occupied, set a free `GONURSE_PG_PORT` in
+   `docker/postgres/.env` and use
+   that port in `DATABASE_URL`.
 
 Problem: Backend Cannot Connect to PostgreSQL
 
 **Possible causes:**
 
-- PostgreSQL is stopped.
-- The database name is incorrect.
-- The PostgreSQL username is incorrect.
-- The local database requires authentication.
+- The container is unhealthy.
+- The URL does not use `gonurse_app`.
+- The app password or port does not match local Compose configuration.
 
-Solution:** Confirm the database exists, PostgreSQL is running, and `DATABASE_URL` matches your local configuration.
+**Solution:** Check Compose health and confirm that `DATABASE_URL` uses the
+`gonurse_app` role, local app password, `gonurse_app` database, and configured
+Compose port.
 
  roblem: Python Module Not Found
 
@@ -572,8 +558,8 @@ The following setup tasks were completed successfully during MacBook testing:
 |---|---|
 | Python installation checked | Successful |
 | Node.js and npm checked | Successful |
-| PostgreSQL 18 started | Successful |
-| Dedicated GoNurse database created | Successful |
+| Docker Compose PostgreSQL service started | Successful |
+| Separate app and benchmark databases provisioned | Successful |
 | PostgreSQL database connection verified | Successful |
 | Python virtual environment created | Successful |
 | Backend dependencies installed | Successful |

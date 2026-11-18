@@ -1,14 +1,73 @@
 """Optional end-to-end persistence check against a dedicated PostgreSQL database."""
 
+import ipaddress
 import os
 from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
+from sqlalchemy.engine import make_url
 
 from app import database
 from app.main import app
+
+
+def _database_target(url: str) -> tuple[str, int, str | None]:
+    target = make_url(url)
+    host = (target.host or "").lower().rstrip(".")
+    if host == "localhost":
+        host = "<loopback>"
+    else:
+        try:
+            address = ipaddress.ip_address(host)
+        except ValueError:
+            pass
+        else:
+            if address.is_loopback:
+                host = "<loopback>"
+    return host, target.port or 5432, target.database
+
+
+def _validate_test_database_url(url: str) -> None:
+    if not url.startswith("postgresql+psycopg://"):
+        pytest.fail("GONURSE_TEST_POSTGRES_URL must use postgresql+psycopg.")
+    test_target = make_url(url)
+    if test_target.database in {
+        "gonurse_app",
+        "gonurse_benchmark",
+        "gonurse_benchmark_test",
+    }:
+        pytest.fail("GONURSE_TEST_POSTGRES_URL must use a dedicated test database.")
+    test_address = _database_target(url)
+    for setting in (
+        "DATABASE_URL",
+        "GONURSE_BENCHMARK_DATABASE_URL",
+        "GONURSE_BENCHMARK_TEST_DATABASE_URL",
+    ):
+        other_url = os.environ.get(setting)
+        if other_url and test_address == _database_target(other_url):
+            pytest.fail(
+                f"GONURSE_TEST_POSTGRES_URL must target a database separate from {setting}."
+            )
+
+
+def test_postgresql_test_url_rejects_benchmark_test_database():
+    url = "postgresql+psycopg://localhost/gonurse_benchmark_test"
+    with pytest.raises(pytest.fail.Exception, match="dedicated test database"):
+        _validate_test_database_url(url)
+
+
+def test_postgresql_test_url_rejects_loopback_host_alias(monkeypatch):
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+psycopg://gonurse_app:password@localhost:5432/custom_db",
+    )
+    test_url = (
+        "postgresql+psycopg://gonurse_test:password@127.0.0.1:5432/custom_db"
+    )
+    with pytest.raises(pytest.fail.Exception, match="separate from DATABASE_URL"):
+        _validate_test_database_url(test_url)
 
 
 def test_postgresql_round_trip(monkeypatch):
@@ -16,8 +75,7 @@ def test_postgresql_round_trip(monkeypatch):
     url = os.environ.get("GONURSE_TEST_POSTGRES_URL")
     if not url:
         pytest.skip("Set GONURSE_TEST_POSTGRES_URL to a dedicated test database.")
-    if not url.startswith("postgresql+psycopg://"):
-        pytest.fail("GONURSE_TEST_POSTGRES_URL must use postgresql+psycopg.")
+    _validate_test_database_url(url)
     # Scope table creation and writes to a uniquely named schema, not public.
     schema = f"gonurse_test_{uuid4().hex}"
     admin = create_engine(url)

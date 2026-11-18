@@ -34,17 +34,13 @@ fabricated, and the system has not been validated for 10,000 users.
 
 ## Prerequisites
 
-- Python 3.12 with pip, Node.js with npm, and a running PostgreSQL server. CI
-  and the pinned backend dependencies use Python 3.12. The
-  frontend test runner requires Node.js 22.12 or later on the 22.x line,
+- Docker Desktop or Docker Engine with the Compose plugin, Python 3.12 with pip,
+  and Node.js with npm. CI and the pinned backend dependencies use Python 3.12.
+  The frontend test runner requires Node.js 22.12 or later on the 22.x line,
   Node.js 24.x, or Node.js 26 or later. Frontend lint requires Node.js 22.13 or
   later on the 22.x line, Node.js 24.x, or Node.js 26 or later.
-- An empty, dedicated PostgreSQL database for this prototype. The application
-  creates its tables and inserts two synthetic opportunities on startup; it does
-  not use or migrate existing databases.
-- A local PostgreSQL connection string using the SQLAlchemy
-  `postgresql+psycopg://` scheme. Provide credentials through your environment;
-  do not commit them to files or share them in chats.
+- Docker provides the local PostgreSQL databases; a separate host PostgreSQL
+  installation is not required.
 
 ## Download the prototype
 
@@ -52,6 +48,113 @@ On the team's GitHub repository page, select **Code > Download ZIP** and extract
 the archive, or clone the repository using the URL provided by GitHub. If the
 repository is private, you will need access to it. Locate the `Prototype` folder
 in the downloaded files; the commands below start from that folder.
+
+## Start the local PostgreSQL service
+
+From the repository root, copy `docker/postgres/.env.example` to
+`docker/postgres/.env`. Replace each example password with a private local
+value, using a distinct URL-safe alphanumeric password for each role. The
+database `.env` file is Git-ignored; do not commit or share it. The example
+values are placeholders and must be replaced before startup.
+
+```shell
+cp docker/postgres/.env.example docker/postgres/.env
+```
+
+On Windows PowerShell, use:
+
+```powershell
+Copy-Item docker/postgres/.env.example docker/postgres/.env
+```
+
+If you already have `docker/postgres/.env` from an earlier setup, keep its
+existing passwords and add a distinct `GONURSE_APP_TEST_PASSWORD` value from
+the updated example file; do not overwrite your local credentials.
+
+Start Docker Desktop (or the Docker Engine), edit `docker/postgres/.env`, then
+run this from the repository root:
+
+```shell
+docker compose --env-file docker/postgres/.env up -d --wait
+docker compose --env-file docker/postgres/.env ps
+```
+
+The PostgreSQL/pgvector service listens on `127.0.0.1:5432` by default. To use
+another host port, set `GONURSE_PG_PORT` in `docker/postgres/.env` and use that
+port in the
+connection URLs below. The Compose health check waits for PostgreSQL to accept
+connections. If it does not become healthy, inspect
+`docker compose --env-file docker/postgres/.env ps` and
+`docker compose --env-file docker/postgres/.env logs postgres`; these commands
+do not print the configured passwords.
+
+The service initializes four separate databases and four non-superuser roles:
+
+| Purpose | Database | Role | SQLAlchemy setting and URL shape |
+| --- | --- | --- | --- |
+| Application | `gonurse_app` | `gonurse_app` | `DATABASE_URL`: `postgresql+psycopg://gonurse_app:YOUR_APP_PASSWORD@127.0.0.1:5432/gonurse_app` |
+| Application integration test | `gonurse_app_test` | `gonurse_app_test` | `GONURSE_TEST_POSTGRES_URL`: `postgresql+psycopg://gonurse_app_test:YOUR_APP_TEST_PASSWORD@127.0.0.1:5432/gonurse_app_test` |
+| Synthetic benchmark | `gonurse_benchmark` | `gonurse_benchmark` | `GONURSE_BENCHMARK_DATABASE_URL`: `postgresql+psycopg://gonurse_benchmark:YOUR_BENCHMARK_PASSWORD@127.0.0.1:5432/gonurse_benchmark` |
+| Optional benchmark integration test | `gonurse_benchmark_test` | `gonurse_benchmark_test` | `GONURSE_BENCHMARK_TEST_DATABASE_URL`: `postgresql+psycopg://gonurse_benchmark_test:YOUR_BENCHMARK_TEST_PASSWORD@127.0.0.1:5432/gonurse_benchmark_test` |
+
+Use the password for the matching role from your local
+`docker/postgres/.env` file when constructing each `postgresql+psycopg://` URL.
+The benchmark and benchmark-test databases have the `vector` extension; the
+application and application-test databases do not. Each test role can connect
+only to its own test database and create an isolated schema there. The app
+creates its normal tables in `gonurse_app`; benchmark setup must use only
+`gonurse_benchmark` and continue to require its explicit schema-creation opt-in.
+
+For example, from `Prototype/backend`, set the application URL in the terminal
+where you will run FastAPI (substitute the local app password and configured
+port; do not save the completed URL in source control):
+
+```powershell
+$env:DATABASE_URL = Read-Host 'Application database URL'
+```
+
+```shell
+printf 'Application database URL: '
+IFS= read -r -s DATABASE_URL
+export DATABASE_URL
+printf '\n'
+```
+
+For the benchmark, set `GONURSE_BENCHMARK_DATABASE_URL` to the benchmark role
+and database, not `DATABASE_URL`. Set
+`GONURSE_BENCHMARK_TEST_DATABASE_URL` separately for the optional benchmark
+integration test. Neither setting should fall back to `DATABASE_URL` or point
+to another purpose's database. The application persistence test uses
+`GONURSE_TEST_POSTGRES_URL` with the `gonurse_app_test` role and database; it
+does not fall back to `DATABASE_URL` or use either benchmark database.
+
+The data is kept in the named Docker volume. Stop the service without deleting
+data using:
+
+```shell
+docker compose --env-file docker/postgres/.env down
+```
+
+Starting it again with
+`docker compose --env-file docker/postgres/.env up -d --wait` preserves that
+volume. The initializer runs automatically only when the data directory is empty. It
+is safe to run again after an update to provision newly added databases and
+roles without deleting existing data. For an existing volume, first add
+`GONURSE_APP_TEST_PASSWORD` from `.env.example` to the local `.env`, then run:
+
+```shell
+docker compose --env-file docker/postgres/.env up -d --wait
+docker compose --env-file docker/postgres/.env exec --user postgres -T postgres bash /docker-entrypoint-initdb.d/10-init-databases.sh
+```
+
+Re-running the script creates missing roles and databases and leaves existing
+role passwords unchanged. Editing `docker/postgres/.env` alone does not change
+existing passwords. Removing the volume with
+`docker compose --env-file docker/postgres/.env down -v` permanently deletes the
+local database data; do not use that command as routine shutdown.
+
+This is local-development tooling only. Keep the port loopback-bound and use
+synthetic data only; never use production, patient, or real employee data.
 
 ## Set up Node.js on Windows
 
@@ -69,37 +172,14 @@ If `npm` is not recognized, confirm Node.js is installed and reopen PowerShell.
 If PowerShell reports that scripts are disabled, try `npm.cmd --version` instead;
 use `npm.cmd install` and `npm.cmd run dev` for the frontend commands below.
 
-## Set up PostgreSQL on Windows
+## Configure PostgreSQL for Windows
 
-If PostgreSQL is already installed and running, start at step 2.
-
-1. Download and run the installer linked from the
-   [PostgreSQL Windows download page](https://www.postgresql.org/download/windows/).
-   Include PostgreSQL Server and pgAdmin 4. Set and securely save the password
-   for the PostgreSQL administrator account (normally `postgres`). Keep the
-   default port, `5432`, unless it is in use, and note the port you choose.
-   Stack Builder and its optional add-ons are not needed for this prototype.
-2. Open pgAdmin 4, expand **Servers**, and connect to your PostgreSQL server
-   using the administrator password if prompted. Right-click **Databases**,
-   select **Create > Database**, and create an empty database named
-   `gonurse_prototype`.
-3. Use the following format for your local connection URL, replacing
-   `YOUR_PASSWORD` with your own password and changing the username or port
-   if your setup differs:
-
-   ```text
-   postgresql+psycopg://postgres:YOUR_PASSWORD@localhost:5432/gonurse_prototype
-   ```
-
-   Characters with special meaning in a URL must be percent-encoded in the
-   username and password. For example, `@` becomes `%40` and `%` becomes
-   `%25`; see the
-   [PostgreSQL connection URI documentation](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING-URIS).
-   Keep the completed URL private: it contains your password.
-
-The application creates its own tables and two synthetic opportunities in the
-dedicated database at startup. Do not point it at a hospital or other existing
-database.
+Use the shared Docker Compose setup in **Start the local PostgreSQL service**
+above; a host PostgreSQL installation and pgAdmin are not required. Run Compose
+from the repository root, then set `DATABASE_URL` in the backend terminal to
+the `gonurse_app` database using the `gonurse_app` role and the local app
+password. The application creates its tables and two synthetic opportunities
+there at startup.
 
 ## Run on Windows
 
@@ -111,12 +191,14 @@ path in quotes. Then run:
 cd .\backend
 python -m venv .venv
 .\.venv\Scripts\python -m pip install -r requirements.txt
-# Set DATABASE_URL in this terminal to your own local PostgreSQL connection URL.
-$env:DATABASE_URL = Read-Host 'Local PostgreSQL URL (postgresql+psycopg://...)'
+# Enter the URL for gonurse_app, using the local app password and Compose port.
+$env:DATABASE_URL = Read-Host 'Application database URL'
 .\.venv\Scripts\python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-`Read-Host` displays the URL as you enter it, including your password. Keep this backend terminal open while using the app.
+`Read-Host` displays the URL as you enter it, including your password, but does
+not add the input to PowerShell command history. Keep this backend terminal
+open while using the app.
 
 Open a second PowerShell terminal, change to the same `Prototype` folder, and
 run:
@@ -281,8 +363,9 @@ network access. No real provider response is required by the automated tests.
 From `Prototype\backend`, run `python -m pytest -q`. API tests use an isolated,
 in-memory SQLite database so they do not touch the user's PostgreSQL database.
 To include the PostgreSQL integration test, set `GONURSE_TEST_POSTGRES_URL` to
-the connection URL of a dedicated test database before running pytest. The test
-creates and removes its own uniquely named schema. From `Prototype\frontend`,
+the `gonurse_app_test` URL from the database table above before running pytest.
+The test creates and removes its own uniquely named schema; it never uses the
+application or benchmark database. From `Prototype\frontend`,
 run `npm test` for the frontend unit tests or `npm run test:watch` while
 developing. These tests do not require the API or PostgreSQL. The browser build
 can be checked with `npm run build`.
