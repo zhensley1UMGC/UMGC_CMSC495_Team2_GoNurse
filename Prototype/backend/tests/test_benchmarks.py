@@ -3,6 +3,8 @@
 import copy
 import json
 import math
+import subprocess
+from types import SimpleNamespace
 
 import pytest
 
@@ -18,6 +20,8 @@ from benchmarks.dataset import load_dataset, validate_dataset
 from benchmarks.eligibility import eligible_opportunities
 from benchmarks.embeddings import FakeEmbedder, opportunity_text, profile_text
 from benchmarks.metrics import query_metrics
+from benchmarks import run as benchmark_run
+from benchmarks.embeddings import EmbeddingBatch, EmbeddingConfigurationError, OpenAICompatibleEmbedder
 
 
 def _profile(**overrides):
@@ -45,6 +49,59 @@ def _opportunity(item_id, title, **overrides):
     }
     values.update(overrides)
     return db.Opportunity(**values)
+
+
+def test_benchmark_dotenv_settings_and_process_precedence(monkeypatch, tmp_path):
+    env_path = tmp_path / ".env"
+    env_path.write_text(
+        'GONURSE_EMBEDDING_MODEL="file-model"\n'
+        'GONURSE_EMBEDDING_API_KEY=file-key\n'
+        'GONURSE_BENCHMARK_DATABASE_URL=postgresql+psycopg://benchmark\n'
+        'DATABASE_URL=postgresql+psycopg://application\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(benchmark_run, "ENV_PATH", env_path)
+    for name in (*benchmark_run.BENCHMARK_SETTINGS, "DATABASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("GONURSE_EMBEDDING_MODEL", "process-model")
+    settings = benchmark_run._benchmark_settings()
+    embedder = OpenAICompatibleEmbedder.from_environment(settings)
+    assert embedder.model == "process-model"
+    assert embedder.api_key == "file-key"
+    assert settings["GONURSE_BENCHMARK_DATABASE_URL"] == "postgresql+psycopg://benchmark"
+    assert "DATABASE_URL" not in settings
+    assert "GONURSE_EMBEDDING_API_KEY" not in benchmark_run.os.environ
+
+    monkeypatch.setenv("GONURSE_BENCHMARK_DATABASE_URL", "process-database")
+    monkeypatch.setenv("DATABASE_URL", "legacy-process-database")
+    settings = benchmark_run._benchmark_settings()
+    assert settings["GONURSE_BENCHMARK_DATABASE_URL"] == "process-database"
+    assert settings["DATABASE_URL"] == "legacy-process-database"
+
+
+def test_benchmark_dotenv_invalid_or_unreadable_is_explicit(monkeypatch, tmp_path):
+    env_path = tmp_path / ".env"
+    env_path.write_text("GONURSE_EMBEDDING_MODEL\n", encoding="utf-8")
+    monkeypatch.setattr(benchmark_run, "ENV_PATH", env_path)
+    monkeypatch.delenv("GONURSE_EMBEDDING_MODEL", raising=False)
+    with pytest.raises(EmbeddingConfigurationError, match="must have a value"):
+        benchmark_run._benchmark_settings()
+    monkeypatch.setattr(benchmark_run, "ENV_PATH", tmp_path)
+    with pytest.raises(EmbeddingConfigurationError, match="could not be read"):
+        benchmark_run._benchmark_settings()
+
+
+def test_git_worktree_dirty_reports_unavailable_and_changes(monkeypatch):
+    monkeypatch.setattr(benchmark_run.subprocess, "run", lambda *args, **kwargs: SimpleNamespace(stdout=""))
+    assert benchmark_run._git_worktree_dirty() is False
+    monkeypatch.setattr(benchmark_run.subprocess, "run", lambda *args, **kwargs: SimpleNamespace(stdout=" M file\n"))
+    assert benchmark_run._git_worktree_dirty() is True
+
+    def unavailable(*args, **kwargs):
+        raise subprocess.CalledProcessError(1, "git")
+
+    monkeypatch.setattr(benchmark_run.subprocess, "run", unavailable)
+    assert benchmark_run._git_worktree_dirty() is None
 
 
 def test_checked_in_dataset_has_complete_explicit_grades_and_required_coverage():
@@ -123,7 +180,7 @@ def test_checked_in_active_no_match_case_has_eligible_results_and_no_relevant_la
     assert metrics["no_match_exact_empty"] == 0
 
 
-def test_strict_and_relaxed_eligibility_keep_all_non_skill_gates():
+def test_eligibility_keeps_all_hard_gates():
     profile = _profile()
     opportunities = [
         _opportunity("skill", "Skill mismatch", required_skills=["ICU"]),
@@ -132,10 +189,9 @@ def test_strict_and_relaxed_eligibility_keep_all_non_skill_gates():
         _opportunity("eligible", "Eligible"),
     ]
     assert [item.id for item in eligible_opportunities(profile, opportunities, "strict")] == ["eligible"]
-    assert [item.id for item in eligible_opportunities(
-        profile, opportunities, "experimental_relaxed_skills",
-    )] == ["skill", "eligible"]
-    assert eligible_opportunities(_profile(recommendations_opt_in=False), opportunities, "experimental_relaxed_skills") == []
+    assert eligible_opportunities(_profile(recommendations_opt_in=False), opportunities, "strict") == []
+    with pytest.raises(ValueError, match="Unknown eligibility mode"):
+        eligible_opportunities(profile, opportunities, "experimental_relaxed_skills")
 
 
 def test_semantic_synonym_can_be_relevant_while_strict_skill_gate_excludes_it():
@@ -144,25 +200,6 @@ def test_semantic_synonym_can_be_relevant_while_strict_skill_gate_excludes_it():
     opportunity = next(item for item in dataset.opportunities if item.id == "opportunity-001")
     assert dataset.grades[profile.id][opportunity.id] >= 2
     assert opportunity not in eligible_opportunities(profile, [opportunity], "strict")
-    assert opportunity in eligible_opportunities(profile, [opportunity], "experimental_relaxed_skills")
-
-
-def test_relaxed_hybrids_score_semantic_only_entries_without_changing_baseline():
-    profile = _profile()
-    opportunities = [
-        _opportunity("strict", "Strict match", required_skills=["critical care"]),
-        _opportunity("relaxed", "Relaxed match", required_skills=["ICU"]),
-    ]
-    relaxed = eligible_opportunities(profile, opportunities, "experimental_relaxed_skills")
-    baseline_order, score_map = deterministic_ranking(profile, relaxed)
-    assert baseline_order == ["strict"]
-    assert set(score_map) == {"strict", "relaxed"}
-    assert hybrid_rankings(
-        sorted(score_map, key=lambda item_id: (-score_map[item_id], item_id)),
-        score_map,
-        {"strict": -1.0, "relaxed": 1.0},
-        relaxed,
-    )["hybrid_equal_weight_minmax"] == ["relaxed", "strict"]
 
 
 def test_deterministic_and_hybrid_ties_are_stable():
@@ -231,10 +268,26 @@ def test_fake_embedder_is_repeatable_and_maps_the_documented_synonym(tmp_path):
         vectors2, _, _ = embed_cached(embedder, ["critical care"], cache)
         assert vectors1 == vectors2
         assert (cache.hits, cache.misses) == (1, 1)
-        cache.put(embedder.model, "another text", [1.0] * 64)
+        cache.put(embedder.cache_key, "another text", [1.0] * 64)
         with pytest.raises(ValueError, match="different dimension"):
-            cache.put(embedder.model, "third text", [1.0] * 65)
+            cache.put(embedder.cache_key, "third text", [1.0] * 65)
         cache.get("different-model", "critical care")
         assert cache.misses == 2
+    finally:
+        cache.close()
+
+
+def test_cache_isolates_providers_with_the_same_model(tmp_path, monkeypatch):
+    first = OpenAICompatibleEmbedder("https://first.example/v1", "same-model", "key", 30)
+    second = OpenAICompatibleEmbedder("https://second.example/v1", "same-model", "key", 30)
+    monkeypatch.setattr(first, "embed", lambda texts: EmbeddingBatch([[1.0, 0.0]], 1, 0.0))
+    monkeypatch.setattr(second, "embed", lambda texts: EmbeddingBatch([[0.0, 1.0]], 1, 0.0))
+    cache = VectorCache(tmp_path / "vectors.sqlite3")
+    try:
+        cache.put("same-model", "text", [0.5, 0.5])
+        assert embed_cached(first, ["text"], cache)[0] == [[1.0, 0.0]]
+        assert embed_cached(second, ["text"], cache)[0] == [[0.0, 1.0]]
+        assert embed_cached(first, ["text"], cache)[0] == [[1.0, 0.0]]
+        assert (cache.hits, cache.misses) == (1, 2)
     finally:
         cache.close()

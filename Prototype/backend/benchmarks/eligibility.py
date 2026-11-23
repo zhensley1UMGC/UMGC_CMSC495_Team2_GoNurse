@@ -4,7 +4,7 @@ from typing import Literal
 
 from app import database as db
 
-Mode = Literal["strict", "experimental_relaxed_skills"]
+Mode = Literal["strict"]
 
 
 def _normalized(values: list[str]) -> set[str]:
@@ -17,7 +17,7 @@ def eligible_opportunities(
     mode: Mode,
 ) -> list[db.Opportunity]:
     """Apply opt-in, open-status, skill, and availability gates before ranking."""
-    if mode not in {"strict", "experimental_relaxed_skills"}:
+    if mode != "strict":
         raise ValueError(f"Unknown eligibility mode: {mode}.")
     if not profile.recommendations_opt_in:
         return []
@@ -29,7 +29,7 @@ def eligible_opportunities(
         if opportunity.status != "open":
             continue
         required = _normalized(opportunity.required_skills)
-        if mode == "strict" and not required.issubset(profile_skills):
+        if not required.issubset(profile_skills):
             continue
         if opportunity.availability and not (profile_availability & _normalized(opportunity.availability)):
             continue

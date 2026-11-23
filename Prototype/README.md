@@ -297,10 +297,11 @@ OpenAI-compatible embeddings endpoint. Its separate settings are
 `GONURSE_EMBEDDING_BASE_URL`, `GONURSE_EMBEDDING_MODEL`,
 `GONURSE_EMBEDDING_API_KEY`, and `GONURSE_EMBEDDING_TIMEOUT_SECONDS`. A complete
 run also requires a dedicated local PostgreSQL database with pgvector already
-installed, `DATABASE_URL` pointing only to that database, and the explicit
+installed, `GONURSE_BENCHMARK_DATABASE_URL` pointing only to that database, and the explicit
 `GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE=YES` confirmation. Cached vectors and
 timestamped result files are written under ignored `.benchmark-cache/` and
-`.benchmark-results/` directories.
+`.benchmark-results/` directories. Configure benchmark settings in the backend
+`.env` or process environment; process values take precedence.
 
 ## AI provider client
 

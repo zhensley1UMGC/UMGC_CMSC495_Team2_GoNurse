@@ -1,10 +1,12 @@
 """OpenAI-compatible and deterministic fake embedders for synthetic text only."""
 
 import hashlib
+import json
 import math
 import os
 import re
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Protocol
 from urllib.parse import urlsplit
@@ -23,6 +25,7 @@ class EmbeddingBatch:
 
 class Embedder(Protocol):
     model: str
+    cache_key: str
 
     def embed(self, texts: list[str]) -> EmbeddingBatch: ...
 
@@ -83,19 +86,22 @@ class OpenAICompatibleEmbedder:
             raise EmbeddingConfigurationError("Embedding timeout must be greater than 0 and at most 300 seconds.")
         self.base_url = base_url.rstrip("/")
         self.model = model
+        identity = json.dumps([self.base_url, self.model], ensure_ascii=True)
+        self.cache_key = "remote-v1:" + hashlib.sha256(identity.encode("utf-8")).hexdigest()
         self.api_key = api_key
         self.timeout_seconds = timeout_seconds
 
     @classmethod
-    def from_environment(cls) -> "OpenAICompatibleEmbedder":
-        model = os.environ.get("GONURSE_EMBEDDING_MODEL", "")
-        api_key = os.environ.get("GONURSE_EMBEDDING_API_KEY", "")
+    def from_environment(cls, settings: Mapping[str, str] | None = None) -> "OpenAICompatibleEmbedder":
+        settings = os.environ if settings is None else settings
+        model = settings.get("GONURSE_EMBEDDING_MODEL", "")
+        api_key = settings.get("GONURSE_EMBEDDING_API_KEY", "")
         try:
-            timeout = float(os.environ.get("GONURSE_EMBEDDING_TIMEOUT_SECONDS", "30"))
+            timeout = float(settings.get("GONURSE_EMBEDDING_TIMEOUT_SECONDS", "30"))
         except ValueError as error:
             raise EmbeddingConfigurationError("Embedding timeout must be a positive number.") from error
         return cls(
-            os.environ.get("GONURSE_EMBEDDING_BASE_URL", "https://api.openai.com/v1"),
+            settings.get("GONURSE_EMBEDDING_BASE_URL", "https://api.openai.com/v1"),
             model,
             api_key,
             timeout,
@@ -152,6 +158,7 @@ class FakeEmbedder:
         if dimensions < 8:
             raise ValueError("Fake embedding dimension must be at least 8.")
         self.model = f"fake-hash-v1-{dimensions}"
+        self.cache_key = f"fake:{self.model}"
         self.dimensions = dimensions
 
     def embed(self, texts: list[str]) -> EmbeddingBatch:

@@ -4,7 +4,7 @@ import math
 from collections.abc import Mapping, Sequence
 
 from app import database as db
-from app.services.recommendations import normalized, rank
+from app.services.recommendations import rank
 
 RRF_K = 60
 
@@ -17,17 +17,9 @@ def deterministic_ranking(
     profile: db.Profile,
     opportunities: Sequence[db.Opportunity],
 ) -> tuple[list[str], dict[str, float]]:
-    """Call the production ranker unchanged and score relaxed-only inputs at the boundary."""
+    """Call the production ranker unchanged on the eligible opportunities."""
     ranked = rank(profile, opportunities, len(opportunities))
     scores = {item.id: float(score) for score, item, _ in ranked}
-    profile_skills = normalized(profile.skills)
-    profile_interests = normalized(profile.interests)
-    for item in opportunities:
-        if item.id not in scores:
-            scores[item.id] = float(
-                len(normalized(item.required_skills) & profile_skills)
-                + len(normalized(item.interests) & profile_interests)
-            )
     return [item.id for _, item, _ in ranked], scores
 
 

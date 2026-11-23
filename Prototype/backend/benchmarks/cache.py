@@ -1,10 +1,12 @@
-"""Local SQLite embedding cache keyed by model and canonical text hash."""
+"""Local SQLite embedding cache keyed by embedder identity and canonical text hash."""
 
 import hashlib
 import json
 import math
 import sqlite3
 from pathlib import Path
+
+from benchmarks.embeddings import Embedder
 
 
 class VectorCache:
@@ -72,12 +74,12 @@ class VectorCache:
         self.connection.close()
 
 
-def embed_cached(embedder, texts: list[str], cache: VectorCache) -> tuple[list[list[float]], int | None, float]:
+def embed_cached(embedder: Embedder, texts: list[str], cache: VectorCache) -> tuple[list[list[float]], int | None, float]:
     """Reuse cached vectors and embed only cache misses in a single batch."""
     vectors: list[list[float] | None] = [None] * len(texts)
     missing_by_hash: dict[str, int] = {}
     for index, text in enumerate(texts):
-        cached = cache.get(embedder.model, text)
+        cached = cache.get(embedder.cache_key, text)
         if cached is not None:
             vectors[index] = cached
         else:
@@ -95,7 +97,7 @@ def embed_cached(embedder, texts: list[str], cache: VectorCache) -> tuple[list[l
             raise ValueError("Embedder returned inconsistent or empty vector dimensions.")
         for (text_hash, original_index), vector in zip(missing_by_hash.items(), batch.vectors, strict=True):
             text = texts[original_index]
-            cache.put(embedder.model, text, vector)
+            cache.put(embedder.cache_key, text, vector)
             for index, candidate_text in enumerate(texts):
                 if cache.text_hash(candidate_text) == text_hash:
                     vectors[index] = vector

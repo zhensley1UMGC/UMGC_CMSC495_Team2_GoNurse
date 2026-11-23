@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
+from dotenv import dotenv_values
 from sqlalchemy.exc import SQLAlchemyError
 
 from benchmarks.cache import VectorCache, embed_cached
@@ -25,7 +26,17 @@ from benchmarks.vector_store import PgvectorStore, VectorExtensionUnavailable, h
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS_DIR = ROOT / ".benchmark-results"
 CACHE_PATH = ROOT / ".benchmark-cache" / "embeddings.sqlite3"
-MODES: tuple[Mode, ...] = ("strict", "experimental_relaxed_skills")
+ENV_PATH = ROOT / ".env"
+BENCHMARK_SETTINGS = (
+    "GONURSE_EMBEDDING_MODEL",
+    "GONURSE_EMBEDDING_API_KEY",
+    "GONURSE_EMBEDDING_BASE_URL",
+    "GONURSE_EMBEDDING_TIMEOUT_SECONDS",
+    "GONURSE_EMBEDDING_PRICE_PER_1M_TOKENS",
+    "GONURSE_BENCHMARK_DATABASE_URL",
+    "GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE",
+)
+MODES: tuple[Mode, ...] = ("strict",)
 CANDIDATE_NAMES = (
     "deterministic",
     "embedding_pgvector",
@@ -33,6 +44,29 @@ CANDIDATE_NAMES = (
     "hybrid_deterministic_then_semantic",
     "hybrid_rrf_k60",
 )
+
+
+def _benchmark_settings() -> dict[str, str]:
+    try:
+        with ENV_PATH.open(encoding="utf-8") as env_file:
+            file_values = dotenv_values(stream=env_file, interpolate=False)
+    except FileNotFoundError:
+        file_values = {}
+    except (OSError, UnicodeError):
+        raise EmbeddingConfigurationError("The benchmark .env file could not be read.") from None
+
+    settings = {}
+    for name in BENCHMARK_SETTINGS:
+        if name in os.environ:
+            settings[name] = os.environ[name]
+        elif name in file_values:
+            value = file_values[name]
+            if value is None:
+                raise EmbeddingConfigurationError(f"The {name} setting in .env must have a value.")
+            settings[name] = value
+    if "DATABASE_URL" in os.environ:
+        settings["DATABASE_URL"] = os.environ["DATABASE_URL"]
+    return settings
 
 
 def _git_commit() -> str:
@@ -47,6 +81,20 @@ def _git_commit() -> str:
     except (OSError, subprocess.CalledProcessError):
         return "unavailable"
     return result.stdout.strip() or "unavailable"
+
+
+def _git_worktree_dirty() -> bool | None:
+    try:
+        result = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=normal"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return bool(result.stdout.strip())
 
 
 def _percentile(values: list[float], percentile: float) -> float | None:
@@ -123,6 +171,7 @@ def _print_summary(results: dict[str, object]) -> None:
 
 
 def run() -> int:
+    settings = _benchmark_settings()
     dataset_path = ROOT / "benchmarks" / "data" / "ranker_cases.json"
     dataset = load_dataset(dataset_path)
     raw_dataset = dataset_path.read_bytes()
@@ -131,8 +180,9 @@ def run() -> int:
         "metadata": {
             "dataset_sha256": hashlib.sha256(raw_dataset).hexdigest(),
             "git_commit": _git_commit(),
+            "git_worktree_dirty": _git_worktree_dirty(),
             "timestamp_utc": timestamp.isoformat(),
-            "model": os.environ.get("GONURSE_EMBEDDING_MODEL") or None,
+            "model": settings.get("GONURSE_EMBEDDING_MODEL") or None,
             "formula_version": "ranker-benchmark-v1",
             "k": 5,
             "hybrid_parameters": {"equal_weight": [0.5, 0.5], "rrf_k": 60},
@@ -166,22 +216,22 @@ def run() -> int:
     embedding_skip: str | None = None
     embedder: OpenAICompatibleEmbedder | None = None
     try:
-        embedder = OpenAICompatibleEmbedder.from_environment()
+        embedder = OpenAICompatibleEmbedder.from_environment(settings)
     except EmbeddingConfigurationError as error:
         embedding_skip = str(error)
 
-    database_url = os.environ.get("DATABASE_URL")
-    allow_schema_create = os.environ.get("GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE") == "YES"
+    database_url = settings.get("GONURSE_BENCHMARK_DATABASE_URL", settings.get("DATABASE_URL"))
+    allow_schema_create = settings.get("GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE") == "YES"
     if embedding_skip is None and not database_url:
-        embedding_skip = "Set DATABASE_URL to a dedicated benchmark database."
+        embedding_skip = "Set GONURSE_BENCHMARK_DATABASE_URL to a dedicated benchmark database."
     if embedding_skip is None and not allow_schema_create:
         embedding_skip = (
-            "Set GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE=YES only after confirming DATABASE_URL "
+            "Set GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE=YES only after confirming the database "
             "is a dedicated benchmark database."
         )
     if embedding_skip is None and database_url is not None:
         print(
-            "WARNING: DATABASE_URL must identify a dedicated benchmark database; "
+            "WARNING: The database URL must identify a dedicated benchmark database; "
             "the run creates and drops only its UUID-named benchmark schema.",
             file=sys.stderr,
         )
@@ -195,7 +245,7 @@ def run() -> int:
         except SQLAlchemyError:
             embedding_skip = "Could not preflight the dedicated benchmark database (SQLAlchemy connection error)."
         except (ValueError, OSError):
-            embedding_skip = "Could not preflight DATABASE_URL; verify its PostgreSQL connection configuration."
+            embedding_skip = "Could not preflight the benchmark database URL; verify its PostgreSQL connection configuration."
 
     if embedding_skip is None and importlib.util.find_spec("pgvector") is None:
         embedding_skip = "Install requirements-benchmark.txt to use the pgvector candidate."
@@ -212,7 +262,7 @@ def run() -> int:
             results["embedding"]["input_tokens"] = token_count
             results["embedding"]["cache"] = {"hits": cache.hits, "misses": cache.misses}
 
-            model_price = os.environ.get("GONURSE_EMBEDDING_PRICE_PER_1M_TOKENS")
+            model_price = settings.get("GONURSE_EMBEDDING_PRICE_PER_1M_TOKENS")
             if model_price is not None and token_count is not None:
                 try:
                     price = float(model_price)

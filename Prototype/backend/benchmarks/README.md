@@ -40,32 +40,21 @@ matching, missing skills, matching and nonmatching availability, eligible
 no-match cases, ordering among several eligible listings, and a relevant
 `critical care` / `ICU` synonym whose exact skill gate fails.
 
-## Eligibility modes and candidates
+## Eligibility and candidates
 
 Every candidate receives the same eligibility set for each query:
 
-* **`strict` (primary):** profile opt-in is required; only `open` opportunities
-  remain; all normalized required skills must match exactly, case-insensitively;
-  and at least one normalized availability value must overlap when an
-  opportunity specifies availability. An empty opportunity schedule is
-  unrestricted. This matches the existing ranker's skill/schedule conditions
-  and the API's outer opt-in/open-status gates.
-* **`experimental_relaxed_skills` (separate experiment):** opt-in, open status,
-  and availability remain hard gates, but required-skill matching is omitted.
-  It is never applied to the live service. Production use of relaxed skills
-  requires explicit team approval.
+* **`strict`:** profile opt-in is required; only `open` opportunities remain;
+  all normalized required skills must match exactly, case-insensitively; and
+  at least one normalized availability value must overlap when an opportunity
+  specifies availability. An empty opportunity schedule is unrestricted.
+  This matches the existing ranker's skill/schedule conditions and the API's
+  outer opt-in/open-status gates.
 
 The deterministic candidate calls `app.services.recommendations.rank()` on
 the prefiltered opportunities without modifying it. Embedding-only cosine
 ordering and the hybrid candidates use the same eligibility set. Any final
 score tie is ordered by `(title.casefold(), opportunity_id)`.
-
-The unchanged deterministic ranker also applies its own exact-skill filter.
-Consequently, in the experimental relaxed table its baseline remains the
-current strict behavior, while semantic and hybrid candidates can rank the
-relaxed-only entries. The hybrid's deterministic score for such entries is
-calculated at the benchmark boundary using the ranker's existing score formula;
-the production function and live behavior are not changed.
 
 The fixed hybrid candidates are:
 
@@ -123,9 +112,10 @@ uv pip compile --python 3.12 --python-version 3.12 --universal --no-header requi
 ```
 
 The remote embedder uses existing `httpx`; it does not depend on the chat
-provider or add a provider SDK. Configure these values in the process
-environment (they are separate from `GONURSE_AI_*` and the benchmark does not
-read the chat `.env` file):
+provider or add a provider SDK. Configure these values in `Prototype/backend/.env`
+or the process environment. Process environment values take precedence. These
+settings are separate from `GONURSE_AI_*`; the benchmark never uses the chat
+API key or model automatically:
 
 | Variable | Purpose | Default |
 | --- | --- | --- |
@@ -148,10 +138,13 @@ process before running the benchmark. The benchmark checks for the extension
 and never runs `CREATE EXTENSION`. It does not inspect, create, migrate, or
 query application tables.
 
-Set `DATABASE_URL` to the dedicated database's
-`postgresql+psycopg://` connection URL and set
-`GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE=YES` only after confirming the target
-is dedicated and benchmark schema creation is permitted. The runner prints a
+Set `GONURSE_BENCHMARK_DATABASE_URL` in `.env` or the process environment to
+the dedicated database's `postgresql+psycopg://` connection URL. For backward
+compatibility, process `DATABASE_URL` is used only when
+`GONURSE_BENCHMARK_DATABASE_URL` is absent; `DATABASE_URL` in `.env` is not
+used by the benchmark. Set `GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE=YES` only
+after confirming the target is dedicated and benchmark schema creation is
+permitted. The runner prints a
 warning before connecting. It creates a UUID-named `rankbench_*` schema with
 only benchmark-owned vector tables/indexes, and drops only that schema on
 normal or exceptional completion. The explicit variable is a confirmation,
@@ -181,14 +174,19 @@ gates. This composition is a benchmark input for future design work, not a
 production embedding contract.
 
 Vectors are cached in SQLite at
-`Prototype/backend/.benchmark-cache/embeddings.sqlite3`, keyed by the exact
-model identifier and SHA-256 of canonical text, with dimension checks. Result
+`Prototype/backend/.benchmark-cache/embeddings.sqlite3`, keyed by a SHA-256
+identity of the embedding endpoint and exact model identifier plus a SHA-256
+of canonical text, with dimension checks. Existing model-only cache entries
+are not reused. Result
 JSON is written under `Prototype/backend/.benchmark-results/` with a UTC
 timestamp. Both directories are ignored by Git. Results include dataset hash,
-model, commit, timestamp, formulas, strict/experimental metrics, category
+model, commit, working-tree dirty status, timestamp, formulas, strict metrics, category
 breakdowns, latency, usage/cost availability, cache counts, and skip/status
 information. They do not contain raw prompts, vectors, credentials, provider
 response bodies, or non-synthetic input.
+Dirty status is `null` if Git is unavailable. A dirty result identifies the
+base commit but does not capture uncommitted changes; commit changes before a
+run if the result must be reproducible from Git alone.
 
 The adapter creates an HNSW cosine index for vectors up to 2,000 dimensions.
 For larger vectors it creates a model/dimension B-tree index and still computes
