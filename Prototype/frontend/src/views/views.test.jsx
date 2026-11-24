@@ -249,7 +249,6 @@ describe('NavigatorView', () => {
     const onViewOpportunity = vi.fn();
     const { container } = render(<NavigatorView
       panelProps={{}}
-      tabbed={false}
       chat=""
       setChat={vi.fn()}
       recommendationId=""
@@ -372,7 +371,6 @@ describe('NavigatorView', () => {
     render(
       <NavigatorView
         panelProps={{}}
-        tabbed={false}
         chat="Follow-up?"
         setChat={vi.fn()}
         recommendationId=""

@@ -229,11 +229,11 @@ npm run dev
 Open the localhost URL printed by Vite. Choose Nurse 1, save an opted-in
 profile with `mentoring` and `weekday_morning`, then generate recommendations.
 Choose Administrator to create listings and respond to support requests.
-For an alternative interface showing the same sections one at a time, open
-`/tabbed.html` on that same localhost URL. The original grid interface remains
-available at `/`; both interfaces share the view components in `frontend/src/views`,
-the same local API, and demo data. Switching tabs keeps unfinished form drafts
-while the page remains open.
+The main page shows one section at a time. Use tabs above 600 CSS pixels or
+the labeled section selector at 600 pixels and below. Nurses start in My
+profile; administrators start in Opportunities. Switching sections preserves
+unfinished drafts while the page remains open, subject to the existing demo
+identity-change behavior. Drafts and section selection are not saved on reload.
 The API documentation is available at `http://127.0.0.1:8000/docs`; API calls
 require an `X-Demo-User` header of `nurse`, `nurse2`, or `admin`.
 

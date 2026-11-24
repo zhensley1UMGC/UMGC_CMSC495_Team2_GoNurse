@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import ProfileView from './views/ProfileView';
 import OpportunitiesView from './views/OpportunitiesView';
 import RecommendationsView from './views/RecommendationsView';
@@ -51,12 +51,22 @@ function boundedHistory(conversation) {
   };
 }
 
-export default function App({ tabbed = false }) {
+export default function App() {
   // Demo identity selection is not authentication.
   const [user, setUser] = useState('nurse');
   const userRef = useRef('nurse');
+  const identityVersion = useRef(0);
   const [activeTab, setActiveTab] = useState('profile');
   const tabRefs = useRef({});
+  const navigationRef = useRef(null);
+  const sectionSelectRef = useRef(null);
+  const navigatorQuestionRef = useRef(null);
+  const [mediaQuery] = useState(() => window.matchMedia('(max-width: 600px)'));
+  const [compactNavigation, setCompactNavigation] = useState(mediaQuery.matches);
+  const compactNavigationRef = useRef(mediaQuery.matches);
+  const committedNavigationRef = useRef(mediaQuery.matches);
+  const navigationFocusRequest = useRef(null);
+  const [destinationFocus, setDestinationFocus] = useState('');
   const navigatorRequestId = useRef(0);
 
   const [profile, setProfile] = useState(emptyProfile);
@@ -115,7 +125,7 @@ export default function App({ tabbed = false }) {
       setChat(current => current || 'Why was this recommended?');
     }
     setActiveTab('navigator');
-    tabRefs.current.navigator?.focus();
+    setDestinationFocus('navigator');
   }
 
   function removeRecommendationContext() {
@@ -131,14 +141,15 @@ export default function App({ tabbed = false }) {
     const opportunityId = String(id);
     if (!opportunities.some(opportunity => String(opportunity.id) === opportunityId)) {
       const identity = userRef.current;
+      const version = identityVersion.current;
       try {
         const opportunity = await api(`/opportunities/${opportunityId}`);
-        if (identity !== userRef.current) return;
+        if (identity !== userRef.current || version !== identityVersion.current) return;
         setOpportunities(current => current.some(item => String(item.id) === opportunityId)
           ? current
           : [...current, opportunity]);
       } catch (error) {
-        if (identity === userRef.current) setFailure(error.message);
+        if (identity === userRef.current && version === identityVersion.current) setFailure(error.message);
         return;
       }
     }
@@ -153,7 +164,7 @@ export default function App({ tabbed = false }) {
 
   function changeRecommendationContext() {
     setActiveTab('recommendations');
-    tabRefs.current.recommendations?.focus();
+    setDestinationFocus('recommendations');
   }
 
   function requestSupport() {
@@ -226,15 +237,13 @@ export default function App({ tabbed = false }) {
       ];
 
   function panelProps(id) {
-    return tabbed
-      ? {
-          id: `panel-${id}`,
-          role: 'tabpanel',
-          'aria-labelledby': `tab-${id}`,
-          hidden: activeTab !== id,
-          tabIndex: 0,
-        }
-      : {};
+    return {
+      id: `panel-${id}`,
+      ...(compactNavigation ? {} : { role: 'tabpanel' }),
+      'aria-labelledby': compactNavigation ? `heading-${id}` : `tab-${id}`,
+      hidden: activeTab !== id,
+      tabIndex: compactNavigation ? -1 : 0,
+    };
   }
 
   function handleTabKey(event, index) {
@@ -430,27 +439,62 @@ export default function App({ tabbed = false }) {
   }, [user]);
 
   useEffect(() => {
-    if (!navigatorTargetOpportunityId || (tabbed && activeTab !== 'opportunities')) return;
+    function handleChange(event) {
+      if (event.matches === compactNavigationRef.current) return;
+      const focused = document.activeElement;
+      navigationFocusRequest.current = event.matches !== committedNavigationRef.current
+        && navigationRef.current?.contains(focused) ? focused : null;
+      compactNavigationRef.current = event.matches;
+      setCompactNavigation(event.matches);
+    }
+
+    mediaQuery.addEventListener('change', handleChange);
+    handleChange(mediaQuery);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [mediaQuery]);
+
+  useLayoutEffect(() => {
+    committedNavigationRef.current = compactNavigation;
+    const previous = navigationFocusRequest.current;
+    navigationFocusRequest.current = null;
+    if (!previous) return;
+    if (document.activeElement !== previous
+        && (previous.isConnected || document.activeElement !== document.body)) return;
+    if (compactNavigation) sectionSelectRef.current?.focus();
+    else tabRefs.current[activeTab]?.focus();
+  }, [compactNavigation, activeTab]);
+
+  useEffect(() => {
+    if (!destinationFocus || activeTab !== destinationFocus || user === 'admin') return;
+    const panel = document.getElementById(`panel-${destinationFocus}`);
+    const question = navigatorQuestionRef.current;
+    if (destinationFocus === 'navigator' && question && !question.disabled) question.focus();
+    else panel?.focus();
+    setDestinationFocus('');
+  }, [activeTab, destinationFocus, user]);
+
+  useEffect(() => {
+    if (!navigatorTargetOpportunityId || activeTab !== 'opportunities') return;
     const target = document.getElementById(`opportunity-${navigatorTargetOpportunityId}`);
     if (target) {
       target.focus();
       target.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
     }
     setNavigatorTargetOpportunityId('');
-  }, [activeTab, navigatorTargetOpportunityId, tabbed]);
+  }, [activeTab, navigatorTargetOpportunityId]);
 
   useEffect(() => {
-    if (!profileSettingFocusRequested || (tabbed && activeTab !== 'profile')) return;
+    if (!profileSettingFocusRequested || activeTab !== 'profile') return;
     document.getElementById('recommendations-opt-in')?.focus();
     setProfileSettingFocusRequested(false);
-  }, [activeTab, profileSettingFocusRequested, tabbed]);
+  }, [activeTab, profileSettingFocusRequested]);
 
   useEffect(() => {
-    if (!supportFocusRequested || user === 'admin' || (tabbed && activeTab !== 'support')) return;
+    if (!supportFocusRequested || user === 'admin' || activeTab !== 'support') return;
     supportSubjectRef.current?.focus({ preventScroll: true });
     supportSubjectRef.current?.scrollIntoView?.({ block: 'center' });
     setSupportFocusRequested(false);
-  }, [activeTab, supportFocusRequested, tabbed, user]);
+  }, [activeTab, supportFocusRequested, user]);
 
   return (
     <main>
@@ -466,11 +510,14 @@ export default function App({ tabbed = false }) {
           <select
             value={user}
             onChange={event => {
+              identityVersion.current += 1;
               profileRequestId.current += 1;
               clearConversation();
               setNavigatorTargetOpportunityId('');
               setProfileSettingFocusRequested(false);
               setSupportFocusRequested(false);
+              setDestinationFocus('');
+              navigationFocusRequest.current = null;
               setSavedOptIn(false);
               setOpportunityOptions(null);
               userRef.current = event.target.value;
@@ -505,34 +552,43 @@ export default function App({ tabbed = false }) {
         </p>
       )}
 
-      {tabbed && (
-        <div
-          className="tabs"
-          role="tablist"
-          aria-label="GoNurse sections"
-        >
-          {tabs.map((tab, index) => (
-            <button
-              key={tab.id}
-              ref={element => {
-                tabRefs.current[tab.id] = element;
-              }}
-              id={`tab-${tab.id}`}
-              role="tab"
-              type="button"
-              aria-selected={activeTab === tab.id}
-              aria-controls={`panel-${tab.id}`}
-              tabIndex={activeTab === tab.id ? 0 : -1}
-              onClick={() => setActiveTab(tab.id)}
-              onKeyDown={event => handleTabKey(event, index)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      )}
+      <nav ref={navigationRef} aria-label="GoNurse sections">
+        {compactNavigation ? (
+          <label>
+            Section
+            <select ref={sectionSelectRef} value={activeTab} onChange={event => setActiveTab(event.target.value)}>
+              {tabs.map(tab => <option key={tab.id} value={tab.id}>{tab.label}</option>)}
+            </select>
+          </label>
+        ) : (
+          <div
+            className="tabs"
+            role="tablist"
+            aria-label="GoNurse sections"
+          >
+            {tabs.map((tab, index) => (
+              <button
+                key={tab.id}
+                ref={element => {
+                  tabRefs.current[tab.id] = element;
+                }}
+                id={`tab-${tab.id}`}
+                role="tab"
+                type="button"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`panel-${tab.id}`}
+                tabIndex={activeTab === tab.id ? 0 : -1}
+                onClick={() => setActiveTab(tab.id)}
+                onKeyDown={event => handleTabKey(event, index)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </nav>
 
-      <div className={tabbed ? 'tab-content' : 'grid'}>
+      <div className="tab-content">
         {user !== 'admin' && (
           <ProfileView
             panelProps={panelProps('profile')}
@@ -569,7 +625,7 @@ export default function App({ tabbed = false }) {
 
             <NavigatorView
               panelProps={panelProps('navigator')}
-              tabbed={tabbed}
+              questionRef={navigatorQuestionRef}
               chat={chat}
               setChat={setChat}
               recommendationId={recommendationId}

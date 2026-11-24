@@ -1,13 +1,40 @@
 // @vitest-environment jsdom
 import React from 'react';
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+
+let mediaQuery;
+
+beforeEach(() => {
+  const listeners = new Set();
+  mediaQuery = {
+    matches: false,
+    addEventListener: vi.fn((type, listener) => listeners.add(listener)),
+    removeEventListener: vi.fn((type, listener) => listeners.delete(listener)),
+    resize(width) {
+      this.matches = width <= 600;
+      act(() => listeners.forEach(listener => listener({ matches: this.matches })));
+    },
+  };
+  vi.stubGlobal('matchMedia', vi.fn(() => mediaQuery));
+});
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
+
+function selectSection(label) {
+  const selector = screen.queryByLabelText('Section');
+  if (selector) {
+    const option = within(selector).getByRole('option', { name: label });
+    fireEvent.change(selector, { target: { value: option.value } });
+  } else {
+    fireEvent.click(screen.getByRole('tab', { name: label }));
+  }
+}
 
 function jsonResponse(data, status = 200) {
   return { ok: status >= 200 && status < 300, status, json: async () => data };
@@ -32,7 +59,7 @@ function initialFetch() {
   return vi.fn((url, options = {}) => {
     if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
     if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
-    if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
+    if (url.endsWith('/profile/options') || url.endsWith('/opportunities/options')) return Promise.resolve(profileOptionsResponse());
     if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
     throw new Error(`Unexpected request: ${url}`);
   });
@@ -43,6 +70,116 @@ function deferred() {
   const promise = new Promise(done => { resolve = done; });
   return { promise, resolve };
 }
+
+describe('Section navigation', () => {
+  it('uses accessible roving tabs and resets the selection for each identity', async () => {
+    const fetch = initialFetch();
+    vi.stubGlobal('fetch', fetch);
+    render(<App />);
+    await screen.findByRole('checkbox', { name: 'Mentoring' });
+
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs).toHaveLength(6);
+    expect(screen.getAllByRole('tabpanel')).toHaveLength(1);
+    expect(screen.getByRole('tabpanel', { name: 'My profile' })).toBeTruthy();
+    const profilePanel = document.getElementById('panel-profile');
+    const supportPanel = document.getElementById('panel-support');
+    expect(supportPanel.hidden).toBe(true);
+    expect(tabs[0].getAttribute('aria-controls')).toBe(profilePanel.id);
+    expect(profilePanel.getAttribute('aria-labelledby')).toBe(tabs[0].id);
+    expect(tabs.map(tab => tab.tabIndex)).toEqual([0, -1, -1, -1, -1, -1]);
+    const calls = fetch.mock.calls.length;
+
+    tabs[0].focus();
+    fireEvent.keyDown(tabs[0], { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(tabs[5]);
+    expect(tabs[5].getAttribute('aria-selected')).toBe('true');
+    fireEvent.keyDown(tabs[5], { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(tabs[0]);
+    fireEvent.keyDown(tabs[0], { key: 'End' });
+    expect(document.activeElement).toBe(tabs[5]);
+    fireEvent.keyDown(tabs[5], { key: 'Home' });
+    expect(document.activeElement).toBe(tabs[0]);
+    tabs[4].focus();
+    fireEvent.click(tabs[4]);
+    expect(document.activeElement).toBe(tabs[4]);
+    expect(supportPanel.hidden).toBe(false);
+    expect(document.getElementById('panel-profile')).toBe(profilePanel);
+    expect(fetch.mock.calls).toHaveLength(calls);
+
+    fireEvent.change(screen.getByLabelText('Demo identity'), { target: { value: 'admin' } });
+    expect(screen.getAllByRole('tab')).toHaveLength(2);
+    expect(screen.getByRole('tab', { name: 'Opportunities' }).getAttribute('aria-selected')).toBe('true');
+    await screen.findByRole('group', { name: 'Required skills' });
+    fireEvent.change(screen.getByLabelText('title'), { target: { value: 'Draft listing' } });
+    selectSection('Support request review');
+    selectSection('Opportunities');
+    expect(screen.getByLabelText('title').value).toBe('Draft listing');
+    fireEvent.change(screen.getByLabelText('Demo identity'), { target: { value: 'nurse2' } });
+    expect(screen.getByRole('tab', { name: 'My profile' }).getAttribute('aria-selected')).toBe('true');
+    expect(screen.getAllByRole('tab')).toHaveLength(6);
+  });
+
+  it('preserves selection, drafts, and appropriate focus across the 600px boundary', async () => {
+    vi.stubGlobal('fetch', initialFetch());
+    const { unmount } = render(<App />);
+    await screen.findByRole('checkbox', { name: 'Mentoring' });
+    selectSection('Request human support');
+    const subject = screen.getByLabelText('Subject');
+    fireEvent.change(subject, { target: { value: 'Unfinished request' } });
+    const supportTab = screen.getByRole('tab', { name: 'Request human support' });
+    supportTab.focus();
+
+    mediaQuery.resize(600);
+    const selector = screen.getByLabelText('Section');
+    expect(document.activeElement).toBe(selector);
+    expect(selector.value).toBe('support');
+    expect(within(selector).getAllByRole('option')).toHaveLength(6);
+    expect(screen.queryByRole('tablist')).toBeNull();
+    expect(screen.getByRole('region', { name: 'Request human support' })).toBeTruthy();
+    expect(subject.value).toBe('Unfinished request');
+    selectSection('My profile');
+    expect(document.activeElement).toBe(selector);
+    selectSection('Request human support');
+    expect(screen.getByLabelText('Subject')).toBe(subject);
+
+    mediaQuery.resize(601);
+    expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Request human support' }));
+    subject.focus();
+    mediaQuery.resize(600);
+    expect(document.activeElement).toBe(subject);
+    expect(subject.value).toBe('Unfinished request');
+    fireEvent.change(screen.getByLabelText('Demo identity'), { target: { value: 'admin' } });
+    expect(screen.getByLabelText('Section').value).toBe('opportunities');
+    expect(within(screen.getByLabelText('Section')).getAllByRole('option')).toHaveLength(2);
+    unmount();
+    expect(mediaQuery.removeEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+  });
+
+  it.each([false, true])('focuses the Navigator panel when its question is disabled (compact: %s)', async compact => {
+    const fetch = initialFetch();
+    fetch.mockImplementation((url, options = {}) => {
+      if (url.endsWith('/recommendations')) return Promise.resolve(jsonResponse({
+        items: [{ id: 'rec-1', rank: 1, explanation: 'A match.', opportunity: { title: 'Mentoring' } }],
+      }));
+      if (url.endsWith('/opportunities') || url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
+      if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse(false));
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetch);
+    if (compact) mediaQuery.resize(600);
+    render(<App />);
+    await screen.findByRole('checkbox', { name: 'Mentoring' });
+    selectSection('Recommendations');
+    fireEvent.click(screen.getByRole('button', { name: 'Generate recommendations' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Ask about this' }));
+    expect(screen.getByLabelText('Question').disabled).toBe(true);
+    expect(document.activeElement).toBe(document.getElementById('panel-navigator'));
+    fireEvent.click(screen.getByRole('button', { name: 'Change recommendation' }));
+    expect(document.activeElement).toBe(document.getElementById('panel-recommendations'));
+  });
+});
 
 describe('Navigator conversations', () => {
   it('submits completed history, restores failed drafts, and ignores results after reset', async () => {
@@ -72,6 +209,7 @@ describe('Navigator conversations', () => {
     vi.stubGlobal('fetch', fetch);
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
     render(<App />);
+    selectSection('Career Navigator');
 
     const question = await screen.findByLabelText('Question');
     fireEvent.change(question, { target: { value: 'First question?' } });
@@ -145,7 +283,7 @@ describe('Navigator conversations', () => {
         throw new Error(`Unexpected request: ${url}`);
       });
       vi.stubGlobal('fetch', fetch);
-      render(<App tabbed />);
+      render(<App />);
       fireEvent.click(await screen.findByRole('tab', { name: 'Career Navigator' }));
       await waitFor(() => expect(screen.getByLabelText('Question').disabled).toBe(false));
       fireEvent.change(screen.getByLabelText('Question'), { target: { value: 'First question' } });
@@ -168,9 +306,9 @@ describe('Navigator conversations', () => {
     });
 
     it.each([
-      ['grid', false],
-      ['tabbed', true],
-    ])('opens the existing form and preserves context in the %s layout', async (_layout, tabbed) => {
+      ['desktop', false],
+      ['mobile', true],
+    ])('opens the existing form and preserves context in the %s layout', async (_layout, compact) => {
       let navigatorCalls = 0;
       const recommendationItems = [
         { id: 'rec-1', rank: 1, explanation: 'A recommendation.', opportunity: { title: 'Mentoring' } },
@@ -192,19 +330,21 @@ describe('Navigator conversations', () => {
         throw new Error(`Unexpected request: ${url}`);
       });
       vi.stubGlobal('fetch', fetch);
-      render(<App tabbed={tabbed} />);
+      if (compact) mediaQuery.resize(600);
+      render(<App />);
       await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Mentoring' }).checked).toBe(true));
 
-      if (tabbed) fireEvent.click(screen.getByRole('tab', { name: 'Request human support' }));
+      selectSection('Request human support');
       const subject = screen.getByLabelText('Subject');
       const description = screen.getByLabelText('Description');
       subject.scrollIntoView = vi.fn();
       fireEvent.change(subject, { target: { value: 'My subject' } });
       fireEvent.change(description, { target: { value: 'My description' } });
 
-      if (tabbed) fireEvent.click(screen.getByRole('tab', { name: 'Recommendations' }));
+      selectSection('Recommendations');
       fireEvent.click(screen.getByRole('button', { name: 'Generate recommendations' }));
       fireEvent.click(await screen.findByRole('button', { name: 'Ask about this' }));
+      expect(document.activeElement).toBe(screen.getByLabelText('Question'));
       fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
       await screen.findByText('Consider asking a person.');
       const supportPosts = () => fetch.mock.calls.filter(([url, options]) =>
@@ -222,7 +362,7 @@ describe('Navigator conversations', () => {
       const action = within(firstExchange).getByRole('button', { name: 'Request human support' });
       const callsBeforeHandoff = fetch.mock.calls.length;
       fireEvent.click(action);
-      if (tabbed) {
+      if (!compact) {
         expect(screen.getByRole('tab', { name: 'Request human support' }).getAttribute('aria-selected')).toBe('true');
         expect(screen.getByRole('tabpanel', { name: 'Request human support' }).hidden).toBe(false);
       }
@@ -233,7 +373,7 @@ describe('Navigator conversations', () => {
       expect(fetch.mock.calls).toHaveLength(callsBeforeHandoff);
       expect(supportPosts()).toHaveLength(0);
 
-      if (tabbed) fireEvent.click(screen.getByRole('tab', { name: 'Career Navigator' }));
+      selectSection('Career Navigator');
       expect(screen.getByText('Consider asking a person.')).toBeTruthy();
       expect(screen.getByText('Another answer.')).toBeTruthy();
       expect(screen.getByRole('group', { name: 'Recommendation context' }).textContent).toContain('Mentoring');
@@ -267,6 +407,7 @@ describe('Navigator conversations', () => {
     });
     vi.stubGlobal('fetch', fetch);
     render(<App />);
+    selectSection('Career Navigator');
 
     const question = await screen.findByLabelText('Question');
     const questions = ['😀', '😷', '🚑', '🩺'].map(value => value.repeat(2000));
@@ -311,6 +452,7 @@ describe('Navigator conversations', () => {
     });
     vi.stubGlobal('fetch', fetch);
     render(<App />);
+    selectSection('Career Navigator');
 
     const question = await screen.findByLabelText('Question');
     for (let index = 0; index < 6; index += 1) {
@@ -357,32 +499,39 @@ describe('Navigator conversations', () => {
     });
     vi.stubGlobal('fetch', fetch);
     render(<App />);
+    selectSection('Career Navigator');
 
     const question = await screen.findByLabelText('Question');
     fireEvent.change(question, { target: { value: 'Before opt-out' } });
     fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
     expect(await screen.findByText('Opt-out guidance.')).toBeTruthy();
 
+    selectSection('My profile');
     fireEvent.click(screen.getByRole('checkbox', { name: 'Enable recommendations' }));
+    selectSection('Career Navigator');
     expect(screen.queryByText('Opt-out guidance.')).toBeNull();
     expect(question.value).toBe('');
     expect(question.disabled).toBe(true);
     expect(screen.getByText(/Save your changed recommendation preference before asking a new question/)).toBeTruthy();
 
+    selectSection('My profile');
     fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
     expect(await screen.findByText('Profile save failed.')).toBeTruthy();
     expect(question.disabled).toBe(true);
 
     fireEvent.click(screen.getByRole('checkbox', { name: 'Enable recommendations' }));
+    selectSection('Career Navigator');
     fireEvent.change(question, { target: { value: 'Before profile save' } });
     fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
     expect(await screen.findByText('Opt-out guidance.')).toBeTruthy();
+    selectSection('My profile');
     fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
     await waitFor(() => expect(screen.queryByText('Opt-out guidance.')).toBeNull());
 
     fireEvent.click(screen.getByRole('checkbox', { name: 'Enable recommendations' }));
     expect(question.disabled).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
+    selectSection('Career Navigator');
     await waitFor(() => expect(screen.getByRole('link', { name: 'Enable recommendations in My profile' })).toBeTruthy());
     expect(question.disabled).toBe(true);
     expect(screen.getByRole('button', { name: 'Ask' }).disabled).toBe(true);
@@ -401,7 +550,7 @@ describe('Navigator conversations', () => {
       throw new Error(`Unexpected request: ${url}`);
     });
     vi.stubGlobal('fetch', fetch);
-    render(<App tabbed />);
+    render(<App />);
 
     await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Mentoring' }).checked).toBe(true));
     fireEvent.click(screen.getByRole('tab', { name: 'Career Navigator' }));
@@ -418,7 +567,9 @@ describe('Navigator conversations', () => {
 
     fireEvent.click(preference);
     expect(question.disabled).toBe(true);
+    selectSection('Career Navigator');
     expect(screen.getByText(/Save your changed recommendation preference/)).toBeTruthy();
+    selectSection('My profile');
     fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
     expect(await screen.findByText('Profile saved.')).toBeTruthy();
 
@@ -448,18 +599,20 @@ describe('Navigator conversations', () => {
     });
     vi.stubGlobal('fetch', fetch);
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    render(<App tabbed />);
+    render(<App />);
 
     fireEvent.click(await screen.findByRole('tab', { name: 'Recommendations' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Generate recommendations' }));
     const askButtons = await screen.findAllByRole('button', { name: 'Ask about this' });
     fireEvent.click(askButtons[0]);
     await waitFor(() => expect(screen.getByRole('tab', { name: 'Career Navigator' }).getAttribute('aria-selected')).toBe('true'));
+    expect(document.activeElement).toBe(screen.getByLabelText('Question'));
     fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
     expect(await screen.findByText('Recommendation answer.')).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Question'), { target: { value: 'A follow-up' } });
     fireEvent.click(screen.getByRole('button', { name: 'Change recommendation' }));
     await waitFor(() => expect(screen.getByRole('tab', { name: 'Recommendations' }).getAttribute('aria-selected')).toBe('true'));
+    expect(document.activeElement).toBe(screen.getByRole('tabpanel', { name: 'Recommendations' }));
     fireEvent.click(askButtons[1]);
     expect(confirm).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole('tab', { name: 'Career Navigator' }));
@@ -511,7 +664,7 @@ describe('Navigator conversations', () => {
       throw new Error(`Unexpected request: ${url}`);
     });
     vi.stubGlobal('fetch', fetch);
-    render(<App tabbed />);
+    render(<App />);
 
     fireEvent.click(await screen.findByRole('tab', { name: 'Career Navigator' }));
     fireEvent.change(screen.getByLabelText('Question'), { target: { value: 'What listings are available?' } });
@@ -548,9 +701,14 @@ describe('Navigator conversations', () => {
       explanation: 'A matching recommendation.',
       opportunity,
     }];
+    let lookupAttempts = 0;
     const fetch = initialFetch();
     fetch.mockImplementation((url, options = {}) => {
-      if (url.endsWith(`/opportunities/${opportunityId}`)) return Promise.resolve(jsonResponse(opportunity));
+      if (url.endsWith(`/opportunities/${opportunityId}`)) {
+        lookupAttempts += 1;
+        if (lookupAttempts === 1) return Promise.resolve(jsonResponse({ error: { message: 'Listing lookup failed.' } }, 503));
+        return Promise.resolve(jsonResponse(opportunity));
+      }
       if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: firstPage }));
       if (url.endsWith('/navigator/messages')) return Promise.resolve(jsonResponse({
         answer: 'This recommendation could be a fit.',
@@ -564,7 +722,7 @@ describe('Navigator conversations', () => {
       throw new Error(`Unexpected request: ${url}`);
     });
     vi.stubGlobal('fetch', fetch);
-    render(<App tabbed />);
+    render(<App />);
 
     fireEvent.click(await screen.findByRole('tab', { name: 'Recommendations' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Generate recommendations' }));
@@ -573,10 +731,49 @@ describe('Navigator conversations', () => {
 
     expect(await screen.findByRole('heading', { name: opportunity.title })).toBeTruthy();
     fireEvent.click(screen.getByRole('link', { name: 'View opportunity' }));
+    expect((await screen.findByRole('alert')).textContent).toContain('Listing lookup failed.');
+    expect(screen.getByRole('tab', { name: 'Career Navigator' }).getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(screen.getByRole('link', { name: 'View opportunity' }));
 
     await waitFor(() => expect(screen.getByRole('tab', { name: 'Opportunities' }).getAttribute('aria-selected')).toBe('true'));
     await waitFor(() => expect(document.activeElement.id).toBe(`opportunity-${opportunityId}`));
     expect(fetch).toHaveBeenCalledWith(`/api/v1/opportunities/${opportunityId}`, expect.any(Object));
+  });
+
+  it('ignores a pending listing lookup after switching away from and back to an identity', async () => {
+    const lookup = deferred();
+    const opportunity = {
+      id: 'outside-page', title: 'Outside page', description: 'A listing.',
+      category: 'project', status: 'open', required_skills: [],
+    };
+    const fetch = initialFetch();
+    fetch.mockImplementation((url, options = {}) => {
+      if (url.endsWith('/opportunities/outside-page')) return lookup.promise;
+      if (url.endsWith('/opportunities') || url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options') || url.endsWith('/opportunities/options')) return Promise.resolve(profileOptionsResponse());
+      if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
+      if (url.endsWith('/recommendations')) return Promise.resolve(jsonResponse({
+        items: [{ id: 'rec-1', rank: 1, explanation: 'A match.', opportunity }],
+      }));
+      if (url.endsWith('/navigator/messages')) return Promise.resolve(jsonResponse({
+        answer: 'Consider this listing.', referenced_opportunity_ids: ['outside-page'], escalation_suggested: false,
+      }));
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetch);
+    render(<App />);
+    await screen.findByRole('checkbox', { name: 'Mentoring' });
+    selectSection('Recommendations');
+    fireEvent.click(screen.getByRole('button', { name: 'Generate recommendations' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Ask about this' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
+    fireEvent.click(await screen.findByRole('link', { name: 'View opportunity' }));
+    const identity = screen.getByLabelText('Demo identity');
+    fireEvent.change(identity, { target: { value: 'admin' } });
+    fireEvent.change(identity, { target: { value: 'nurse' } });
+    await act(async () => lookup.resolve(jsonResponse(opportunity)));
+    expect(screen.getByRole('tab', { name: 'My profile' }).getAttribute('aria-selected')).toBe('true');
+    expect(document.getElementById('opportunity-outside-page')).toBeNull();
   });
 });
 

@@ -12,7 +12,7 @@ export default function ProfileView({
 }) {
   return (
     <section {...panelProps}>
-      <h2>My profile</h2>
+      <h2 id="heading-profile">My profile</h2>
 
       <p>Select any number of choices in each group.</p>
 

@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function SupportView({ panelProps, subject, setSubject, subjectRef, description, setDescription, api, run, refresh }) {
   return <section {...panelProps}>
-    <h2>Request human support</h2>
+    <h2 id="heading-support">Request human support</h2>
     <form onSubmit={event => { event.preventDefault(); run(async () => {
       await api('/support-requests', 'POST', { subject, description });
       setSubject(''); setDescription(''); await refresh();
