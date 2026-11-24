@@ -8,7 +8,7 @@ import os
 from datetime import datetime, timezone
 from functools import lru_cache
 
-from sqlalchemy import JSON, Boolean, DateTime, String, create_engine
+from sqlalchemy import JSON, Boolean, DateTime, String, UniqueConstraint, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 
@@ -31,6 +31,17 @@ class Profile(Base):
     availability: Mapped[list] = mapped_column(JSON, default=list)
     recommendations_opt_in: Mapped[bool] = mapped_column(Boolean, default=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class ProfileOption(Base):
+    """Store the curated selectable values displayed in nurse profiles."""
+    __tablename__ = "profile_options"
+    __table_args__ = (UniqueConstraint("category", "value", name="uq_profile_options_category_value"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    category: Mapped[str] = mapped_column(String(32))
+    value: Mapped[str] = mapped_column(String(200))
+    label: Mapped[str] = mapped_column(String(200))
+    sort_order: Mapped[int]
 
 
 class Opportunity(Base):

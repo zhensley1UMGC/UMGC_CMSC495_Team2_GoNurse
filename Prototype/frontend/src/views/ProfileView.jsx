@@ -1,9 +1,11 @@
 
 import React from 'react';
+import OptionCheckboxGroup from './OptionCheckboxGroup';
 
 export default function ProfileView({
   panelProps,
   profile,
+  profileOptions,
   setProfile,
   onSaveProfile,
   onRecommendationsOptOut,
@@ -12,27 +14,24 @@ export default function ProfileView({
     <section {...panelProps}>
       <h2>My profile</h2>
 
-      <p>
-        Separate items with commas. Example availability: weekday_morning.
-      </p>
+      <p>Select any number of choices in each group.</p>
 
       <form onSubmit={event => {
         event.preventDefault();
         onSaveProfile(profile);
       }}>
-        {['skills', 'interests', 'availability'].map(field => (
-          <label key={field}>
-            {field}
-            <input
-              value={profile[field]}
-              onChange={event =>
-                setProfile({
-                  ...profile,
-                  [field]: event.target.value,
-                })
-              }
-            />
-          </label>
+        {[
+          ['skills', 'Skills'],
+          ['interests', 'Interests'],
+          ['availability', 'Availability'],
+        ].map(([field, title]) => (
+          <OptionCheckboxGroup
+            key={field}
+            title={title}
+            options={profileOptions[field]}
+            values={profile[field]}
+            onChange={values => setProfile({ ...profile, [field]: values })}
+          />
         ))}
 
         <label className="check">

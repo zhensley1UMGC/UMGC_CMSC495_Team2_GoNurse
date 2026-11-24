@@ -153,6 +153,23 @@ existing passwords. Removing the volume with
 `docker compose --env-file docker/postgres/.env down -v` permanently deletes the
 local database data; do not use that command as routine shutdown.
 
+The Compose initializer also runs `20-profile-options.sql` after creating
+`gonurse_app`. It creates and seeds the read-only profile option catalog.
+PostgreSQL runs files in `/docker-entrypoint-initdb.d/` only when initializing
+an empty data directory; restarting with an existing volume does not rerun
+these hooks. To safely apply or refresh the catalog against an existing volume,
+run this from the repository root (it does not delete database data):
+
+```powershell
+docker compose --env-file docker/postgres/.env up -d --wait
+docker compose --env-file docker/postgres/.env exec --user postgres -T postgres psql --dbname gonurse_app --set=ON_ERROR_STOP=1 --file=/docker-entrypoint-initdb.d/20-profile-options.sql
+```
+
+The SQL uses an idempotent upsert, so rerunning it updates labels/order for
+known values without adding duplicates. The app role is granted read access.
+The same catalog supplies the nurse profile choices and the administrator's
+opportunity creation choices, so matching values use the same canonical strings.
+
 This is local-development tooling only. Keep the port loopback-bound and use
 synthetic data only; never use production, patient, or real employee data.
 

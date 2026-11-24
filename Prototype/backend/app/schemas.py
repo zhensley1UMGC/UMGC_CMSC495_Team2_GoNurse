@@ -125,3 +125,18 @@ class ProfileOutput(BaseModel):
     availability: list[str]
     recommendations_opt_in: bool
     updated_at: object
+
+
+class ProfileOptionItem(BaseModel):
+    """One canonical value and its display label in the profile catalog."""
+
+    value: str
+    label: str
+
+
+class ProfileOptionsOutput(BaseModel):
+    """Selectable profile values grouped by profile field."""
+
+    skills: list[ProfileOptionItem]
+    interests: list[ProfileOptionItem]
+    availability: list[ProfileOptionItem]

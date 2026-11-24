@@ -12,18 +12,31 @@ import RecommendationsView from './RecommendationsView';
 afterEach(cleanup);
 
 describe('ProfileView', () => {
+  const profileOptions = {
+    skills: [
+      { value: 'mentoring', label: 'Mentoring' },
+      { value: 'critical care', label: 'Critical care' },
+    ],
+    interests: [{ value: 'education', label: 'Education' }],
+    availability: [
+      { value: 'weekday_morning', label: 'Weekday mornings' },
+      { value: 'weekends', label: 'Weekends' },
+    ],
+  };
+
   it('passes the profile draft to the parent save handler', async () => {
     const onSaveProfile = vi.fn();
     const profile = {
-      skills: ' CPR, , mentoring ',
-      interests: ' leadership ',
-      availability: ' weekday_morning, ',
+      skills: ['mentoring'],
+      interests: ['education'],
+      availability: ['weekday_morning'],
       recommendations_opt_in: true,
     };
 
     render(<ProfileView
       panelProps={{}}
       profile={profile}
+      profileOptions={profileOptions}
       setProfile={vi.fn()}
       onSaveProfile={onSaveProfile}
       onRecommendationsOptOut={vi.fn()}
@@ -34,12 +47,13 @@ describe('ProfileView', () => {
   });
 
   it('immediately clears Navigator state when recommendations are unchecked', () => {
-    const profile = { skills: '', interests: '', availability: '', recommendations_opt_in: true };
+    const profile = { skills: [], interests: [], availability: [], recommendations_opt_in: true };
     const setProfile = vi.fn();
     const onRecommendationsOptOut = vi.fn();
     render(<ProfileView
       panelProps={{}}
       profile={profile}
+      profileOptions={profileOptions}
       setProfile={setProfile}
       onSaveProfile={vi.fn()}
       onRecommendationsOptOut={onRecommendationsOptOut}
@@ -50,9 +64,45 @@ describe('ProfileView', () => {
     expect(setProfile).toHaveBeenCalledWith({ ...profile, recommendations_opt_in: false });
     expect(onRecommendationsOptOut).toHaveBeenCalledOnce();
   });
+
+  it('renders accessible checkbox groups and independently toggles array values', () => {
+    let profile = { skills: [], interests: [], availability: [], recommendations_opt_in: false };
+    let view;
+    const renderView = () => <ProfileView
+        panelProps={{}}
+        profile={profile}
+        profileOptions={profileOptions}
+        setProfile={next => {
+          profile = next;
+          view.rerender(renderView());
+        }}
+        onSaveProfile={vi.fn()}
+        onRecommendationsOptOut={vi.fn()}
+      />;
+    view = render(renderView());
+
+    expect(screen.getByRole('group', { name: 'Skills' })).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Interests' })).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Availability' })).toBeTruthy();
+    const skills = within(screen.getByRole('group', { name: 'Skills' }));
+    fireEvent.click(skills.getByRole('checkbox', { name: 'Mentoring' }));
+    expect(profile.skills).toEqual(['mentoring']);
+    fireEvent.click(skills.getByRole('checkbox', { name: 'Critical care' }));
+    expect(profile.skills).toEqual(['mentoring', 'critical care']);
+    fireEvent.click(skills.getByRole('checkbox', { name: 'Mentoring' }));
+    expect(profile.skills).toEqual(['critical care']);
+    fireEvent.click(within(screen.getByRole('group', { name: 'Availability' }))
+      .getByRole('checkbox', { name: 'Weekends' }));
+    expect(profile.availability).toEqual(['weekends']);
+  });
 });
 
 describe('OpportunitiesView', () => {
+  const optionCatalog = {
+    skills: [{ value: 'mentoring', label: 'Mentoring' }, { value: 'critical care', label: 'Critical care' }],
+    interests: [{ value: 'education', label: 'Education' }],
+    availability: [{ value: 'weekday_morning', label: 'Weekday mornings' }],
+  };
   const opportunity = {
     id: 7,
     title: 'Mentoring',
@@ -97,6 +147,7 @@ describe('OpportunitiesView', () => {
         panelProps={{}}
         user="admin"
         opportunities={[opportunity]}
+        optionCatalog={optionCatalog}
         api={api}
         run={run}
         refresh={refresh}
@@ -125,6 +176,43 @@ describe('OpportunitiesView', () => {
       expect.any(Function),
       'Listing status updated.'
     );
+  });
+
+  it('creates a listing with selected canonical values and resets the form', async () => {
+    const api = vi.fn().mockResolvedValue({});
+    const refresh = vi.fn().mockResolvedValue();
+    const run = vi.fn(action => action());
+    render(<OpportunitiesView panelProps={{}} user="admin" opportunities={[]}
+      optionCatalog={optionCatalog} api={api} run={run} refresh={refresh} />);
+
+    fireEvent.change(screen.getByLabelText('title'), { target: { value: 'New project' } });
+    fireEvent.change(screen.getByLabelText('description'), { target: { value: 'Help colleagues' } });
+    const skills = within(screen.getByRole('group', { name: 'Required skills' }));
+    fireEvent.click(skills.getByRole('checkbox', { name: 'Mentoring' }));
+    fireEvent.click(skills.getByRole('checkbox', { name: 'Critical care' }));
+    fireEvent.click(skills.getByRole('checkbox', { name: 'Mentoring' }));
+    fireEvent.click(within(screen.getByRole('group', { name: 'Interests' }))
+      .getByRole('checkbox', { name: 'Education' }));
+    fireEvent.click(within(screen.getByRole('group', { name: 'Availability' }))
+      .getByRole('checkbox', { name: 'Weekday mornings' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create listing' }));
+
+    await waitFor(() => expect(api).toHaveBeenCalledWith('/opportunities', 'POST', {
+      title: 'New project',
+      description: 'Help colleagues',
+      category: 'project',
+      required_skills: ['critical care'],
+      interests: ['education'],
+      availability: ['weekday_morning'],
+      status: 'open',
+    }));
+    await waitFor(() => expect(refresh).toHaveBeenCalledOnce());
+    expect(skills.getByRole('checkbox', { name: 'Critical care' }).checked).toBe(false);
+  });
+
+  it('prevents creating a listing until the catalog has loaded', () => {
+    render(<OpportunitiesView panelProps={{}} user="admin" opportunities={[]} optionCatalog={null} />);
+    expect(screen.getByRole('button', { name: 'Create listing' }).disabled).toBe(true);
   });
 });
 

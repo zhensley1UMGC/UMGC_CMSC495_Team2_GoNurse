@@ -8,8 +8,9 @@ from sqlalchemy.orm import Session
 from .. import database as db
 from ..common import OPPORTUNITY_FIELDS, audit, public
 from ..identity import Actor, actor, require
-from ..schemas import OpportunityInput
+from ..schemas import OpportunityInput, ProfileOptionsOutput
 from ..services.opportunities import visible_opportunities, visible_opportunity
+from ..services.profile_options import get_options
 
 router = APIRouter(prefix="/api/v1")
 
@@ -20,6 +21,13 @@ def list_opportunities(limit: int = Query(20, ge=1, le=100), offset: int = Query
     """Return a paginated, role-filtered list of opportunities."""
     items = visible_opportunities(session, current, limit, offset)
     return {"items": [public(item, OPPORTUNITY_FIELDS) for item in items], "limit": limit, "offset": offset}
+
+
+@router.get("/opportunities/options", response_model=ProfileOptionsOutput)
+def get_opportunity_options(current: Actor = Depends(actor), session: Session = Depends(db.get_db)):
+    """Return the catalog used when administrators create opportunities."""
+    require(current, "admin")
+    return get_options(session)
 
 
 @router.get("/opportunities/{opportunity_id}")
