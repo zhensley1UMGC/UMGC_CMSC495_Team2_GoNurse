@@ -6,15 +6,15 @@ import RecommendationsView from './views/RecommendationsView';
 import NavigatorView from './views/NavigatorView';
 import SupportView from './views/SupportView';
 import SupportRequestsView from './views/SupportRequestsView';
-import { split } from './formUtils';
 import './style.css';
 
 const emptyProfile = {
-  skills: '',
-  interests: '',
-  availability: '',
+  skills: [],
+  interests: [],
+  availability: [],
   recommendations_opt_in: false,
 };
+const emptyProfileOptions = { skills: [], interests: [], availability: [] };
 const MAX_HISTORY_MESSAGES = 10;
 const MAX_HISTORY_CODE_POINTS = 25000;
 const PYTHON_WHITESPACE = '\u0009-\u000d\u001c-\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000';
@@ -60,6 +60,8 @@ export default function App({ tabbed = false }) {
   const navigatorRequestId = useRef(0);
 
   const [profile, setProfile] = useState(emptyProfile);
+  const [profileOptions, setProfileOptions] = useState(emptyProfileOptions);
+  const [opportunityOptions, setOpportunityOptions] = useState(null);
   const [savedOptIn, setSavedOptIn] = useState(false);
   const [opportunities, setOpportunities] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
@@ -194,9 +196,9 @@ export default function App({ tabbed = false }) {
     setNotice('');
     try {
       await api('/profile', 'PUT', {
-        skills: split(profileDraft.skills),
-        interests: split(profileDraft.interests),
-        availability: split(profileDraft.availability),
+        skills: profileDraft.skills,
+        interests: profileDraft.interests,
+        availability: profileDraft.availability,
         recommendations_opt_in: profileDraft.recommendations_opt_in,
       });
       if (requestId !== profileRequestId.current || identity !== userRef.current) return;
@@ -352,6 +354,8 @@ export default function App({ tabbed = false }) {
     recommendationRequestId.current += 1;
     navigatorRequestId.current += 1;
     setProfile(emptyProfile);
+    setProfileOptions(emptyProfileOptions);
+    setOpportunityOptions(null);
     setSavedOptIn(false);
     setRecommendations([]);
     setRecommendationsGenerated(false);
@@ -371,8 +375,13 @@ export default function App({ tabbed = false }) {
         ]);
 
         let selectedProfile = emptyProfile;
+        let selectedOptions = emptyProfileOptions;
+        let selectedOpportunityOptions = null;
 
-        if (user !== 'admin') {
+        if (user === 'admin') {
+          selectedOpportunityOptions = await api('/opportunities/options');
+        } else {
+          selectedOptions = await api('/profile/options');
           // A missing profile is expected for a new demo nurse.
           const result = await fetch('/api/v1/profile', {
             headers: { 'X-Demo-User': user },
@@ -389,9 +398,9 @@ export default function App({ tabbed = false }) {
 
             selectedProfile = {
               ...data,
-              skills: data.skills.join(', '),
-              interests: data.interests.join(', '),
-              availability: data.availability.join(', '),
+              skills: data.skills.filter(value => selectedOptions.skills.some(option => option.value === value)),
+              interests: data.interests.filter(value => selectedOptions.interests.some(option => option.value === value)),
+              availability: data.availability.filter(value => selectedOptions.availability.some(option => option.value === value)),
             };
           }
         }
@@ -400,6 +409,8 @@ export default function App({ tabbed = false }) {
           setOpportunities(list.items);
           setRequests(support.items);
           setProfile(selectedProfile);
+          setProfileOptions(selectedOptions);
+          setOpportunityOptions(selectedOpportunityOptions);
           setSavedOptIn(selectedProfile.recommendations_opt_in);
         }
       } catch (error) {
@@ -461,6 +472,7 @@ export default function App({ tabbed = false }) {
               setProfileSettingFocusRequested(false);
               setSupportFocusRequested(false);
               setSavedOptIn(false);
+              setOpportunityOptions(null);
               userRef.current = event.target.value;
               setUser(event.target.value);
               setActiveTab(event.target.value === 'admin' ? 'opportunities' : 'profile');
@@ -525,6 +537,7 @@ export default function App({ tabbed = false }) {
           <ProfileView
             panelProps={panelProps('profile')}
             profile={profile}
+            profileOptions={profileOptions}
             setProfile={updateProfile}
             onSaveProfile={saveProfile}
             onRecommendationsOptOut={clearConversation}
@@ -535,6 +548,7 @@ export default function App({ tabbed = false }) {
           panelProps={panelProps('opportunities')}
           user={user}
           opportunities={opportunities}
+          optionCatalog={opportunityOptions}
           api={api}
           run={run}
           refresh={refresh}

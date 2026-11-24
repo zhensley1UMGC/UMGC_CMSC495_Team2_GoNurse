@@ -20,10 +20,19 @@ function profileResponse(recommendationsOptIn = true) {
   });
 }
 
+function profileOptionsResponse() {
+  return jsonResponse({
+    skills: [{ value: 'mentoring', label: 'Mentoring' }, { value: 'critical care', label: 'Critical care' }],
+    interests: [{ value: 'education', label: 'Education' }],
+    availability: [{ value: 'weekday_morning', label: 'Weekday mornings' }],
+  });
+}
+
 function initialFetch() {
   return vi.fn((url, options = {}) => {
     if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
     if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+    if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
     if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
     throw new Error(`Unexpected request: ${url}`);
   });
@@ -55,9 +64,11 @@ describe('Navigator conversations', () => {
       }
       if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
       if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
       if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
       throw new Error(`Unexpected request: ${url}`);
     });
+
     vi.stubGlobal('fetch', fetch);
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
     render(<App />);
@@ -129,6 +140,7 @@ describe('Navigator conversations', () => {
         }
         if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
         if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+        if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
         if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
         throw new Error(`Unexpected request: ${url}`);
       });
@@ -175,12 +187,13 @@ describe('Navigator conversations', () => {
         if (url.endsWith('/recommendations')) return Promise.resolve(jsonResponse({ items: recommendationItems }));
         if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
         if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+        if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
         if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
         throw new Error(`Unexpected request: ${url}`);
       });
       vi.stubGlobal('fetch', fetch);
       render(<App tabbed={tabbed} />);
-      await waitFor(() => expect(screen.getByLabelText('skills').value).toBe('mentoring'));
+      await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Mentoring' }).checked).toBe(true));
 
       if (tabbed) fireEvent.click(screen.getByRole('tab', { name: 'Request human support' }));
       const subject = screen.getByLabelText('Subject');
@@ -248,6 +261,7 @@ describe('Navigator conversations', () => {
       }
       if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
       if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
       if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
       throw new Error(`Unexpected request: ${url}`);
     });
@@ -291,6 +305,7 @@ describe('Navigator conversations', () => {
       }
       if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
       if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
       if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
       throw new Error(`Unexpected request: ${url}`);
     });
@@ -336,6 +351,7 @@ describe('Navigator conversations', () => {
       }
       if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
       if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
       if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
       throw new Error(`Unexpected request: ${url}`);
     });
@@ -378,6 +394,7 @@ describe('Navigator conversations', () => {
     const fetch = initialFetch();
     fetch.mockImplementation((url, options = {}) => {
       if (url.endsWith('/profile') && options.method === 'PUT') return Promise.resolve(profileResponse(true));
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
       if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse(false));
       if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
       if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
@@ -386,7 +403,7 @@ describe('Navigator conversations', () => {
     vi.stubGlobal('fetch', fetch);
     render(<App tabbed />);
 
-    await waitFor(() => expect(screen.getByLabelText('skills').value).toBe('mentoring'));
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Mentoring' }).checked).toBe(true));
     fireEvent.click(screen.getByRole('tab', { name: 'Career Navigator' }));
     const question = screen.getByLabelText('Question');
     expect(question.disabled).toBe(true);
@@ -425,6 +442,7 @@ describe('Navigator conversations', () => {
       if (url.endsWith('/recommendations')) return Promise.resolve(jsonResponse({ items: recommendationItems }));
       if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
       if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
       if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
       throw new Error(`Unexpected request: ${url}`);
     });
@@ -488,6 +506,7 @@ describe('Navigator conversations', () => {
         escalation_suggested: false,
       }));
       if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
       if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
       throw new Error(`Unexpected request: ${url}`);
     });
@@ -540,6 +559,7 @@ describe('Navigator conversations', () => {
       }));
       if (url.endsWith('/recommendations')) return Promise.resolve(jsonResponse({ items: recommendationItems }));
       if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
       if (url.endsWith('/profile') && options.method === undefined) return Promise.resolve(profileResponse());
       throw new Error(`Unexpected request: ${url}`);
     });
@@ -557,5 +577,99 @@ describe('Navigator conversations', () => {
     await waitFor(() => expect(screen.getByRole('tab', { name: 'Opportunities' }).getAttribute('aria-selected')).toBe('true'));
     await waitFor(() => expect(document.activeElement.id).toBe(`opportunity-${opportunityId}`));
     expect(fetch).toHaveBeenCalledWith(`/api/v1/opportunities/${opportunityId}`, expect.any(Object));
+  });
+});
+
+describe('Profile options integration', () => {
+  it('loads the opportunity catalog for an administrator', async () => {
+    const fetch = vi.fn((url) => {
+      if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options') || url.endsWith('/opportunities/options')) {
+        return Promise.resolve(profileOptionsResponse());
+      }
+      if (url.endsWith('/profile')) return Promise.resolve(profileResponse());
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetch);
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Demo identity'), { target: { value: 'admin' } });
+
+    const group = await screen.findByRole('group', { name: 'Required skills' });
+    expect(within(group).getByRole('checkbox', { name: 'Critical care' })).toBeTruthy();
+    expect(fetch).toHaveBeenCalledWith('/api/v1/opportunities/options', expect.objectContaining({
+      headers: expect.objectContaining({ 'X-Demo-User': 'admin' }),
+    }));
+    expect(screen.getByRole('button', { name: 'Create listing' }).disabled).toBe(false);
+  });
+
+  it('does not enable listing creation when the opportunity catalog fails to load', async () => {
+    const fetch = vi.fn((url) => {
+      if (url.endsWith('/opportunities') || url.endsWith('/support-requests')) {
+        return Promise.resolve(jsonResponse({ items: [] }));
+      }
+      if (url.endsWith('/opportunities/options')) {
+        return Promise.resolve(jsonResponse({ error: { message: 'Catalog unavailable.' } }, 503));
+      }
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
+      if (url.endsWith('/profile')) return Promise.resolve(profileResponse());
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetch);
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Demo identity'), { target: { value: 'admin' } });
+
+    expect((await screen.findByRole('alert')).textContent).toContain('Catalog unavailable.');
+    expect(screen.getByRole('button', { name: 'Create listing' }).disabled).toBe(true);
+  });
+
+  it('shows catalog load errors instead of substituting local choices', async () => {
+    const fetch = vi.fn((url) => {
+      if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options')) return Promise.resolve(jsonResponse(
+        { error: { message: 'Catalog unavailable.' } }, 503,
+      ));
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetch);
+    render(<App />);
+
+    expect((await screen.findByRole('alert')).textContent).toContain('Catalog unavailable.');
+    expect(screen.queryByRole('checkbox', { name: 'Mentoring' })).toBeNull();
+    expect(fetch.mock.calls.some(([url]) => url.endsWith('/profile'))).toBe(false);
+  });
+
+  it('loads catalog values, ignores legacy values, and saves only selected arrays', async () => {
+    const fetch = vi.fn((url, options = {}) => {
+      if (url.endsWith('/opportunities')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/support-requests')) return Promise.resolve(jsonResponse({ items: [] }));
+      if (url.endsWith('/profile/options')) return Promise.resolve(profileOptionsResponse());
+      if (url.endsWith('/profile') && options.method === 'PUT') return Promise.resolve(jsonResponse({}));
+      if (url.endsWith('/profile')) return Promise.resolve(jsonResponse({
+        skills: ['mentoring', 'legacy skill'],
+        interests: ['education'],
+        availability: ['weekday_morning'],
+        recommendations_opt_in: true,
+      }));
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetch);
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Mentoring' }).checked).toBe(true));
+    expect(screen.queryByRole('checkbox', { name: 'legacy skill' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
+
+    await waitFor(() => {
+      const save = fetch.mock.calls.find(([url, options]) =>
+        url.endsWith('/profile') && options.method === 'PUT');
+      expect(JSON.parse(save[1].body)).toEqual({
+        skills: ['mentoring'],
+        interests: ['education'],
+        availability: ['weekday_morning'],
+        recommendations_opt_in: true,
+      });
+    });
   });
 });

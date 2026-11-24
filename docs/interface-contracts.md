@@ -43,7 +43,8 @@ implemented capabilities. Use synthetic data only.
 - Text fields are stripped of surrounding whitespace and reject blank values.
   String-array entries reject whitespace-only labels; comparison trims and
   case-folds labels. Arrays may be empty and contain at most 100 entries.
-  Availability labels remain free-form strings, not a controlled enum.
+  Profile API arrays remain free-form strings; the UI presents the selectable
+  values returned by the profile options catalog.
 - `PUT` replaces all editable fields; it is not a partial update. Omit
   server-managed fields such as IDs and timestamps from write bodies.
 - Browser CORS allows `http://localhost:5173` and `http://127.0.0.1:5173`, methods
@@ -53,6 +54,8 @@ implemented capabilities. Use synthetic data only.
 
 | Method and path | Role | Success |
 |---|---|---|
+| `GET /api/v1/profile/options` | Nurse | `200` grouped selectable profile values |
+| `GET /api/v1/opportunities/options` | Admin | `200` grouped selectable opportunity values |
 | `GET /api/v1/profile` | Nurse | `200` profile; `404` before first save |
 | `PUT /api/v1/profile` | Nurse | `201` on creation; `200` on replacement |
 | `GET /api/v1/opportunities` | Either | `200` paginated list |
@@ -71,6 +74,25 @@ There are no separate `/admin` routes or implemented `GET /recommendations`
 route. Recommendation generation is a state-changing `POST` that stores results.
 
 ## 3. Nurse profile
+
+`GET /api/v1/profile/options` returns the curated, read-only catalog used by
+the profile editor. A saved profile is not required; administrators receive
+`403`. The response contains canonical values and display labels, grouped in
+stable catalog order:
+
+```json
+{
+  "skills": [
+    {"value": "mentoring", "label": "Mentoring"},
+    {"value": "pediatric nursing", "label": "Pediatric nursing"}
+  ],
+  "interests": [{"value": "education", "label": "Education"}],
+  "availability": [{"value": "weekday_morning", "label": "Weekday mornings"}]
+}
+```
+
+The catalog defines selectable UI choices; it does not change the profile
+schema or validate every profile value accepted by the API.
 
 `GET /api/v1/profile` returns the selected nurse's profile. A new nurse has no
 saved profile, so the endpoint returns `404`; the client initializes an empty
@@ -107,6 +129,11 @@ Navigator explanations of saved recommendations. It does not delete saved
 results, revoke already delivered client data, or currently block feedback.
 
 ## 4. Opportunities
+
+`GET /api/v1/opportunities/options` returns the same grouped catalog as
+`GET /api/v1/profile/options`, for the administrator's create form. Nurses
+receive `403`. The opportunity API continues to accept string arrays and does
+not validate membership in the catalog.
 
 ### List and detail
 

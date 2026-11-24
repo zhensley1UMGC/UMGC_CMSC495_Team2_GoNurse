@@ -98,6 +98,44 @@ def test_profile_opt_in_eligibility_and_feedback_ownership(client, navigator_pro
     assert len(navigator_provider.calls) == call_count
 
 
+def test_profile_options_are_grouped_ordered_and_nurse_only(client):
+    """Expose the curated catalog to nurses without requiring a profile."""
+    with Session(database.get_engine()) as session:
+        session.add_all([
+            database.ProfileOption(category="skills", value="later", label="Later", sort_order=2),
+            database.ProfileOption(category="skills", value="first", label="First", sort_order=1),
+            database.ProfileOption(category="interests", value="education", label="Education", sort_order=1),
+            database.ProfileOption(category="availability", value="weekends", label="Weekends", sort_order=1),
+        ])
+        session.commit()
+
+    response = client.get("/api/v1/profile/options", headers=headers())
+    assert response.status_code == 200
+    assert response.json() == {
+        "skills": [
+            {"value": "first", "label": "First"},
+            {"value": "later", "label": "Later"},
+        ],
+        "interests": [{"value": "education", "label": "Education"}],
+        "availability": [{"value": "weekends", "label": "Weekends"}],
+    }
+    assert client.get("/api/v1/profile/options", headers=headers("admin")).status_code == 403
+    admin_options = client.get("/api/v1/opportunities/options", headers=headers("admin"))
+    assert admin_options.status_code == 200
+    assert admin_options.json() == response.json()
+    assert client.get("/api/v1/opportunities/options", headers=headers()).status_code == 403
+    assert client.get("/api/v1/opportunities/options").status_code == 401
+
+
+def test_profile_write_keeps_string_array_contract(client):
+    payload = profile(skills=["mentoring", "critical care"], availability=["weekends", "flexible"])
+    response = client.put("/api/v1/profile", json=payload, headers=headers())
+    assert response.status_code == 201
+    assert response.json()["skills"] == payload["skills"]
+    assert response.json()["availability"] == payload["availability"]
+    assert response.json()["recommendations_opt_in"] is True
+
+
 def test_schedule_empty_requirements_and_open_status(client):
     """Exercise unrestricted schedules and role-based listing visibility."""
     assert client.put("/api/v1/profile", json=profile(skills=["pediatric nursing"], availability=["night"]), headers=headers()).status_code == 201

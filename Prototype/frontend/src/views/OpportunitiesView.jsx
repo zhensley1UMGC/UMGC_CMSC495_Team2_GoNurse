@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { split } from '../formUtils';
+import OptionCheckboxGroup from './OptionCheckboxGroup';
 
-const emptyDraft = { title: '', description: '', category: 'project', required_skills: '', interests: '', availability: '' };
+const emptyDraft = { title: '', description: '', category: 'project', required_skills: [], interests: [], availability: [] };
 
-export default function OpportunitiesView({ panelProps, user, opportunities, api, run, refresh }) {
+export default function OpportunitiesView({ panelProps, user, opportunities, optionCatalog, api, run, refresh }) {
   const [draft, setDraft] = useState(emptyDraft);
 
   return <section {...panelProps}>
@@ -16,15 +16,29 @@ export default function OpportunitiesView({ panelProps, user, opportunities, api
         await refresh();
       }, 'Listing status updated.')}>{item.status === 'open' ? 'Close listing' : 'Reopen listing'}</button></div>}
     </article>)}
-    {user === 'admin' && <form onSubmit={event => { event.preventDefault(); run(async () => {
-      await api('/opportunities', 'POST', { ...draft, required_skills: split(draft.required_skills), interests: split(draft.interests), availability: split(draft.availability), status: 'open' });
+    {user === 'admin' && <form onSubmit={event => { event.preventDefault(); if (!optionCatalog) return; run(async () => {
+      await api('/opportunities', 'POST', { ...draft, status: 'open' });
       setDraft(emptyDraft);
       await refresh();
     }, 'Opportunity created.'); }}>
       <h3>Create opportunity</h3>
-      {['title', 'description', 'required_skills', 'interests', 'availability'].map(field => <label key={field}>{field.replace('_', ' ')}<input required={field === 'title' || field === 'description'} value={draft[field]} onChange={event => setDraft({ ...draft, [field]: event.target.value })} /></label>)}
+      {['title', 'description'].map(field => <label key={field}>{field}<input required value={draft[field]} onChange={event => setDraft({ ...draft, [field]: event.target.value })} /></label>)}
       <label>Category<select value={draft.category} onChange={event => setDraft({ ...draft, category: event.target.value })}><option>project</option><option>committee</option><option>mentoring</option><option>professional_development</option></select></label>
-      <button>Create listing</button>
+      {optionCatalog && <>
+        <p>Select any number of choices in each group.</p>
+        {[
+          ['required_skills', 'skills', 'Required skills'],
+          ['interests', 'interests', 'Interests'],
+          ['availability', 'availability', 'Availability'],
+        ].map(([field, category, title]) => <OptionCheckboxGroup
+          key={field}
+          title={title}
+          options={optionCatalog[category]}
+          values={draft[field]}
+          onChange={values => setDraft({ ...draft, [field]: values })}
+        />)}
+      </>}
+      <button disabled={!optionCatalog}>Create listing</button>
     </form>}
   </section>;
 }

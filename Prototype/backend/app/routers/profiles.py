@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from .. import database as db
 from ..common import PROFILE_FIELDS, audit, own_profile, public
 from ..identity import Actor, actor, require
-from ..schemas import ProfileInput, ProfileOutput
+from ..schemas import ProfileInput, ProfileOptionsOutput, ProfileOutput
+from ..services.profile_options import get_options
 
 router = APIRouter(prefix="/api/v1")
 
@@ -16,6 +17,13 @@ router = APIRouter(prefix="/api/v1")
 def get_profile(current: Actor = Depends(actor), session: Session = Depends(db.get_db)):
     """Return the nurse's approved profile and opt-in status."""
     return public(own_profile(session, current), PROFILE_FIELDS)
+
+
+@router.get("/profile/options", response_model=ProfileOptionsOutput)
+def get_profile_options(current: Actor = Depends(actor), session: Session = Depends(db.get_db)):
+    """Return the curated profile values available to nurses."""
+    require(current, "nurse")
+    return get_options(session)
 
 
 @router.put("/profile")
