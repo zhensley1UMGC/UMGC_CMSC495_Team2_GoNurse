@@ -64,8 +64,6 @@ def _benchmark_settings() -> dict[str, str]:
             if value is None:
                 raise EmbeddingConfigurationError(f"The {name} setting in .env must have a value.")
             settings[name] = value
-    if "DATABASE_URL" in os.environ:
-        settings["DATABASE_URL"] = os.environ["DATABASE_URL"]
     return settings
 
 
@@ -220,7 +218,7 @@ def run() -> int:
     except EmbeddingConfigurationError as error:
         embedding_skip = str(error)
 
-    database_url = settings.get("GONURSE_BENCHMARK_DATABASE_URL", settings.get("DATABASE_URL"))
+    database_url = settings.get("GONURSE_BENCHMARK_DATABASE_URL")
     allow_schema_create = settings.get("GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE") == "YES"
     if embedding_skip is None and not database_url:
         embedding_skip = "Set GONURSE_BENCHMARK_DATABASE_URL to a dedicated benchmark database."

@@ -76,7 +76,13 @@ def test_benchmark_dotenv_settings_and_process_precedence(monkeypatch, tmp_path)
     monkeypatch.setenv("DATABASE_URL", "legacy-process-database")
     settings = benchmark_run._benchmark_settings()
     assert settings["GONURSE_BENCHMARK_DATABASE_URL"] == "process-database"
-    assert settings["DATABASE_URL"] == "legacy-process-database"
+    assert "DATABASE_URL" not in settings
+
+    monkeypatch.delenv("GONURSE_BENCHMARK_DATABASE_URL")
+    env_path.write_text("DATABASE_URL=postgresql+psycopg://application\n", encoding="utf-8")
+    settings = benchmark_run._benchmark_settings()
+    assert "GONURSE_BENCHMARK_DATABASE_URL" not in settings
+    assert "DATABASE_URL" not in settings
 
 
 def test_benchmark_dotenv_invalid_or_unreadable_is_explicit(monkeypatch, tmp_path):

@@ -139,10 +139,9 @@ and never runs `CREATE EXTENSION`. It does not inspect, create, migrate, or
 query application tables.
 
 Set `GONURSE_BENCHMARK_DATABASE_URL` in `.env` or the process environment to
-the dedicated database's `postgresql+psycopg://` connection URL. For backward
-compatibility, process `DATABASE_URL` is used only when
-`GONURSE_BENCHMARK_DATABASE_URL` is absent; `DATABASE_URL` in `.env` is not
-used by the benchmark. Set `GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE=YES` only
+the dedicated database's `postgresql+psycopg://` connection URL. The benchmark
+does not fall back to `DATABASE_URL`, whether it is set in the process
+environment or `.env`. Set `GONURSE_BENCHMARK_ALLOW_SCHEMA_CREATE=YES` only
 after confirming the target is dedicated and benchmark schema creation is
 permitted. The runner prints a
 warning before connecting. It creates a UUID-named `rankbench_*` schema with
