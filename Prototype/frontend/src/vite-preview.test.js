@@ -15,7 +15,6 @@ beforeAll(async () => {
   directory = await mkdtemp(join(tmpdir(), 'gonurse-preview-'));
   await mkdir(join(directory, 'dist'));
   await writeFile(join(directory, 'dist', 'index.html'), 'main entry');
-  await writeFile(join(directory, 'dist', 'tabbed.html'), 'tabbed entry');
   backend = createServer((request, response) => {
     response.writeHead(200, { 'content-type': 'application/json' });
     response.end(JSON.stringify({ path: request.url }));
@@ -42,8 +41,7 @@ afterAll(async () => {
   if (directory) await rm(directory, { recursive: true, force: true });
 });
 
-it('serves both built entry points and forwards API requests', async () => {
+it('serves the main entry point and forwards API requests', async () => {
   expect(await (await fetch(`${origin}/`)).text()).toBe('main entry');
-  expect(await (await fetch(`${origin}/tabbed.html`)).text()).toBe('tabbed entry');
   expect(await (await fetch(`${origin}/api/v1/profile`)).json()).toEqual({ path: '/api/v1/profile' });
 });

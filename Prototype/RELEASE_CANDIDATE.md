@@ -59,8 +59,7 @@ npm ci
 npm exec -- vite preview --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-Open `http://127.0.0.1:5173/` or
-`http://127.0.0.1:5173/tabbed.html`. Preview serves the packaged build and
+Open `http://127.0.0.1:5173/`. Preview serves the packaged build and
 forwards `/api` requests to the local backend. No frontend rebuild is needed.
 Stop each server with Ctrl+C.
 

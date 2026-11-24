@@ -36,9 +36,8 @@ extensions rather than initial requirements.
 The [local prototype](Prototype/README.md) demonstrates profiles, opportunity
 discovery, recommendation feedback, Career Navigator, and support requests
 using synthetic data. It includes a React interface, FastAPI endpoints, and
-PostgreSQL storage.
-An alternative [tabbed prototype](Prototype/README.md) presents the same
-sections individually while leaving the original grid view available.
+PostgreSQL storage. The interface displays one section at a time, using tabs
+on wider screens and a section selector on narrow screens.
 
 **Important limitations:**
 

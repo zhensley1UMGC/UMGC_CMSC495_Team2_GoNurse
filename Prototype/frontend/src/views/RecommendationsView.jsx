@@ -12,7 +12,7 @@ export default function RecommendationsView({
 }) {
   return (
     <section {...panelProps}>
-      <h2>Recommendations</h2>
+      <h2 id="heading-recommendations">Recommendations</h2>
 
       <button type="button" onClick={onGenerate}>
         Generate recommendations

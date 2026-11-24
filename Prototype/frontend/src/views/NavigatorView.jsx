@@ -45,6 +45,7 @@ function OpportunityReferences({ ids, opportunities, onViewOpportunity }) {
 
 export default function NavigatorView({
   panelProps,
+  questionRef,
   chat,
   setChat,
   recommendationId,
@@ -73,7 +74,7 @@ export default function NavigatorView({
 
   return (
     <section {...panelProps}>
-      <h2>Career Navigator</h2>
+      <h2 id="heading-navigator">Career Navigator</h2>
       <p>
         AI-assisted career guidance uses your profile and current listings. Turn
         on recommendations in My profile to use AI guidance, including
@@ -190,6 +191,7 @@ export default function NavigatorView({
         <label>
           Question
           <textarea
+            ref={questionRef}
             required
             value={chat}
             disabled={disabled}

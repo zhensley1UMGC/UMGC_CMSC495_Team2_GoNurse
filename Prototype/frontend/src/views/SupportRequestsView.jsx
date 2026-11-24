@@ -4,7 +4,7 @@ export default function SupportRequestsView({ panelProps, user, requests, api, r
   const [response, setResponse] = useState({});
 
   return <section {...panelProps}>
-    <h2>{user === 'admin' ? 'Support request review' : 'My support requests'}</h2>
+    <h2 id="heading-requests">{user === 'admin' ? 'Support request review' : 'My support requests'}</h2>
     {requests.length === 0 && <p>No support requests.</p>}
     {requests.map(item => <article key={item.id}><h3>{item.subject}</h3><p>{item.description}</p><p>Status: {item.status}</p>
       {item.response && <p>Administrator response: {item.response}</p>}
